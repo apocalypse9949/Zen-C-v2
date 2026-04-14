@@ -1,0 +1,3 @@
+## 2024-05-18 - Optimized String Construction in AST Node Printer
+**Learning:** Found O(n²) string building bottlenecks inside `ast_to_string_recursive` in `src/parser/parser_utils.c`. The compiler frequently used `strcat` and `strlen` repeatedly inside loops for constructing string representations of `NODE_EXPR_CALL` and `NODE_EXPR_STRUCT_INIT` AST nodes. In C, repeated `strlen`/`strcat` loops cause performance degradation, particularly in deeply nested AST trees where this function is called recursively.
+**Action:** Replaced loop-based `strcat` with manual `curr_len` tracking and `memcpy`, reducing loop iterations for string building from O(n²) to O(n). Always prefer maintaining a length variable to avoid repeated `strlen` calls.
