@@ -1,0 +1,3 @@
+## 2024-05-19 - String parsing bottleneck
+**Learning:** In the `parse_array_literal` and `parse_tuple_literal` compiler code, string representations were being built using `strlen`, `strcat`, and `strncat` within a `while(1)` loop, resulting in a classic Schlemiel the Painter's algorithm with O(n²) performance, especially bad for large literal sequences. Using an `if` for resizing could also cause overflows.
+**Action:** Replace `strcat`/`strncat` with explicit `memcpy` calls and use a continuously updated `curr_len` tracker to ensure O(N) performance. Also, use a `while` loop for resizing bounds instead of an `if` to ensure capacity doubles properly.
