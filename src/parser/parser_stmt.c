@@ -12,6 +12,7 @@
 #include "../zen/zen_facts.h"
 #include "zprep_plugin.h"
 #include "../codegen/codegen.h"
+#include "../utils/cmd.h"
 #include "analysis/move_check.h"
 
 char *curr_func_ret = NULL;
@@ -4446,8 +4447,9 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
 
     free(wrapped_code);
 
-    char filename[64];
-    sprintf(filename, "_tmp_comptime_%d.c", rand());
+    char filename[MAX_PATH_LEN];
+    snprintf(filename, sizeof(filename), "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(),
+             z_get_pid(), rand());
     FILE *f = fopen(filename, "w");
     if (!f)
     {
@@ -4555,49 +4557,65 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     fprintf(f, "return 0;\n}\n");
     fclose(f);
 
-    char cmdbuf[MAX_PATH_LEN * 3];
     char bin[MAX_PATH_LEN];
+    snprintf(bin, sizeof(bin), "%s%s", filename, z_get_exe_ext());
 
-    sprintf(bin, "%s%s", filename, z_get_exe_ext());
+    ArgList compile_args;
+    arg_list_init(&compile_args);
+    arg_list_add_from_string(&compile_args, g_config.cc);
+    arg_list_add(&compile_args, filename);
+    arg_list_add(&compile_args, "-o");
+    arg_list_add(&compile_args, bin);
+    arg_list_add(&compile_args, "-Istd");
+    arg_list_add(&compile_args, "-Istd/third-party/tre/include");
+    arg_list_add_from_string(&compile_args, z_get_comptime_link_flags());
 
-    // Use quotes for paths to prevent injection/errors with spaces
-#if ZC_OS_WINDOWS
-    // On Windows, system() uses cmd.exe /c. If the command starts with a quote and has multiple
-    // quotes, cmd.exe strips the first and last quote. Wrapping the whole thing in another pair of
-    // quotes fixes this.
-    snprintf(cmdbuf, sizeof(cmdbuf),
-             "\"%s \"%s\" -o \"%s\" -Istd -Istd/third-party/tre/include %s\"", g_config.cc,
-             filename, bin, z_get_comptime_link_flags());
-#else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s \"%s\" -o \"%s\" -Istd -Istd/third-party/tre/include %s",
-             g_config.cc, filename, bin, z_get_comptime_link_flags());
-#endif
-
-    if (!g_config.verbose)
+    int res;
+    if (g_config.verbose)
     {
-        strcat(cmdbuf, z_get_null_redirect());
+        res = arg_run(&compile_args);
     }
+    else
+    {
+        char dummy_buf[1024];
+        res = z_run_command_capture(compile_args.args, dummy_buf, sizeof(dummy_buf));
+    }
+    arg_list_free(&compile_args);
 
-    int res = system(cmdbuf);
     if (res != 0)
     {
         zpanic_at(lexer_peek(l), "Comptime compilation failed for:\n%s", code);
     }
 
     char out_file[MAX_PATH_LEN];
-    sprintf(out_file, "%s.out", filename);
+    snprintf(out_file, sizeof(out_file), "%s.out", filename);
 
-    // Execution command
-#if ZC_OS_WINDOWS
-    snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\"%s\" > \"%s\"\"", z_get_run_prefix(), bin, out_file);
-#else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s\"%s\" > \"%s\"", z_get_run_prefix(), bin, out_file);
-#endif
+    ArgList run_args;
+    arg_list_init(&run_args);
+    char run_bin[MAX_PATH_LEN];
+    if (z_is_abs_path(bin)) {
+        snprintf(run_bin, sizeof(run_bin), "%s", bin);
+    } else {
+        snprintf(run_bin, sizeof(run_bin), "%s%s", z_get_run_prefix(), bin);
+    }
+    arg_list_add(&run_args, run_bin);
 
-    if (system(cmdbuf) != 0)
+    char *out_buf = xmalloc(1024 * 1024); // 1MB for comptime output
+    if (z_run_command_capture(run_args.args, out_buf, 1024 * 1024) != 0)
     {
+        free(out_buf);
+        arg_list_free(&run_args);
         zpanic_at(lexer_peek(l), "Comptime execution failed");
     }
+    arg_list_free(&run_args);
+
+    FILE *fout = fopen(out_file, "w");
+    if (fout)
+    {
+        fwrite(out_buf, 1, strlen(out_buf), fout);
+        fclose(fout);
+    }
+    free(out_buf);
 
     char *output_src = load_file(out_file);
     if (!output_src)
