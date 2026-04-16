@@ -277,7 +277,8 @@ char *ast_to_string_recursive(ASTNode *node, int depth)
     case NODE_EXPR_CALL:
     {
         char *callee = ast_to_string_recursive(node->call.callee, depth + 1);
-        snprintf(buf, buf_size, "%s(", callee);
+        int written = snprintf(buf, buf_size, "%s(", callee);
+        size_t curr_len = (written > 0 && (size_t)written < buf_size) ? (size_t)written : strlen(buf);
         free(callee);
 
         ASTNode *arg = node->call.args;
@@ -286,30 +287,38 @@ char *ast_to_string_recursive(ASTNode *node, int depth)
         {
             if (!first)
             {
-                if (strlen(buf) + 4 < buf_size)
+                if (curr_len + 4 < buf_size)
                 {
-                    strcat(buf, ", ");
+                    memcpy(buf + curr_len, ", ", 2);
+                    curr_len += 2;
+                    buf[curr_len] = '\0';
                 }
             }
             char *a = ast_to_string_recursive(arg, depth + 1);
-            if (strlen(buf) + strlen(a) + 4 < buf_size)
+            size_t a_len = strlen(a);
+            if (curr_len + a_len + 4 < buf_size)
             {
-                strcat(buf, a);
+                memcpy(buf + curr_len, a, a_len);
+                curr_len += a_len;
+                buf[curr_len] = '\0';
             }
             free(a);
             first = 0;
             arg = arg->next;
         }
-        if (strlen(buf) + 2 < buf_size)
+        if (curr_len + 2 < buf_size)
         {
-            strcat(buf, ")");
+            memcpy(buf + curr_len, ")", 1);
+            curr_len += 1;
+            buf[curr_len] = '\0';
         }
         break;
     }
     case NODE_EXPR_STRUCT_INIT:
     {
         char *name = node->struct_init.struct_name;
-        snprintf(buf, buf_size, "%s{", name ? name : "?");
+        int written = snprintf(buf, buf_size, "%s{", name ? name : "?");
+        size_t curr_len = (written > 0 && (size_t)written < buf_size) ? (size_t)written : strlen(buf);
 
         ASTNode *field = node->struct_init.fields;
         int first = 1;
@@ -317,32 +326,43 @@ char *ast_to_string_recursive(ASTNode *node, int depth)
         {
             if (!first)
             {
-                if (strlen(buf) + 4 < buf_size)
+                if (curr_len + 4 < buf_size)
                 {
-                    strcat(buf, ", ");
+                    memcpy(buf + curr_len, ", ", 2);
+                    curr_len += 2;
+                    buf[curr_len] = '\0';
                 }
             }
             if (field->type == NODE_VAR_DECL)
             {
-                if (strlen(buf) + (field->var_decl.name ? strlen(field->var_decl.name) : 0) + 4 <
-                    buf_size)
+                const char *field_name = field->var_decl.name ? field->var_decl.name : "?";
+                size_t field_name_len = strlen(field_name);
+                if (curr_len + field_name_len + 4 < buf_size)
                 {
-                    strcat(buf, field->var_decl.name ? field->var_decl.name : "?");
-                    strcat(buf, ": ");
+                    memcpy(buf + curr_len, field_name, field_name_len);
+                    curr_len += field_name_len;
+                    memcpy(buf + curr_len, ": ", 2);
+                    curr_len += 2;
+                    buf[curr_len] = '\0';
                 }
                 char *val = ast_to_string_recursive(field->var_decl.init_expr, depth + 1);
-                if (strlen(buf) + strlen(val) + 2 < buf_size)
+                size_t val_len = strlen(val);
+                if (curr_len + val_len + 2 < buf_size)
                 {
-                    strcat(buf, val);
+                    memcpy(buf + curr_len, val, val_len);
+                    curr_len += val_len;
+                    buf[curr_len] = '\0';
                 }
                 free(val);
             }
             first = 0;
             field = field->next;
         }
-        if (strlen(buf) + 2 < buf_size)
+        if (curr_len + 2 < buf_size)
         {
-            strcat(buf, "}");
+            memcpy(buf + curr_len, "}", 1);
+            curr_len += 1;
+            buf[curr_len] = '\0';
         }
         break;
     }
