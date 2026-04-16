@@ -4448,8 +4448,8 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     free(wrapped_code);
 
     char filename[MAX_PATH_LEN];
-    snprintf(filename, sizeof(filename), "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(),
-             z_get_pid(), rand());
+    snprintf(filename, sizeof(filename), "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(),
+             rand());
     FILE *f = fopen(filename, "w");
     if (!f)
     {
@@ -4587,15 +4587,18 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
         zpanic_at(lexer_peek(l), "Comptime compilation failed for:\n%s", code);
     }
 
-    char out_file[MAX_PATH_LEN];
+    char out_file[MAX_PATH_LEN + 8];
     snprintf(out_file, sizeof(out_file), "%s.out", filename);
 
     ArgList run_args;
     arg_list_init(&run_args);
     char run_bin[MAX_PATH_LEN];
-    if (z_is_abs_path(bin)) {
+    if (z_is_abs_path(bin))
+    {
         snprintf(run_bin, sizeof(run_bin), "%s", bin);
-    } else {
+    }
+    else
+    {
         snprintf(run_bin, sizeof(run_bin), "%s%s", z_get_run_prefix(), bin);
     }
     arg_list_add(&run_args, run_bin);
