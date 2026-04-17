@@ -278,7 +278,8 @@ char *ast_to_string_recursive(ASTNode *node, int depth)
     {
         char *callee = ast_to_string_recursive(node->call.callee, depth + 1);
         int written = snprintf(buf, buf_size, "%s(", callee);
-        size_t curr_len = (written > 0 && (size_t)written < buf_size) ? (size_t)written : strlen(buf);
+        size_t curr_len =
+            (written > 0 && (size_t)written < buf_size) ? (size_t)written : strlen(buf);
         free(callee);
 
         ASTNode *arg = node->call.args;
@@ -318,7 +319,8 @@ char *ast_to_string_recursive(ASTNode *node, int depth)
     {
         char *name = node->struct_init.struct_name;
         int written = snprintf(buf, buf_size, "%s{", name ? name : "?");
-        size_t curr_len = (written > 0 && (size_t)written < buf_size) ? (size_t)written : strlen(buf);
+        size_t curr_len =
+            (written > 0 && (size_t)written < buf_size) ? (size_t)written : strlen(buf);
 
         ASTNode *field = node->struct_init.fields;
         int first = 1;
