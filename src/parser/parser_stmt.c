@@ -4446,8 +4446,8 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
 
     free(wrapped_code);
 
-    char filename[64];
-    sprintf(filename, "_tmp_comptime_%d.c", rand());
+    char filename[MAX_PATH_LEN];
+    snprintf(filename, sizeof(filename), "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(), rand());
     FILE *f = fopen(filename, "w");
     if (!f)
     {
@@ -4584,14 +4584,15 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
         zpanic_at(lexer_peek(l), "Comptime compilation failed for:\n%s", code);
     }
 
-    char out_file[MAX_PATH_LEN];
-    sprintf(out_file, "%s.out", filename);
+    char out_file[MAX_PATH_LEN + 5];
+    snprintf(out_file, sizeof(out_file), "%s.out", filename);
 
     // Execution command
+    const char *prefix = z_is_abs_path(bin) ? "" : z_get_run_prefix();
 #if ZC_OS_WINDOWS
-    snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\"%s\" > \"%s\"\"", z_get_run_prefix(), bin, out_file);
+    snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\"%s\" > \"%s\"\"", prefix, bin, out_file);
 #else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s\"%s\" > \"%s\"", z_get_run_prefix(), bin, out_file);
+    snprintf(cmdbuf, sizeof(cmdbuf), "%s\"%s\" > \"%s\"", prefix, bin, out_file);
 #endif
 
     if (system(cmdbuf) != 0)
