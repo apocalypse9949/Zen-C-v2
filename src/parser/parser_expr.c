@@ -2987,11 +2987,15 @@ ASTNode *parse_primary(ParserContext *ctx, Lexer *l)
                         }
                         char *mangled = xmalloc(mangled_len);
                         strcpy(mangled, acc);
+                        size_t m_len = strlen(mangled);
                         for (int i = 0; i < arg_count; ++i)
                         {
                             char *clean = sanitize_mangled_name(concrete_types[i]);
-                            strcat(mangled, "__");
-                            strcat(mangled, clean);
+                            mangled[m_len++] = '_';
+                            mangled[m_len++] = '_';
+                            size_t c_len = strlen(clean);
+                            memcpy(mangled + m_len, clean, c_len + 1);
+                            m_len += c_len;
                             free(clean);
                         }
 
@@ -3033,16 +3037,24 @@ ASTNode *parse_primary(ParserContext *ctx, Lexer *l)
                         // Join types with comma
                         char full_concrete[MAX_ERROR_MSG_LEN] = {0};
                         char full_unmangled[MAX_ERROR_MSG_LEN] = {0};
+                        size_t fc_len = 0;
+                        size_t fu_len = 0;
 
                         for (int i = 0; i < arg_count; ++i)
                         {
                             if (i > 0)
                             {
-                                strcat(full_concrete, ",");
-                                strcat(full_unmangled, ",");
+                                full_concrete[fc_len++] = ',';
+                                full_concrete[fc_len] = '\0';
+                                full_unmangled[fu_len++] = ',';
+                                full_unmangled[fu_len] = '\0';
                             }
-                            strcat(full_concrete, concrete_types[i]);
-                            strcat(full_unmangled, unmangled_types[i]);
+                            size_t c_len = strlen(concrete_types[i]);
+                            size_t u_len = strlen(unmangled_types[i]);
+                            memcpy(full_concrete + fc_len, concrete_types[i], c_len + 1);
+                            fc_len += c_len;
+                            memcpy(full_unmangled + fu_len, unmangled_types[i], u_len + 1);
+                            fu_len += u_len;
                         }
 
                         char *m =
@@ -5065,6 +5077,7 @@ char *resolve_struct_name_from_type(ParserContext *ctx, Type *t, int *is_ptr_out
 
                 char *mangled = xmalloc(len + 1);
                 strcpy(mangled, struct_type->name);
+                size_t m_len = strlen(mangled);
 
                 // Pass 2: Build String
                 for (int i = 0; i < struct_type->arg_count; i++)
@@ -5078,8 +5091,11 @@ char *resolve_struct_name_from_type(ParserContext *ctx, Type *t, int *is_ptr_out
                             char *clean = sanitize_mangled_name(arg_str);
                             if (clean)
                             {
-                                strcat(mangled, "__");
-                                strcat(mangled, clean);
+                                mangled[m_len++] = '_';
+                                mangled[m_len++] = '_';
+                                size_t c_len = strlen(clean);
+                                memcpy(mangled + m_len, clean, c_len + 1);
+                                m_len += c_len;
                                 free(clean);
                             }
                             free(arg_str);
@@ -6994,6 +7010,7 @@ ASTNode *parse_expr_prec(ParserContext *ctx, Lexer *l, Precedence min_prec)
 
                         // Join types
                         size_t ac_sz = 1024, au_sz = 1024;
+                        size_t ac_len = 0, au_len = 0;
                         char *all_concrete = xmalloc(ac_sz);
                         char *all_unmangled = xmalloc(au_sz);
                         all_concrete[0] = 0;
@@ -7002,31 +7019,38 @@ ASTNode *parse_expr_prec(ParserContext *ctx, Lexer *l, Precedence min_prec)
                         {
                             if (i > 0)
                             {
-                                if (strlen(all_concrete) + 2 >= ac_sz)
+                                while (ac_len + 2 >= ac_sz)
                                 {
                                     ac_sz *= 2;
                                     all_concrete = xrealloc(all_concrete, ac_sz);
                                 }
-                                if (strlen(all_unmangled) + 2 >= au_sz)
+                                while (au_len + 2 >= au_sz)
                                 {
                                     au_sz *= 2;
                                     all_unmangled = xrealloc(all_unmangled, au_sz);
                                 }
-                                strcat(all_concrete, ",");
-                                strcat(all_unmangled, ",");
+                                all_concrete[ac_len++] = ',';
+                                all_concrete[ac_len] = '\0';
+                                all_unmangled[au_len++] = ',';
+                                all_unmangled[au_len] = '\0';
                             }
-                            if (strlen(all_concrete) + strlen(concrete[i]) + 1 >= ac_sz)
+                            size_t c_len = strlen(concrete[i]);
+                            size_t u_len = strlen(unmangled[i]);
+
+                            while (ac_len + c_len + 1 >= ac_sz)
                             {
-                                ac_sz += strlen(concrete[i]) + 1;
+                                ac_sz *= 2;
                                 all_concrete = xrealloc(all_concrete, ac_sz);
                             }
-                            if (strlen(all_unmangled) + strlen(unmangled[i]) + 1 >= au_sz)
+                            while (au_len + u_len + 1 >= au_sz)
                             {
-                                au_sz += strlen(unmangled[i]) + 1;
+                                au_sz *= 2;
                                 all_unmangled = xrealloc(all_unmangled, au_sz);
                             }
-                            strcat(all_concrete, concrete[i]);
-                            strcat(all_unmangled, unmangled[i]);
+                            memcpy(all_concrete + ac_len, concrete[i], c_len + 1);
+                            ac_len += c_len;
+                            memcpy(all_unmangled + au_len, unmangled[i], u_len + 1);
+                            au_len += u_len;
                             free(concrete[i]);
                             free(unmangled[i]);
                         }

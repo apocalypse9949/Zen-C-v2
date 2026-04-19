@@ -1,0 +1,3 @@
+## 2024-05-24 - Avoiding O(N^2) String Concatenation in Parser
+**Learning:** In C compilers/parsers, repeatedly calling `strcat` inside loops for tasks like generating mangled names or generic type signatures creates an O(N^2) performance bottleneck. The time spent scanning for the end of the string grows linearly with the length of the string on every iteration.
+**Action:** When dynamically building strings iteratively in loops in the C codebase (e.g. `src/parser/parser_expr.c`), explicitly track the current string length (`len += strlen(new_part)`) and use `memcpy(buf + len, new_part, size)` instead of `strcat`. When doing dynamic resizing, use a `while` loop rather than an `if` statement to handle extremely large sudden growths.
