@@ -4447,7 +4447,8 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     free(wrapped_code);
 
     char filename[MAX_PATH_LEN];
-    snprintf(filename, sizeof(filename), "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(), rand());
+    snprintf(filename, sizeof(filename), "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(),
+             rand());
     FILE *f = fopen(filename, "w");
     if (!f)
     {

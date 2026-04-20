@@ -1494,7 +1494,8 @@ void run_repl(const char *self_path)
 
                     char edit_path[MAX_PATH_SIZE];
                     const char *tmpdir = z_get_temp_dir();
-                    snprintf(edit_path, sizeof(edit_path), "%s/zprep_edit_%d_%d.zc", tmpdir, z_get_pid(), rand());
+                    snprintf(edit_path, sizeof(edit_path), "%s/zprep_edit_%d_%d.zc", tmpdir,
+                             z_get_pid(), rand());
                     FILE *f = fopen(edit_path, "w");
                     if (f)
                     {
@@ -2164,7 +2165,8 @@ void run_repl(const char *self_path)
                     free(expr_buf);
 
                     char tmp_path[MAX_PATH_SIZE];
-                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_c_%d_%d.zc", z_get_temp_dir(), z_get_pid(), rand());
+                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_c_%d_%d.zc",
+                             z_get_temp_dir(), z_get_pid(), rand());
                     FILE *f = fopen(tmp_path, "w");
                     if (f)
                     {
@@ -2197,7 +2199,8 @@ void run_repl(const char *self_path)
                     free(main_code);
 
                     char tmp_path[MAX_PATH_SIZE];
-                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_run_%d_%d.zc", z_get_temp_dir(), z_get_pid(), rand());
+                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_run_%d_%d.zc",
+                             z_get_temp_dir(), z_get_pid(), rand());
                     FILE *f = fopen(tmp_path, "w");
                     if (f)
                     {
@@ -2465,7 +2468,8 @@ void run_repl(const char *self_path)
                     strcat(probe_code, "); }");
 
                     char p_path[MAX_PATH_SIZE];
-                    snprintf(p_path, sizeof(p_path), "%s/zprep_repl_probe_%d_%d.zc", z_get_temp_dir(), z_get_pid(), rand());
+                    snprintf(p_path, sizeof(p_path), "%s/zprep_repl_probe_%d_%d.zc",
+                             z_get_temp_dir(), z_get_pid(), rand());
                     FILE *pf = fopen(p_path, "w");
                     if (pf)
                     {
@@ -2530,7 +2534,8 @@ void run_repl(const char *self_path)
             strcat(full_code, " }");
 
             char tmp_path[MAX_PATH_SIZE];
-            snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_%d_%d.zc", z_get_temp_dir(), z_get_pid(), rand());
+            snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_%d_%d.zc", z_get_temp_dir(),
+                     z_get_pid(), rand());
             FILE *f = fopen(tmp_path, "w");
             if (!f)
             {
