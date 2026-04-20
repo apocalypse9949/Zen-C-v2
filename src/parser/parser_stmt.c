@@ -13,6 +13,7 @@
 #include "zprep_plugin.h"
 #include "../codegen/codegen.h"
 #include "analysis/move_check.h"
+#include "../platform/os.h"
 
 char *curr_func_ret = NULL;
 char *run_comptime_block(ParserContext *ctx, Lexer *l);
@@ -4446,8 +4447,8 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
 
     free(wrapped_code);
 
-    char filename[64];
-    sprintf(filename, "_tmp_comptime_%d.c", rand());
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(), rand());
     FILE *f = fopen(filename, "w");
     if (!f)
     {
@@ -4585,14 +4586,25 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     }
 
     char out_file[MAX_PATH_LEN];
-    sprintf(out_file, "%s.out", filename);
+    snprintf(out_file, sizeof(out_file), "%s.out", filename);
 
     // Execution command
+    if (z_is_abs_path(bin))
+    {
 #if ZC_OS_WINDOWS
-    snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\"%s\" > \"%s\"\"", z_get_run_prefix(), bin, out_file);
+        snprintf(cmdbuf, sizeof(cmdbuf), "\"\"%s\" > \"%s\"\"", bin, out_file);
 #else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s\"%s\" > \"%s\"", z_get_run_prefix(), bin, out_file);
+        snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\" > \"%s\"", bin, out_file);
 #endif
+    }
+    else
+    {
+#if ZC_OS_WINDOWS
+        snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\"%s\" > \"%s\"\"", z_get_run_prefix(), bin, out_file);
+#else
+        snprintf(cmdbuf, sizeof(cmdbuf), "%s\"%s\" > \"%s\"", z_get_run_prefix(), bin, out_file);
+#endif
+    }
 
     if (system(cmdbuf) != 0)
     {
