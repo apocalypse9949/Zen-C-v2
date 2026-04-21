@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include "cJSON.h"
 #include "constants.h"
+#include "../utils/cmd.h"
 
 ASTNode *parse_program(ParserContext *ctx, Lexer *l);
 
@@ -2530,7 +2531,9 @@ void run_repl(const char *self_path)
             strcat(full_code, " }");
 
             char tmp_path[MAX_PATH_SIZE];
-            sprintf(tmp_path, "%s/zprep_repl_%d.zc", z_get_temp_dir(), rand());
+            static unsigned int eval_counter = 0;
+            snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_%d_%u.zc", z_get_temp_dir(),
+                     z_get_pid(), eval_counter++);
             FILE *f = fopen(tmp_path, "w");
             if (!f)
             {
@@ -2542,16 +2545,23 @@ void run_repl(const char *self_path)
             fclose(f);
             free(full_code);
 
-            char cmd[MAX_PATH_LEN];
-            sprintf(cmd, "%s run -q %s", self_path, tmp_path);
+            ArgList run_args;
+            arg_list_init(&run_args);
+            arg_list_add(&run_args, self_path);
+            arg_list_add(&run_args, "run");
+            arg_list_add(&run_args, "-q");
+            arg_list_add(&run_args, tmp_path);
 
-            int ret = system(cmd);
+            int ret = arg_run(&run_args);
+            arg_list_free(&run_args);
+
             printf("\n");
 
             if (0 != ret)
             {
                 free(history[--history_len]);
             }
+            remove(tmp_path);
         }
 
         if (history_path[0])
