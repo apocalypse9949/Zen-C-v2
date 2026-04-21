@@ -4261,6 +4261,9 @@ void instantiate_generic_multi(ParserContext *ctx, const char *tpl, char **args,
                 // We use replace_type_formal which handles "T,E" as p and "int,float" as c.
 
                 // Construct comma-separated concrete args string
+                // Bolt Performance Optimization:
+                // Replaced O(N^2) strcat loop with manual length tracking and memcpy
+                // to construct the comma-separated args string in O(N).
                 size_t c_args_len = 1;
                 for (int j = 0; j < arg_count; j++)
                 {
@@ -4268,14 +4271,18 @@ void instantiate_generic_multi(ParserContext *ctx, const char *tpl, char **args,
                 }
                 char *c_args = xmalloc(c_args_len);
                 c_args[0] = 0;
+                size_t curr_len = 0;
                 for (int j = 0; j < arg_count; j++)
                 {
                     if (j > 0)
                     {
-                        strcat(c_args, ",");
+                        c_args[curr_len++] = ',';
                     }
-                    strcat(c_args, args[j]);
+                    size_t arg_len = strlen(args[j]);
+                    memcpy(c_args + curr_len, args[j], arg_len);
+                    curr_len += arg_len;
                 }
+                c_args[curr_len] = '\0';
 
                 nv->variant.payload = replace_type_formal(
                     payload, t->struct_node->enm.generic_param, c_args, NULL, NULL);

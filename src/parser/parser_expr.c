@@ -3031,18 +3031,41 @@ ASTNode *parse_primary(ParserContext *ctx, Lexer *l)
                     {
                         // Function Template
                         // Join types with comma
+                        // Bolt Performance Optimization:
+                        // Replaced O(N^2) strcat loop with manual length tracking and memcpy
+                        // for O(N) performance, while adding bounds checking for safety.
                         char full_concrete[MAX_ERROR_MSG_LEN] = {0};
                         char full_unmangled[MAX_ERROR_MSG_LEN] = {0};
+                        size_t fc_len = 0;
+                        size_t fu_len = 0;
 
                         for (int i = 0; i < arg_count; ++i)
                         {
                             if (i > 0)
                             {
-                                strcat(full_concrete, ",");
-                                strcat(full_unmangled, ",");
+                                if (fc_len + 1 < MAX_ERROR_MSG_LEN) {
+                                    full_concrete[fc_len++] = ',';
+                                    full_concrete[fc_len] = '\0';
+                                }
+                                if (fu_len + 1 < MAX_ERROR_MSG_LEN) {
+                                    full_unmangled[fu_len++] = ',';
+                                    full_unmangled[fu_len] = '\0';
+                                }
                             }
-                            strcat(full_concrete, concrete_types[i]);
-                            strcat(full_unmangled, unmangled_types[i]);
+
+                            size_t c_len = strlen(concrete_types[i]);
+                            if (fc_len + c_len < MAX_ERROR_MSG_LEN) {
+                                memcpy(full_concrete + fc_len, concrete_types[i], c_len);
+                                fc_len += c_len;
+                                full_concrete[fc_len] = '\0';
+                            }
+
+                            size_t u_len = strlen(unmangled_types[i]);
+                            if (fu_len + u_len < MAX_ERROR_MSG_LEN) {
+                                memcpy(full_unmangled + fu_len, unmangled_types[i], u_len);
+                                fu_len += u_len;
+                                full_unmangled[fu_len] = '\0';
+                            }
                         }
 
                         char *m =
@@ -6993,7 +7016,11 @@ ASTNode *parse_expr_prec(ParserContext *ctx, Lexer *l, Precedence min_prec)
                         full_name = merge_underscores(buf);
 
                         // Join types
+                        // Bolt Performance Optimization:
+                        // Replaced O(N^2) strcat/strlen loop with manual length tracking
+                        // and memcpy to construct the comma-separated generic argument lists in O(N).
                         size_t ac_sz = 1024, au_sz = 1024;
+                        size_t ac_len = 0, au_len = 0;
                         char *all_concrete = xmalloc(ac_sz);
                         char *all_unmangled = xmalloc(au_sz);
                         all_concrete[0] = 0;
@@ -7002,31 +7029,42 @@ ASTNode *parse_expr_prec(ParserContext *ctx, Lexer *l, Precedence min_prec)
                         {
                             if (i > 0)
                             {
-                                if (strlen(all_concrete) + 2 >= ac_sz)
+                                while (ac_len + 2 > ac_sz)
                                 {
                                     ac_sz *= 2;
                                     all_concrete = xrealloc(all_concrete, ac_sz);
                                 }
-                                if (strlen(all_unmangled) + 2 >= au_sz)
+                                while (au_len + 2 > au_sz)
                                 {
                                     au_sz *= 2;
                                     all_unmangled = xrealloc(all_unmangled, au_sz);
                                 }
-                                strcat(all_concrete, ",");
-                                strcat(all_unmangled, ",");
+                                all_concrete[ac_len++] = ',';
+                                all_concrete[ac_len] = '\0';
+                                all_unmangled[au_len++] = ',';
+                                all_unmangled[au_len] = '\0';
                             }
-                            if (strlen(all_concrete) + strlen(concrete[i]) + 1 >= ac_sz)
+
+                            size_t c_len = strlen(concrete[i]);
+                            while (ac_len + c_len + 1 > ac_sz)
                             {
-                                ac_sz += strlen(concrete[i]) + 1;
+                                ac_sz *= 2;
                                 all_concrete = xrealloc(all_concrete, ac_sz);
                             }
-                            if (strlen(all_unmangled) + strlen(unmangled[i]) + 1 >= au_sz)
+                            memcpy(all_concrete + ac_len, concrete[i], c_len);
+                            ac_len += c_len;
+                            all_concrete[ac_len] = '\0';
+
+                            size_t u_len = strlen(unmangled[i]);
+                            while (au_len + u_len + 1 > au_sz)
                             {
-                                au_sz += strlen(unmangled[i]) + 1;
+                                au_sz *= 2;
                                 all_unmangled = xrealloc(all_unmangled, au_sz);
                             }
-                            strcat(all_concrete, concrete[i]);
-                            strcat(all_unmangled, unmangled[i]);
+                            memcpy(all_unmangled + au_len, unmangled[i], u_len);
+                            au_len += u_len;
+                            all_unmangled[au_len] = '\0';
+
                             free(concrete[i]);
                             free(unmangled[i]);
                         }
