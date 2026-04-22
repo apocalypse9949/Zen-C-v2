@@ -3043,25 +3043,29 @@ ASTNode *parse_primary(ParserContext *ctx, Lexer *l)
                         {
                             if (i > 0)
                             {
-                                if (fc_len + 1 < MAX_ERROR_MSG_LEN) {
+                                if (fc_len + 1 < MAX_ERROR_MSG_LEN)
+                                {
                                     full_concrete[fc_len++] = ',';
                                     full_concrete[fc_len] = '\0';
                                 }
-                                if (fu_len + 1 < MAX_ERROR_MSG_LEN) {
+                                if (fu_len + 1 < MAX_ERROR_MSG_LEN)
+                                {
                                     full_unmangled[fu_len++] = ',';
                                     full_unmangled[fu_len] = '\0';
                                 }
                             }
 
                             size_t c_len = strlen(concrete_types[i]);
-                            if (fc_len + c_len < MAX_ERROR_MSG_LEN) {
+                            if (fc_len + c_len < MAX_ERROR_MSG_LEN)
+                            {
                                 memcpy(full_concrete + fc_len, concrete_types[i], c_len);
                                 fc_len += c_len;
                                 full_concrete[fc_len] = '\0';
                             }
 
                             size_t u_len = strlen(unmangled_types[i]);
-                            if (fu_len + u_len < MAX_ERROR_MSG_LEN) {
+                            if (fu_len + u_len < MAX_ERROR_MSG_LEN)
+                            {
                                 memcpy(full_unmangled + fu_len, unmangled_types[i], u_len);
                                 fu_len += u_len;
                                 full_unmangled[fu_len] = '\0';
@@ -7018,7 +7022,8 @@ ASTNode *parse_expr_prec(ParserContext *ctx, Lexer *l, Precedence min_prec)
                         // Join types
                         // Bolt Performance Optimization:
                         // Replaced O(N^2) strcat/strlen loop with manual length tracking
-                        // and memcpy to construct the comma-separated generic argument lists in O(N).
+                        // and memcpy to construct the comma-separated generic argument lists in
+                        // O(N).
                         size_t ac_sz = 1024, au_sz = 1024;
                         size_t ac_len = 0, au_len = 0;
                         char *all_concrete = xmalloc(ac_sz);
