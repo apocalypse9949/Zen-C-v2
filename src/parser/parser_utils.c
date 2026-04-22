@@ -4267,14 +4267,20 @@ void instantiate_generic_multi(ParserContext *ctx, const char *tpl, char **args,
                     c_args_len += strlen(args[j]) + 1;
                 }
                 char *c_args = xmalloc(c_args_len);
+                size_t c_args_pos = 0;
                 c_args[0] = 0;
                 for (int j = 0; j < arg_count; j++)
                 {
                     if (j > 0)
                     {
-                        strcat(c_args, ",");
+                        memcpy(c_args + c_args_pos, ",", 1);
+                        c_args_pos++;
+                        c_args[c_args_pos] = 0;
                     }
-                    strcat(c_args, args[j]);
+                    size_t arg_len = strlen(args[j]);
+                    memcpy(c_args + c_args_pos, args[j], arg_len);
+                    c_args_pos += arg_len;
+                    c_args[c_args_pos] = 0;
                 }
 
                 nv->variant.payload = replace_type_formal(
