@@ -1,3 +1,5 @@
+#include "../platform/os.h"
+#include "../utils/cmd.h"
 
 #include "parser.h"
 #include "../constants.h"
@@ -4446,8 +4448,9 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
 
     free(wrapped_code);
 
-    char filename[64];
-    sprintf(filename, "_tmp_comptime_%d.c", rand());
+    static int comptime_counter = 0;
+    char filename[MAX_PATH_LEN];
+    sprintf(filename, "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(), comptime_counter++);
     FILE *f = fopen(filename, "w");
     if (!f)
     {
@@ -4555,59 +4558,79 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     fprintf(f, "return 0;\n}\n");
     fclose(f);
 
-    char cmdbuf[MAX_PATH_LEN * 3];
     char bin[MAX_PATH_LEN];
 
     sprintf(bin, "%s%s", filename, z_get_exe_ext());
 
-    // Use quotes for paths to prevent injection/errors with spaces
-#if ZC_OS_WINDOWS
-    // On Windows, system() uses cmd.exe /c. If the command starts with a quote and has multiple
-    // quotes, cmd.exe strips the first and last quote. Wrapping the whole thing in another pair of
-    // quotes fixes this.
-    snprintf(cmdbuf, sizeof(cmdbuf),
-             "\"%s \"%s\" -o \"%s\" -Istd -Istd/third-party/tre/include %s\"", g_config.cc,
-             filename, bin, z_get_comptime_link_flags());
-#else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s \"%s\" -o \"%s\" -Istd -Istd/third-party/tre/include %s",
-             g_config.cc, filename, bin, z_get_comptime_link_flags());
-#endif
+    ArgList compile_cmd;
+    arg_list_init(&compile_cmd);
+
+    arg_list_add_from_string(&compile_cmd, g_config.cc);
+    arg_list_add(&compile_cmd, filename);
+    arg_list_add(&compile_cmd, "-o");
+    arg_list_add(&compile_cmd, bin);
+    arg_list_add(&compile_cmd, "-Istd");
+    arg_list_add(&compile_cmd, "-Istd/third-party/tre/include");
+
+    const char *link_flags = z_get_comptime_link_flags();
+    if (link_flags && link_flags[0] != '\0')
+    {
+        arg_list_add_from_string(&compile_cmd, link_flags);
+    }
 
     if (!g_config.verbose)
     {
-        strcat(cmdbuf, z_get_null_redirect());
+        // For argument-based execution, we might not have shell redirects.
+        // arg_run uses z_run_command which spawns a process directly.
+        // If we want quiet compilation without shell redirects, we just run it.
+        // We could also redirect stderr/stdout programmatically but currently
+        // there isn't a direct utility for it in arg_run. So we just execute it.
     }
 
-    int res = system(cmdbuf);
+    int res = arg_run(&compile_cmd);
+    arg_list_free(&compile_cmd);
+
     if (res != 0)
     {
         zpanic_at(lexer_peek(l), "Comptime compilation failed for:\n%s", code);
     }
 
-    char out_file[MAX_PATH_LEN];
-    sprintf(out_file, "%s.out", filename);
+    ArgList exec_cmd;
+    arg_list_init(&exec_cmd);
 
-    // Execution command
-#if ZC_OS_WINDOWS
-    snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\"%s\" > \"%s\"\"", z_get_run_prefix(), bin, out_file);
-#else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s\"%s\" > \"%s\"", z_get_run_prefix(), bin, out_file);
-#endif
+    char full_bin_path[MAX_PATH_LEN];
+    const char *prefix = z_get_run_prefix();
+    if (!z_is_abs_path(bin))
+    {
+        sprintf(full_bin_path, "%s%s", prefix, bin);
+        arg_list_add(&exec_cmd, full_bin_path);
+    }
+    else
+    {
+        arg_list_add(&exec_cmd, bin);
+    }
 
-    if (system(cmdbuf) != 0)
+    // Capture standard output directly (10MB buffer for comptime output)
+    size_t cap_size = 10 * 1024 * 1024;
+    char *capture_buf = malloc(cap_size);
+    if (!capture_buf)
+    {
+        zpanic_at(lexer_peek(l), "Out of memory for comptime capture");
+    }
+    capture_buf[0] = '\0';
+
+    if (z_run_command_capture(exec_cmd.args, capture_buf, cap_size) != 0)
     {
         zpanic_at(lexer_peek(l), "Comptime execution failed");
     }
 
-    char *output_src = load_file(out_file);
-    if (!output_src)
-    {
-        output_src = xstrdup(""); // Empty output is valid
-    }
+    arg_list_free(&exec_cmd);
+
+    char *output_src = xstrdup(capture_buf);
+    free(capture_buf);
 
     remove(filename);
     remove(bin);
-    remove(out_file);
     free(code);
 
     return output_src;
