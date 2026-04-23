@@ -4450,7 +4450,8 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
 
     static int comptime_counter = 0;
     char filename[MAX_PATH_LEN];
-    sprintf(filename, "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(), comptime_counter++);
+    sprintf(filename, "%s/_tmp_comptime_%d_%d.c", z_get_temp_dir(), z_get_pid(),
+            comptime_counter++);
     FILE *f = fopen(filename, "w");
     if (!f)
     {
