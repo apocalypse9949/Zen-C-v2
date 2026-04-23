@@ -746,6 +746,7 @@ char *parse_array_literal(ParserContext *ctx, Lexer *l, const char *st)
     size_t cap = 128;
     char *c = xmalloc(cap);
     c[0] = 0;
+    size_t curr_len = 0;
     int n = 0;
 
     while (1)
@@ -787,16 +788,22 @@ char *parse_array_literal(ParserContext *ctx, Lexer *l, const char *st)
         }
 
         int len = (l->src + l->pos) - s;
-        if (strlen(c) + len + 5 > cap)
+        if (curr_len + len + 5 > cap)
         {
-            cap *= 2;
+            while (curr_len + len + 5 > cap)
+            {
+                cap *= 2;
+            }
             c = xrealloc(c, cap);
         }
         if (n > 0)
         {
-            strcat(c, ", ");
+            memcpy(c + curr_len, ", ", 2);
+            curr_len += 2;
         }
-        strncat(c, s, len);
+        memcpy(c + curr_len, s, len);
+        curr_len += len;
+        c[curr_len] = '\0';
         n++;
     }
 
@@ -811,7 +818,7 @@ char *parse_array_literal(ParserContext *ctx, Lexer *l, const char *st)
     }
 
     size_t st_len = st ? strlen(st) : 0;
-    size_t o_sz = strlen(c) + st_len + strlen(rt) + 128;
+    size_t o_sz = curr_len + st_len + strlen(rt) + 128;
     char *o = xmalloc(o_sz);
     if (st)
     {
@@ -831,6 +838,7 @@ char *parse_tuple_literal(ParserContext *ctx, Lexer *l, const char *tn)
     size_t cap = 128;
     char *c = xmalloc(cap);
     c[0] = 0;
+    size_t curr_len = 0;
 
     while (1)
     {
@@ -871,19 +879,25 @@ char *parse_tuple_literal(ParserContext *ctx, Lexer *l, const char *tn)
         }
 
         int len = (l->src + l->pos) - s;
-        if (strlen(c) + len + 5 > cap)
+        if (curr_len + len + 5 > cap)
         {
-            cap *= 2;
+            while (curr_len + len + 5 > cap)
+            {
+                cap *= 2;
+            }
             c = xrealloc(c, cap);
         }
-        if (strlen(c) > 0)
+        if (curr_len > 0)
         {
-            strcat(c, ", ");
+            memcpy(c + curr_len, ", ", 2);
+            curr_len += 2;
         }
-        strncat(c, s, len);
+        memcpy(c + curr_len, s, len);
+        curr_len += len;
+        c[curr_len] = '\0';
     }
 
-    size_t o_sz = strlen(c) + strlen(tn) + 128;
+    size_t o_sz = curr_len + strlen(tn) + 128;
     char *o = xmalloc(o_sz);
     snprintf(o, o_sz, "(%s){%s}", tn, c);
     free(c);
