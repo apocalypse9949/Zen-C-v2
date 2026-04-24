@@ -3944,12 +3944,34 @@ char *process_fstring(ParserContext *ctx, const char *content, char ***used_syms
 {
     (void)used_syms;
     (void)count;
-    char *gen = xmalloc(8192); // Increased buffer size
 
-    strcpy(gen, "({ static char _b[4096]; _b[0]=0; char _t[1024]; ");
+    size_t cap = 8192;
+    char *gen = xmalloc(cap);
+    size_t curr_len = 0;
+
+    const char *init_str = "({ static char _b[4096]; _b[0]=0; char _t[1024]; ";
+    size_t init_len = strlen(init_str);
+    memcpy(gen, init_str, init_len);
+    curr_len += init_len;
+    gen[curr_len] = '\0';
 
     char *s = xstrdup(content);
     char *cur = s;
+
+    // Helper macro to append string
+    #define APPEND_GEN(str) \
+        do { \
+            size_t l = strlen(str); \
+            if (curr_len + l + 1 > cap) { \
+                while (curr_len + l + 1 > cap) { \
+                    cap *= 2; \
+                } \
+                gen = xrealloc(gen, cap); \
+            } \
+            memcpy(gen + curr_len, str, l); \
+            curr_len += l; \
+            gen[curr_len] = '\0'; \
+        } while(0)
 
     while (*cur)
     {
@@ -3963,9 +3985,9 @@ char *process_fstring(ParserContext *ctx, const char *content, char ***used_syms
         {
             char tmp = *brace;
             *brace = 0;
-            strcat(gen, "strcat(_b, \"");
-            strcat(gen, cur);
-            strcat(gen, "\"); ");
+            APPEND_GEN("strcat(_b, \"");
+            APPEND_GEN(cur);
+            APPEND_GEN("\"); ");
             *brace = tmp;
         }
 
@@ -4030,40 +4052,40 @@ char *process_fstring(ParserContext *ctx, const char *content, char ***used_syms
 
         if (fmt)
         {
-            strcat(gen, "sprintf(_t, \"%");
-            strcat(gen, fmt);
-            strcat(gen, "\", ");
+            APPEND_GEN("sprintf(_t, \"%");
+            APPEND_GEN(fmt);
+            APPEND_GEN("\", ");
             if (code_buffer)
             {
-                strcat(gen, code_buffer);
+                APPEND_GEN(code_buffer);
             }
             else
             {
-                strcat(gen, expr_str); // Fallback
+                APPEND_GEN(expr_str); // Fallback
             }
-            strcat(gen, "); strcat(_b, _t); ");
+            APPEND_GEN("); strcat(_b, _t); ");
         }
         else
         {
-            strcat(gen, "sprintf(_t, _z_str(");
+            APPEND_GEN("sprintf(_t, _z_str(");
             if (code_buffer)
             {
-                strcat(gen, code_buffer);
+                APPEND_GEN(code_buffer);
             }
             else
             {
-                strcat(gen, expr_str);
+                APPEND_GEN(expr_str);
             }
-            strcat(gen, "), ");
+            APPEND_GEN("), ");
             if (code_buffer)
             {
-                strcat(gen, code_buffer);
+                APPEND_GEN(code_buffer);
             }
             else
             {
-                strcat(gen, expr_str);
+                APPEND_GEN(expr_str);
             }
-            strcat(gen, "); strcat(_b, _t); ");
+            APPEND_GEN("); strcat(_b, _t); ");
         }
 
         if (code_buffer)
@@ -4074,7 +4096,9 @@ char *process_fstring(ParserContext *ctx, const char *content, char ***used_syms
         cur = p + 1;
     }
 
-    strcat(gen, "_b; })");
+    APPEND_GEN("_b; })");
+    #undef APPEND_GEN
+
     free(s);
     return gen;
 }
