@@ -1,0 +1,4 @@
+## 2025-02-14 - Fix Command Injection in Comptime Execution
+**Vulnerability:** The `src/parser/parser_stmt.c` implementation evaluated comptime code by constructing shell commands via string formatting (`snprintf`) and executing them with `system()`. If `g_config.cc` or file paths were manipulated, an attacker could potentially execute arbitrary shell commands. It also used `rand()` for filename generation which is predictable.
+**Learning:** Using `system()` directly with `snprintf` creates significant command injection vulnerabilities and cross-platform quoting issues (e.g., `#if ZC_OS_WINDOWS` string manipulations).
+**Prevention:** Always use arguments array APIs (like `ArgList` and safe OS wrappers like `execvp`/`CreateProcessA` directly, encapsulated in `z_run_command_capture`). Use `z_get_temp_dir()` and `z_get_pid()` combined with static counters for safer temporary file generation rather than `rand()`.
