@@ -368,26 +368,33 @@ static char *quote_arg(const char *arg)
 int z_run_command(char *const argv[])
 {
 #if ZC_OS_WINDOWS
+    // Optimization: Cache quote_arg results and use memcpy instead of strcat to avoid O(N^2)
+    int argc = 0;
+    while (argv[argc]) argc++;
+
+    char **quoted = argc > 0 ? malloc(argc * sizeof(char*)) : NULL;
     size_t cmd_len = 0;
-    for (int i = 0; argv[i]; i++)
+    for (int i = 0; i < argc; i++)
     {
-        char *q = quote_arg(argv[i]);
-        cmd_len += strlen(q) + 1;
-        free(q);
+        quoted[i] = quote_arg(argv[i]);
+        cmd_len += strlen(quoted[i]) + 1;
     }
 
     char *cmd_line = malloc(cmd_len + 1);
-    cmd_line[0] = '\0';
-    for (int i = 0; argv[i]; i++)
+    size_t curr_pos = 0;
+    for (int i = 0; i < argc; i++)
     {
-        char *q = quote_arg(argv[i]);
-        strcat(cmd_line, q);
-        if (argv[i + 1])
+        size_t len = strlen(quoted[i]);
+        memcpy(cmd_line + curr_pos, quoted[i], len);
+        curr_pos += len;
+        if (i + 1 < argc)
         {
-            strcat(cmd_line, " ");
+            cmd_line[curr_pos++] = ' ';
         }
-        free(q);
+        free(quoted[i]);
     }
+    cmd_line[curr_pos] = '\0';
+    if (quoted) free(quoted);
 
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -452,26 +459,33 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
     }
     SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
 
+    // Optimization: Cache quote_arg results and use memcpy instead of strcat to avoid O(N^2)
+    int argc = 0;
+    while (argv[argc]) argc++;
+
+    char **quoted = argc > 0 ? malloc(argc * sizeof(char*)) : NULL;
     size_t cmd_len = 0;
-    for (int i = 0; argv[i]; i++)
+    for (int i = 0; i < argc; i++)
     {
-        char *q = quote_arg(argv[i]);
-        cmd_len += strlen(q) + 1;
-        free(q);
+        quoted[i] = quote_arg(argv[i]);
+        cmd_len += strlen(quoted[i]) + 1;
     }
 
     char *cmd_line = malloc(cmd_len + 1);
-    cmd_line[0] = '\0';
-    for (int i = 0; argv[i]; i++)
+    size_t curr_pos = 0;
+    for (int i = 0; i < argc; i++)
     {
-        char *q = quote_arg(argv[i]);
-        strcat(cmd_line, q);
-        if (argv[i + 1])
+        size_t len = strlen(quoted[i]);
+        memcpy(cmd_line + curr_pos, quoted[i], len);
+        curr_pos += len;
+        if (i + 1 < argc)
         {
-            strcat(cmd_line, " ");
+            cmd_line[curr_pos++] = ' ';
         }
-        free(q);
+        free(quoted[i]);
     }
+    cmd_line[curr_pos] = '\0';
+    if (quoted) free(quoted);
 
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
