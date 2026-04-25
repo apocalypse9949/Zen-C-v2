@@ -3949,12 +3949,18 @@ char *process_fstring(ParserContext *ctx, const char *content, char ***used_syms
     char *gen = xmalloc(gen_cap);
     gen[0] = '\0';
 
-#define APPEND_GEN(str) do { \
-    size_t len = strlen(str); \
-    while (gen_len + len >= gen_cap) { gen_cap *= 2; gen = xrealloc(gen, gen_cap); } \
-    memcpy(gen + gen_len, str, len + 1); \
-    gen_len += len; \
-} while(0)
+#define APPEND_GEN(str)                                                                            \
+    do                                                                                             \
+    {                                                                                              \
+        size_t len = strlen(str);                                                                  \
+        while (gen_len + len >= gen_cap)                                                           \
+        {                                                                                          \
+            gen_cap *= 2;                                                                          \
+            gen = xrealloc(gen, gen_cap);                                                          \
+        }                                                                                          \
+        memcpy(gen + gen_len, str, len + 1);                                                       \
+        gen_len += len;                                                                            \
+    } while (0)
 
     APPEND_GEN("({ static char _b[4096]; _b[0]=0; char _t[1024]; ");
 
