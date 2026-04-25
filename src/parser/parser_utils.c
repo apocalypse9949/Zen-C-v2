@@ -3958,20 +3958,23 @@ char *process_fstring(ParserContext *ctx, const char *content, char ***used_syms
     char *s = xstrdup(content);
     char *cur = s;
 
-    // Helper macro to append string
-    #define APPEND_GEN(str) \
-        do { \
-            size_t l = strlen(str); \
-            if (curr_len + l + 1 > cap) { \
-                while (curr_len + l + 1 > cap) { \
-                    cap *= 2; \
-                } \
-                gen = xrealloc(gen, cap); \
-            } \
-            memcpy(gen + curr_len, str, l); \
-            curr_len += l; \
-            gen[curr_len] = '\0'; \
-        } while(0)
+// Helper macro to append string
+#define APPEND_GEN(str)                                                                            \
+    do                                                                                             \
+    {                                                                                              \
+        size_t l = strlen(str);                                                                    \
+        if (curr_len + l + 1 > cap)                                                                \
+        {                                                                                          \
+            while (curr_len + l + 1 > cap)                                                         \
+            {                                                                                      \
+                cap *= 2;                                                                          \
+            }                                                                                      \
+            gen = xrealloc(gen, cap);                                                              \
+        }                                                                                          \
+        memcpy(gen + curr_len, str, l);                                                            \
+        curr_len += l;                                                                             \
+        gen[curr_len] = '\0';                                                                      \
+    } while (0)
 
     while (*cur)
     {
@@ -4097,7 +4100,7 @@ char *process_fstring(ParserContext *ctx, const char *content, char ***used_syms
     }
 
     APPEND_GEN("_b; })");
-    #undef APPEND_GEN
+#undef APPEND_GEN
 
     free(s);
     return gen;
