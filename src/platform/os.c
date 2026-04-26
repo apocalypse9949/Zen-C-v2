@@ -370,9 +370,12 @@ int z_run_command(char *const argv[])
 #if ZC_OS_WINDOWS
     // Optimization: Cache quote_arg results and use memcpy instead of strcat to avoid O(N^2)
     int argc = 0;
-    while (argv[argc]) argc++;
+    while (argv[argc])
+    {
+        argc++;
+    }
 
-    char **quoted = argc > 0 ? malloc(argc * sizeof(char*)) : NULL;
+    char **quoted = argc > 0 ? malloc(argc * sizeof(char *)) : NULL;
     size_t cmd_len = 0;
     for (int i = 0; i < argc; i++)
     {
@@ -394,7 +397,10 @@ int z_run_command(char *const argv[])
         free(quoted[i]);
     }
     cmd_line[curr_pos] = '\0';
-    if (quoted) free(quoted);
+    if (quoted)
+    {
+        free(quoted);
+    }
 
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -461,9 +467,12 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
 
     // Optimization: Cache quote_arg results and use memcpy instead of strcat to avoid O(N^2)
     int argc = 0;
-    while (argv[argc]) argc++;
+    while (argv[argc])
+    {
+        argc++;
+    }
 
-    char **quoted = argc > 0 ? malloc(argc * sizeof(char*)) : NULL;
+    char **quoted = argc > 0 ? malloc(argc * sizeof(char *)) : NULL;
     size_t cmd_len = 0;
     for (int i = 0; i < argc; i++)
     {
@@ -485,7 +494,10 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
         free(quoted[i]);
     }
     cmd_line[curr_pos] = '\0';
-    if (quoted) free(quoted);
+    if (quoted)
+    {
+        free(quoted);
+    }
 
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
