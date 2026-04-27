@@ -6870,12 +6870,18 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                             {
                                 if (ac_len + 2 >= ac_sz)
                                 {
-                                    while (ac_len + 2 >= ac_sz) ac_sz *= 2;
+                                    while (ac_len + 2 >= ac_sz)
+                                    {
+                                        ac_sz *= 2;
+                                    }
                                     all_concrete = xrealloc(all_concrete, ac_sz);
                                 }
                                 if (au_len + 2 >= au_sz)
                                 {
-                                    while (au_len + 2 >= au_sz) au_sz *= 2;
+                                    while (au_len + 2 >= au_sz)
+                                    {
+                                        au_sz *= 2;
+                                    }
                                     all_unmangled = xrealloc(all_unmangled, au_sz);
                                 }
                                 all_concrete[ac_len++] = ',';
@@ -6887,14 +6893,20 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                             size_t c_len = strlen(concrete[i]);
                             if (ac_len + c_len + 1 >= ac_sz)
                             {
-                                while (ac_len + c_len + 1 >= ac_sz) ac_sz *= 2;
+                                while (ac_len + c_len + 1 >= ac_sz)
+                                {
+                                    ac_sz *= 2;
+                                }
                                 all_concrete = xrealloc(all_concrete, ac_sz);
                             }
 
                             size_t u_len = strlen(unmangled[i]);
                             if (au_len + u_len + 1 >= au_sz)
                             {
-                                while (au_len + u_len + 1 >= au_sz) au_sz *= 2;
+                                while (au_len + u_len + 1 >= au_sz)
+                                {
+                                    au_sz *= 2;
+                                }
                                 all_unmangled = xrealloc(all_unmangled, au_sz);
                             }
 
