@@ -368,26 +368,46 @@ static char *quote_arg(const char *arg)
 int z_run_command(char *const argv[])
 {
 #if ZC_OS_WINDOWS
+    int argc = 0;
+    while (argv[argc]) argc++;
+
+    // BOLT OPTIMIZATION: Cache quoted arguments and lengths to avoid calling
+    // quote_arg() twice and to enable O(N) string building with memcpy.
+    char **quoted_args = malloc(argc * sizeof(char*));
+    size_t *arg_lens = malloc(argc * sizeof(size_t));
+
     size_t cmd_len = 0;
-    for (int i = 0; argv[i]; i++)
+    for (int i = 0; i < argc; i++)
     {
-        char *q = quote_arg(argv[i]);
-        cmd_len += strlen(q) + 1;
-        free(q);
+        quoted_args[i] = quote_arg(argv[i]);
+        arg_lens[i] = strlen(quoted_args[i]);
+        cmd_len += arg_lens[i] + 1;
     }
 
-    char *cmd_line = malloc(cmd_len + 1);
-    cmd_line[0] = '\0';
-    for (int i = 0; argv[i]; i++)
+    char *cmd_line = malloc(cmd_len > 0 ? cmd_len : 1);
+    if (cmd_len == 0)
     {
-        char *q = quote_arg(argv[i]);
-        strcat(cmd_line, q);
-        if (argv[i + 1])
-        {
-            strcat(cmd_line, " ");
-        }
-        free(q);
+        cmd_line[0] = '\0';
     }
+    else
+    {
+        size_t offset = 0;
+        // BOLT OPTIMIZATION: Replace O(N^2) strcat in a loop with O(N) memcpy
+        // using precise offsets. Significantly faster for long command lines.
+        for (int i = 0; i < argc; i++)
+        {
+            memcpy(cmd_line + offset, quoted_args[i], arg_lens[i]);
+            offset += arg_lens[i];
+            if (i + 1 < argc)
+            {
+                cmd_line[offset++] = ' ';
+            }
+            free(quoted_args[i]);
+        }
+        cmd_line[offset] = '\0';
+    }
+    free(quoted_args);
+    free(arg_lens);
 
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -452,26 +472,46 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
     }
     SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
 
+    int argc = 0;
+    while (argv[argc]) argc++;
+
+    // BOLT OPTIMIZATION: Cache quoted arguments and lengths to avoid calling
+    // quote_arg() twice and to enable O(N) string building with memcpy.
+    char **quoted_args = malloc(argc * sizeof(char*));
+    size_t *arg_lens = malloc(argc * sizeof(size_t));
+
     size_t cmd_len = 0;
-    for (int i = 0; argv[i]; i++)
+    for (int i = 0; i < argc; i++)
     {
-        char *q = quote_arg(argv[i]);
-        cmd_len += strlen(q) + 1;
-        free(q);
+        quoted_args[i] = quote_arg(argv[i]);
+        arg_lens[i] = strlen(quoted_args[i]);
+        cmd_len += arg_lens[i] + 1;
     }
 
-    char *cmd_line = malloc(cmd_len + 1);
-    cmd_line[0] = '\0';
-    for (int i = 0; argv[i]; i++)
+    char *cmd_line = malloc(cmd_len > 0 ? cmd_len : 1);
+    if (cmd_len == 0)
     {
-        char *q = quote_arg(argv[i]);
-        strcat(cmd_line, q);
-        if (argv[i + 1])
-        {
-            strcat(cmd_line, " ");
-        }
-        free(q);
+        cmd_line[0] = '\0';
     }
+    else
+    {
+        size_t offset = 0;
+        // BOLT OPTIMIZATION: Replace O(N^2) strcat in a loop with O(N) memcpy
+        // using precise offsets. Significantly faster for long command lines.
+        for (int i = 0; i < argc; i++)
+        {
+            memcpy(cmd_line + offset, quoted_args[i], arg_lens[i]);
+            offset += arg_lens[i];
+            if (i + 1 < argc)
+            {
+                cmd_line[offset++] = ' ';
+            }
+            free(quoted_args[i]);
+        }
+        cmd_line[offset] = '\0';
+    }
+    free(quoted_args);
+    free(arg_lens);
 
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;

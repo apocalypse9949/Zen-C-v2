@@ -1,0 +1,3 @@
+## 2024-04-29 - O(N^2) String Concatenation in Command Line Generation
+**Learning:** Found nested loops utilizing `strcat` to build Windows command lines, resulting in Schlemiel the Painter's algorithm (O(N^2)). Additionally, `quote_arg` was being called redundantly in two separate loops, causing unnecessary memory allocations and CPU overhead.
+**Action:** When dynamically generating large strings from multiple unknown components, cache the pre-computed lengths and use linear buffer population with `memcpy` and a tracking `offset` to guarantee O(N) execution time. Avoid calling expensive formatting functions redundantly.
