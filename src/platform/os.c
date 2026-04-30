@@ -369,11 +369,14 @@ int z_run_command(char *const argv[])
 {
 #if ZC_OS_WINDOWS
     int argc = 0;
-    while (argv[argc]) argc++;
+    while (argv[argc])
+    {
+        argc++;
+    }
 
     // BOLT OPTIMIZATION: Cache quoted arguments and lengths to avoid calling
     // quote_arg() twice and to enable O(N) string building with memcpy.
-    char **quoted_args = malloc(argc * sizeof(char*));
+    char **quoted_args = malloc(argc * sizeof(char *));
     size_t *arg_lens = malloc(argc * sizeof(size_t));
 
     size_t cmd_len = 0;
@@ -473,11 +476,14 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
     SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
 
     int argc = 0;
-    while (argv[argc]) argc++;
+    while (argv[argc])
+    {
+        argc++;
+    }
 
     // BOLT OPTIMIZATION: Cache quoted arguments and lengths to avoid calling
     // quote_arg() twice and to enable O(N) string building with memcpy.
-    char **quoted_args = malloc(argc * sizeof(char*));
+    char **quoted_args = malloc(argc * sizeof(char *));
     size_t *arg_lens = malloc(argc * sizeof(size_t));
 
     size_t cmd_len = 0;
