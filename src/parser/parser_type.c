@@ -129,7 +129,8 @@ Type *parse_type_base(ParserContext *ctx, Lexer *l)
         {
             // Verify it is a purely numeric suffix
             int valid = 1;
-            for (size_t k = 1; k < strlen(name); k++)
+            // Iterate until null terminator to avoid O(N^2) strlen overhead
+            for (size_t k = 1; name[k] != '\0'; k++)
             {
                 if (!isdigit(name[k]))
                 {
