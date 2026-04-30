@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "../ast/ast.h"
+#include "cmd.h"
 #include "../plugins/plugin_manager.h"
 #include "../zen/zen_facts.h"
 #include "zprep_plugin.h"
@@ -4801,59 +4802,43 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     fprintf(f, "return 0;\n}\n");
     fclose(f);
 
-    char cmdbuf[MAX_PATH_LEN * 3];
     char bin[MAX_PATH_LEN];
 
     sprintf(bin, "%s%s", filename, z_get_exe_ext());
 
-    // Use quotes for paths to prevent injection/errors with spaces
-#if ZC_OS_WINDOWS
-    // On Windows, system() uses cmd.exe /c. If the command starts with a quote and has multiple
-    // quotes, cmd.exe strips the first and last quote. Wrapping the whole thing in another pair of
-    // quotes fixes this.
-    snprintf(cmdbuf, sizeof(cmdbuf),
-             "\"%s \"%s\" -o \"%s\" -Istd -Istd/third-party/tre/include %s\"", g_config.cc,
-             filename, bin, z_get_comptime_link_flags());
-#else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s \"%s\" -o \"%s\" -Istd -Istd/third-party/tre/include %s",
-             g_config.cc, filename, bin, z_get_comptime_link_flags());
-#endif
+    ArgList args;
+    arg_list_init(&args);
+    arg_list_add_from_string(&args, g_config.cc);
+    arg_list_add(&args, filename);
+    arg_list_add(&args, "-o");
+    arg_list_add(&args, bin);
+    arg_list_add(&args, "-Istd");
+    arg_list_add(&args, "-Istd/third-party/tre/include");
+    arg_list_add_from_string(&args, z_get_comptime_link_flags());
 
-    if (!g_config.verbose)
-    {
-        strcat(cmdbuf, z_get_null_redirect());
-    }
-
-    int res = system(cmdbuf);
+    int res = arg_run(&args);
+    arg_list_free(&args);
     if (res != 0)
     {
         zpanic_at(lexer_peek(l), "Comptime compilation failed for:\n%s", code);
     }
 
-    char out_file[MAX_PATH_LEN];
-    sprintf(out_file, "%s.out", filename);
+    char run_cmd[MAX_PATH_LEN * 2];
+    sprintf(run_cmd, "%s%s", z_get_run_prefix(), bin);
 
-    // Execution command
-#if ZC_OS_WINDOWS
-    snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\"%s\" > \"%s\"\"", z_get_run_prefix(), bin, out_file);
-#else
-    snprintf(cmdbuf, sizeof(cmdbuf), "%s\"%s\" > \"%s\"", z_get_run_prefix(), bin, out_file);
-#endif
+    char *argv_exec[] = {run_cmd, NULL};
+    char *output_buf = xmalloc(65536);
+    output_buf[0] = '\0';
 
-    if (system(cmdbuf) != 0)
+    if (z_run_command_capture(argv_exec, output_buf, 65536) != 0)
     {
         zpanic_at(lexer_peek(l), "Comptime execution failed");
     }
 
-    char *output_src = load_file(out_file);
-    if (!output_src)
-    {
-        output_src = xstrdup(""); // Empty output is valid
-    }
+    char *output_src = output_buf;
 
     remove(filename);
     remove(bin);
-    remove(out_file);
     free(code);
 
     return output_src;
