@@ -328,24 +328,36 @@ Type *parse_type_base(ParserContext *ctx, Lexer *l)
                     instantiate_generic_multi(ctx, name, args, arg_count, t);
                 }
 
-                // Build mangled name dynamically
-                size_t mangled_len = strlen(name) + 1;
+                // Build mangled name dynamically in O(N) by caching clean names and manual length tracking
+                size_t name_len = strlen(name);
+                size_t mangled_len = name_len + 1;
+                char **clean_args = xmalloc(arg_count * sizeof(char *));
+                size_t *clean_lens = xmalloc(arg_count * sizeof(size_t));
+
                 for (int i = 0; i < arg_count; i++)
                 {
-                    char *clean = sanitize_mangled_name(args[i]);
-                    mangled_len += 2 + strlen(clean);
-                    free(clean);
+                    clean_args[i] = sanitize_mangled_name(args[i]);
+                    clean_lens[i] = strlen(clean_args[i]);
+                    mangled_len += 2 + clean_lens[i];
                 }
+
                 char *mangled = xmalloc(mangled_len);
-                strcpy(mangled, name);
+                mangled[0] = '\0';
+                memcpy(mangled, name, name_len);
+                size_t curr_len = name_len;
+
                 for (int i = 0; i < arg_count; i++)
                 {
-                    char *clean = sanitize_mangled_name(args[i]);
-                    strcat(mangled, "__");
-                    strcat(mangled, clean);
-                    free(clean);
+                    memcpy(mangled + curr_len, "__", 2);
+                    curr_len += 2;
+                    memcpy(mangled + curr_len, clean_args[i], clean_lens[i]);
+                    curr_len += clean_lens[i];
+                    free(clean_args[i]);
                     free(args[i]);
                 }
+                mangled[curr_len] = '\0';
+                free(clean_args);
+                free(clean_lens);
                 free(args);
 
                 free(ty->name);
