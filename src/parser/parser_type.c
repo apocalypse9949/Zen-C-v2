@@ -328,7 +328,8 @@ Type *parse_type_base(ParserContext *ctx, Lexer *l)
                     instantiate_generic_multi(ctx, name, args, arg_count, t);
                 }
 
-                // Build mangled name dynamically in O(N) by caching clean names and manual length tracking
+                // Build mangled name dynamically in O(N) by caching clean names and manual length
+                // tracking
                 size_t name_len = strlen(name);
                 size_t mangled_len = name_len + 1;
                 char **clean_args = xmalloc(arg_count * sizeof(char *));
