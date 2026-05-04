@@ -676,8 +676,11 @@ char *extract_call_args(const char *args)
     {
         return xstrdup("");
     }
-    char *out = xmalloc(strlen(args) + 1);
-    out[0] = 0;
+    // Optimization: Track string length manually instead of calling strlen on each iteration
+    // inside the loop, and use memcpy instead of strcat to achieve O(N) performance.
+    char *out = xmalloc(strlen(args) * 2 + 1);
+    out[0] = '\0';
+    size_t out_len = 0;
 
     char *dup = xstrdup(args);
     char *p = strtok(dup, ",");
@@ -700,11 +703,15 @@ char *extract_call_args(const char *args)
             name = ptr_star + 1;
         }
 
-        if (strlen(out) > 0)
+        size_t name_len = strlen(name);
+        if (out_len > 0)
         {
-            strcat(out, ", ");
+            memcpy(out + out_len, ", ", 2);
+            out_len += 2;
         }
-        strcat(out, name);
+        memcpy(out + out_len, name, name_len);
+        out_len += name_len;
+        out[out_len] = '\0';
 
         p = strtok(NULL, ",");
     }
