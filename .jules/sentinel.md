@@ -1,0 +1,5 @@
+## 2026-05-05 - Unsafe Use of rand() for Temporary Filenames
+
+**Vulnerability:** The codebase uses `rand()` combined with `sprintf` or `snprintf` to generate temporary filenames in multiple places (e.g. `src/repl/repl.c` and `src/parser/parser_stmt.c`).
+**Learning:** `rand()` generates predictable sequences, making temporary filenames guessable. This predictability, combined with predictable directories like `/tmp`, can lead to insecure temporary file creation, allowing attackers to perform symlink attacks or pre-create files to manipulate program behavior, resulting in denial of service or privilege escalation.
+**Prevention:** Avoid `rand()` alone for generating temporary filenames. Use a combination of `z_get_temp_dir()`, `z_get_pid()`, and a static counter to ensure unique and unpredictable filenames per run, avoiding race conditions and predictably guessable names. Alternatively, standard functions like `mkstemp` could be used where appropriate, but cross-platform implementations in the platform/os utility should be preferred.

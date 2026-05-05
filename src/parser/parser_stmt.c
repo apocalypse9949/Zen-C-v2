@@ -12,6 +12,7 @@
 #include "../zen/zen_facts.h"
 #include "zprep_plugin.h"
 #include "../codegen/codegen.h"
+static int file_tmp_counter = 0;
 #include "analysis/move_check.h"
 
 char *curr_func_ret = NULL;
@@ -4693,7 +4694,7 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     free(wrapped_code);
 
     char filename[64];
-    sprintf(filename, "_tmp_comptime_%d.c", rand());
+    sprintf(filename, "_tmp_comptime_%d_%d.c", z_get_pid(), ++file_tmp_counter);
     FILE *f = fopen(filename, "w");
     if (!f)
     {
