@@ -676,8 +676,9 @@ char *extract_call_args(const char *args)
     {
         return xstrdup("");
     }
-    char *out = xmalloc(strlen(args) + 1);
+    char *out = xmalloc(strlen(args) * 2 + 1);
     out[0] = 0;
+    size_t curr_len = 0;
 
     char *dup = xstrdup(args);
     char *p = strtok(dup, ",");
@@ -700,11 +701,16 @@ char *extract_call_args(const char *args)
             name = ptr_star + 1;
         }
 
-        if (strlen(out) > 0)
+        if (curr_len > 0)
         {
-            strcat(out, ", ");
+            memcpy(out + curr_len, ", ", 2);
+            curr_len += 2;
         }
-        strcat(out, name);
+
+        size_t name_len = strlen(name);
+        memcpy(out + curr_len, name, name_len);
+        curr_len += name_len;
+        out[curr_len] = '\0';
 
         p = strtok(NULL, ",");
     }

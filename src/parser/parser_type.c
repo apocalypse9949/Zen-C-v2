@@ -329,23 +329,29 @@ Type *parse_type_base(ParserContext *ctx, Lexer *l)
                 }
 
                 // Build mangled name dynamically
-                size_t mangled_len = strlen(name) + 1;
+                char **clean_args = xmalloc(arg_count * sizeof(char*));
+                size_t name_len = strlen(name);
+                size_t mangled_len = name_len + 1;
                 for (int i = 0; i < arg_count; i++)
                 {
-                    char *clean = sanitize_mangled_name(args[i]);
-                    mangled_len += 2 + strlen(clean);
-                    free(clean);
+                    clean_args[i] = sanitize_mangled_name(args[i]);
+                    mangled_len += 2 + strlen(clean_args[i]);
                 }
                 char *mangled = xmalloc(mangled_len);
-                strcpy(mangled, name);
+                memcpy(mangled, name, name_len);
+                size_t curr_len = name_len;
                 for (int i = 0; i < arg_count; i++)
                 {
-                    char *clean = sanitize_mangled_name(args[i]);
-                    strcat(mangled, "__");
-                    strcat(mangled, clean);
-                    free(clean);
+                    memcpy(mangled + curr_len, "__", 2);
+                    curr_len += 2;
+                    size_t clean_len = strlen(clean_args[i]);
+                    memcpy(mangled + curr_len, clean_args[i], clean_len);
+                    curr_len += clean_len;
+                    free(clean_args[i]);
                     free(args[i]);
                 }
+                mangled[curr_len] = '\0';
+                free(clean_args);
                 free(args);
 
                 free(ty->name);
