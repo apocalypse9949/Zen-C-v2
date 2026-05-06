@@ -2867,23 +2867,27 @@ static ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                         {
                             if (i > 0)
                             {
-                                if (fc_len + 1 < MAX_ERROR_MSG_LEN) {
+                                if (fc_len + 1 < MAX_ERROR_MSG_LEN)
+                                {
                                     full_concrete[fc_len++] = ',';
                                     full_concrete[fc_len] = '\0';
                                 }
-                                if (fu_len + 1 < MAX_ERROR_MSG_LEN) {
+                                if (fu_len + 1 < MAX_ERROR_MSG_LEN)
+                                {
                                     full_unmangled[fu_len++] = ',';
                                     full_unmangled[fu_len] = '\0';
                                 }
                             }
                             size_t c_len = strlen(concrete_types[i]);
-                            if (fc_len + c_len < MAX_ERROR_MSG_LEN) {
+                            if (fc_len + c_len < MAX_ERROR_MSG_LEN)
+                            {
                                 memcpy(full_concrete + fc_len, concrete_types[i], c_len);
                                 fc_len += c_len;
                                 full_concrete[fc_len] = '\0';
                             }
                             size_t u_len = strlen(unmangled_types[i]);
-                            if (fu_len + u_len < MAX_ERROR_MSG_LEN) {
+                            if (fu_len + u_len < MAX_ERROR_MSG_LEN)
+                            {
                                 memcpy(full_unmangled + fu_len, unmangled_types[i], u_len);
                                 fu_len += u_len;
                                 full_unmangled[fu_len] = '\0';
@@ -6859,12 +6863,18 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                             {
                                 if (ac_len + 2 > ac_sz)
                                 {
-                                    while (ac_len + 2 > ac_sz) ac_sz *= 2;
+                                    while (ac_len + 2 > ac_sz)
+                                    {
+                                        ac_sz *= 2;
+                                    }
                                     all_concrete = xrealloc(all_concrete, ac_sz);
                                 }
                                 if (au_len + 2 > au_sz)
                                 {
-                                    while (au_len + 2 > au_sz) au_sz *= 2;
+                                    while (au_len + 2 > au_sz)
+                                    {
+                                        au_sz *= 2;
+                                    }
                                     all_unmangled = xrealloc(all_unmangled, au_sz);
                                 }
                                 all_concrete[ac_len++] = ',';
@@ -6877,12 +6887,18 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
 
                             if (ac_len + c_len + 1 > ac_sz)
                             {
-                                while (ac_len + c_len + 1 > ac_sz) ac_sz *= 2;
+                                while (ac_len + c_len + 1 > ac_sz)
+                                {
+                                    ac_sz *= 2;
+                                }
                                 all_concrete = xrealloc(all_concrete, ac_sz);
                             }
                             if (au_len + u_len + 1 > au_sz)
                             {
-                                while (au_len + u_len + 1 > au_sz) au_sz *= 2;
+                                while (au_len + u_len + 1 > au_sz)
+                                {
+                                    au_sz *= 2;
+                                }
                                 all_unmangled = xrealloc(all_unmangled, au_sz);
                             }
 
