@@ -329,7 +329,7 @@ Type *parse_type_base(ParserContext *ctx, Lexer *l)
                 }
 
                 // Build mangled name dynamically
-                char **clean_args = xmalloc(arg_count * sizeof(char*));
+                char **clean_args = xmalloc(arg_count * sizeof(char *));
                 size_t name_len = strlen(name);
                 size_t mangled_len = name_len + 1;
                 for (int i = 0; i < arg_count; i++)
