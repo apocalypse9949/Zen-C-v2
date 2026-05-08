@@ -1,0 +1,3 @@
+## 2026-05-08 - O(N^2) strcat and Buffer Overflow in extract_call_args
+**Learning:** `extract_call_args` used repeated `strlen` and `strcat` in a loop, resulting in O(N^2) complexity. Additionally, allocating `strlen(args) + 1` was insufficient because inserting ", " separators for dense arguments (like "int a,int b") can cause the output to exceed the original length, leading to a buffer overflow.
+**Action:** Always replace repeated `strcat` loops with manual length tracking and `memcpy` for O(N) performance. Ensure buffer allocations account for added separator characters (e.g. `strlen(args) * 2 + 1`).
