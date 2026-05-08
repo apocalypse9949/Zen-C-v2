@@ -670,7 +670,8 @@ char *infer_type(ParserContext *ctx, ASTNode *node)
 }
 
 // Extract variable names from argument string.
-// ⚡ Bolt: Optimized extract_call_args to O(N) by manually tracking the string length and using memcpy instead of repeatedly calling strcat and strlen in a loop.
+// ⚡ Bolt: Optimized extract_call_args to O(N) by manually tracking the string length and using
+// memcpy instead of repeatedly calling strcat and strlen in a loop.
 char *extract_call_args(const char *args)
 {
     if (!args || args[0] == '\0')
