@@ -2806,21 +2806,32 @@ static ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                     {
                         // Calculate mangled length
                         size_t mangled_len = strlen(acc) + 1;
+                        char **cached_cleans = xmalloc(arg_count * sizeof(char *));
+                        size_t *cached_lens = xmalloc(arg_count * sizeof(size_t));
+
                         for (int i = 0; i < arg_count; ++i)
                         {
-                            char *clean = sanitize_mangled_name(concrete_types[i]);
-                            mangled_len += 2 + strlen(clean);
-                            free(clean);
+                            cached_cleans[i] = sanitize_mangled_name(concrete_types[i]);
+                            cached_lens[i] = strlen(cached_cleans[i]);
+                            mangled_len += 2 + cached_lens[i];
                         }
+
                         char *mangled = xmalloc(mangled_len);
-                        strcpy(mangled, acc);
+                        size_t acc_len = strlen(acc);
+                        memcpy(mangled, acc, acc_len);
+                        size_t curr_len = acc_len;
+
                         for (int i = 0; i < arg_count; ++i)
                         {
-                            char *clean = sanitize_mangled_name(concrete_types[i]);
-                            strcat(mangled, "__");
-                            strcat(mangled, clean);
-                            free(clean);
+                            mangled[curr_len++] = '_';
+                            mangled[curr_len++] = '_';
+                            memcpy(mangled + curr_len, cached_cleans[i], cached_lens[i]);
+                            curr_len += cached_lens[i];
+                            free(cached_cleans[i]);
                         }
+                        mangled[curr_len] = '\0';
+                        free(cached_cleans);
+                        free(cached_lens);
 
                         int is_generic_dep = 0;
                         for (int i = 0; i < arg_count; ++i)
@@ -4875,9 +4886,11 @@ char *resolve_struct_name_from_type(ParserContext *ctx, Type *t, int *is_ptr_out
                 // We must construct Foo_T, ensuring we measure SANITIZED length.
                 int len = strlen(struct_type->name) + 1;
 
-                // Pass 1: Calculate Length
+                // Pass 1: Calculate Length and Cache
+                char **cached_cleans = xmalloc(struct_type->arg_count * sizeof(char *));
                 for (int i = 0; i < struct_type->arg_count; i++)
                 {
+                    cached_cleans[i] = NULL;
                     Type *arg = struct_type->args[i];
                     if (arg)
                     {
@@ -4888,7 +4901,7 @@ char *resolve_struct_name_from_type(ParserContext *ctx, Type *t, int *is_ptr_out
                             if (clean)
                             {
                                 len += strlen(clean) + 2; // +2 for '__'
-                                free(clean);
+                                cached_cleans[i] = clean;
                             }
                             free(s);
                         }
@@ -4896,28 +4909,25 @@ char *resolve_struct_name_from_type(ParserContext *ctx, Type *t, int *is_ptr_out
                 }
 
                 char *mangled = xmalloc(len + 1);
-                strcpy(mangled, struct_type->name);
+                size_t name_len = strlen(struct_type->name);
+                memcpy(mangled, struct_type->name, name_len);
+                size_t curr_len = name_len;
 
                 // Pass 2: Build String
                 for (int i = 0; i < struct_type->arg_count; i++)
                 {
-                    Type *arg = struct_type->args[i];
-                    if (arg)
+                    if (cached_cleans[i])
                     {
-                        char *arg_str = type_to_string(arg);
-                        if (arg_str)
-                        {
-                            char *clean = sanitize_mangled_name(arg_str);
-                            if (clean)
-                            {
-                                strcat(mangled, "__");
-                                strcat(mangled, clean);
-                                free(clean);
-                            }
-                            free(arg_str);
-                        }
+                        mangled[curr_len++] = '_';
+                        mangled[curr_len++] = '_';
+                        size_t c_len = strlen(cached_cleans[i]);
+                        memcpy(mangled + curr_len, cached_cleans[i], c_len);
+                        curr_len += c_len;
+                        free(cached_cleans[i]);
                     }
                 }
+                mangled[curr_len] = '\0';
+                free(cached_cleans);
                 struct_name = mangled;
                 *allocated_out = mangled;
             }
@@ -6831,37 +6841,53 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                         size_t ac_sz = 1024, au_sz = 1024;
                         char *all_concrete = xmalloc(ac_sz);
                         char *all_unmangled = xmalloc(au_sz);
-                        all_concrete[0] = 0;
-                        all_unmangled[0] = 0;
+                        all_concrete[0] = '\0';
+                        all_unmangled[0] = '\0';
+                        size_t ac_len = 0;
+                        size_t au_len = 0;
+
                         for (int i = 0; i < argc; i++)
                         {
                             if (i > 0)
                             {
-                                if (strlen(all_concrete) + 2 >= ac_sz)
+                                if (ac_len + 2 >= ac_sz)
                                 {
-                                    ac_sz *= 2;
+                                    while (ac_len + 2 >= ac_sz) { ac_sz *= 2; }
                                     all_concrete = xrealloc(all_concrete, ac_sz);
                                 }
-                                if (strlen(all_unmangled) + 2 >= au_sz)
+                                if (au_len + 2 >= au_sz)
                                 {
-                                    au_sz *= 2;
+                                    while (au_len + 2 >= au_sz) { au_sz *= 2; }
                                     all_unmangled = xrealloc(all_unmangled, au_sz);
                                 }
-                                strcat(all_concrete, ",");
-                                strcat(all_unmangled, ",");
+                                all_concrete[ac_len++] = ',';
+                                all_concrete[ac_len] = '\0';
+                                all_unmangled[au_len++] = ',';
+                                all_unmangled[au_len] = '\0';
                             }
-                            if (strlen(all_concrete) + strlen(concrete[i]) + 1 >= ac_sz)
+
+                            size_t c_len = strlen(concrete[i]);
+                            if (ac_len + c_len + 1 >= ac_sz)
                             {
-                                ac_sz += strlen(concrete[i]) + 1;
+                                while (ac_len + c_len + 1 >= ac_sz) { ac_sz *= 2; }
                                 all_concrete = xrealloc(all_concrete, ac_sz);
                             }
-                            if (strlen(all_unmangled) + strlen(unmangled[i]) + 1 >= au_sz)
+
+                            size_t u_len = strlen(unmangled[i]);
+                            if (au_len + u_len + 1 >= au_sz)
                             {
-                                au_sz += strlen(unmangled[i]) + 1;
+                                while (au_len + u_len + 1 >= au_sz) { au_sz *= 2; }
                                 all_unmangled = xrealloc(all_unmangled, au_sz);
                             }
-                            strcat(all_concrete, concrete[i]);
-                            strcat(all_unmangled, unmangled[i]);
+
+                            memcpy(all_concrete + ac_len, concrete[i], c_len);
+                            ac_len += c_len;
+                            all_concrete[ac_len] = '\0';
+
+                            memcpy(all_unmangled + au_len, unmangled[i], u_len);
+                            au_len += u_len;
+                            all_unmangled[au_len] = '\0';
+
                             free(concrete[i]);
                             free(unmangled[i]);
                         }
