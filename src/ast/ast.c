@@ -627,69 +627,80 @@ static char *type_to_string_impl(Type *t)
 
     case TYPE_FUNCTION:
     {
-        if (t->is_raw)
-        {
-            // fn*(Args)->Ret
-            char *ret = type_to_string(t->inner);
-            char *res = xmalloc(strlen(ret) + 64);
-            snprintf(res, strlen(ret) + 64, "fn*(");
+        // ⚡ Bolt Optimization: Use a two-pass approach to avoid O(N^2) memory reallocations.
+        // First pass: calculate total string length required.
+        char *ret = type_to_string(t->inner);
+        size_t total_len = t->is_raw ? 4 : 3; // "fn*(" or "fn("
+        total_len += strlen(ret) + 6;         // ") -> " + ret + \0
 
-            for (int i = 0; i < t->arg_count; i++)
-            {
-                if (i > 0)
-                {
-                    char *tmp = xmalloc(strlen(res) + 3);
-                    snprintf(tmp, strlen(res) + 3, "%s, ", res);
-                    free(res);
-                    res = tmp;
-                }
-                char *arg = type_to_string(t->args[i]);
-                char *tmp = xmalloc(strlen(res) + strlen(arg) + 1);
-                sprintf(tmp, "%s%s", res, arg);
-                free(res);
-                res = tmp;
-                free(arg);
-            }
-            if (t->is_varargs)
-            {
-                char *tmp = xmalloc(strlen(res) + 6);
-                sprintf(tmp, "%s, ...", res);
-                free(res);
-                res = tmp;
-            }
-            char *tmp = xmalloc(strlen(res) + strlen(ret) + 6); // ) -> Ret
-            sprintf(tmp, "%s) -> %s", res, ret);
-            free(res);
-            res = tmp;
-            free(ret);
-            return res;
+        char **arg_strs = xmalloc(t->arg_count * sizeof(char *));
+        for (int i = 0; i < t->arg_count; i++)
+        {
+            arg_strs[i] = type_to_string(t->args[i]);
+            total_len += strlen(arg_strs[i]);
+            if (i > 0)
+                total_len += 2; // ", "
         }
 
-        // fn(Args) -> Ret
-        char *ret = type_to_string(t->inner);
-        char *res = xmalloc(strlen(ret) + 64);
-        snprintf(res, strlen(ret) + 64, "fn(");
+        if (t->is_varargs)
+        {
+            if (t->arg_count > 0)
+                total_len += 5; // ", ..."
+            else
+                total_len += 3; // "..."
+        }
+
+        char *res = xmalloc(total_len);
+        res[0] = '\0';
+        char *ptr = res;
+
+        if (t->is_raw)
+        {
+            memcpy(ptr, "fn*(", 4);
+            ptr += 4;
+        }
+        else
+        {
+            memcpy(ptr, "fn(", 3);
+            ptr += 3;
+        }
 
         for (int i = 0; i < t->arg_count; i++)
         {
             if (i > 0)
             {
-                char *tmp = xmalloc(strlen(res) + 3);
-                snprintf(tmp, strlen(res) + 3, "%s, ", res);
-                free(res);
-                res = tmp;
+                memcpy(ptr, ", ", 2);
+                ptr += 2;
             }
-            char *arg = type_to_string(t->args[i]);
-            char *tmp = xmalloc(strlen(res) + strlen(arg) + 1);
-            sprintf(tmp, "%s%s", res, arg);
-            free(res);
-            res = tmp;
-            free(arg);
+            size_t arg_len = strlen(arg_strs[i]);
+            memcpy(ptr, arg_strs[i], arg_len);
+            ptr += arg_len;
+            free(arg_strs[i]);
         }
-        char *tmp = xmalloc(strlen(res) + strlen(ret) + 6); // ) -> Ret
-        sprintf(tmp, "%s) -> %s", res, ret);
-        free(res);
-        res = tmp;
+        free(arg_strs);
+
+        if (t->is_varargs)
+        {
+            if (t->arg_count > 0)
+            {
+                memcpy(ptr, ", ...", 5);
+                ptr += 5;
+            }
+            else
+            {
+                memcpy(ptr, "...", 3);
+                ptr += 3;
+            }
+        }
+
+        memcpy(ptr, ") -> ", 5);
+        ptr += 5;
+
+        size_t ret_len = strlen(ret);
+        memcpy(ptr, ret, ret_len);
+        ptr += ret_len;
+        *ptr = '\0';
+
         free(ret);
         return res;
     }
@@ -965,47 +976,72 @@ static char *type_to_c_string_impl(Type *t)
     case TYPE_FUNCTION:
         if (t->is_raw)
         {
+            // ⚡ Bolt Optimization: Use a two-pass approach to avoid O(N^2) memory reallocations.
+            // First pass: calculate total string length required.
             char *ret = type_to_c_string(t->inner);
-            char *res = xmalloc(strlen(ret) + 64); // heuristic start buffer
-            snprintf(res, strlen(ret) + 64, "%s (*)(", ret);
+            size_t ret_len = strlen(ret);
+            size_t total_len = ret_len + 5; // ret + " (*)("
+
+            char **arg_strs = xmalloc(t->arg_count * sizeof(char *));
+            for (int i = 0; i < t->arg_count; i++)
+            {
+                arg_strs[i] = type_to_c_string(t->args[i]);
+                total_len += strlen(arg_strs[i]);
+                if (i > 0)
+                    total_len += 2; // ", "
+            }
+
+            if (t->is_varargs)
+            {
+                if (t->arg_count > 0)
+                    total_len += 5; // ", ..."
+                else
+                    total_len += 3; // "..."
+            }
+
+            total_len += 2; // ")" + \0
+
+            char *res = xmalloc(total_len);
+            char *ptr = res;
+
+            memcpy(ptr, ret, ret_len);
+            ptr += ret_len;
+
+            memcpy(ptr, " (*)(", 5);
+            ptr += 5;
 
             for (int i = 0; i < t->arg_count; i++)
             {
                 if (i > 0)
                 {
-                    char *tmp = xmalloc(strlen(res) + 3);
-                    snprintf(tmp, strlen(res) + 3, "%s, ", res);
-                    free(res);
-                    res = tmp;
+                    memcpy(ptr, ", ", 2);
+                    ptr += 2;
                 }
-                char *arg = type_to_c_string(t->args[i]);
-                char *tmp = xmalloc(strlen(res) + strlen(arg) + 1);
-                sprintf(tmp, "%s%s", res, arg);
-                free(res);
-                res = tmp;
-                free(arg);
+                size_t arg_len = strlen(arg_strs[i]);
+                memcpy(ptr, arg_strs[i], arg_len);
+                ptr += arg_len;
+                free(arg_strs[i]);
             }
+            free(arg_strs);
+
             if (t->is_varargs)
             {
                 if (t->arg_count > 0)
                 {
-                    char *tmp = xmalloc(strlen(res) + 6);
-                    sprintf(tmp, "%s, ...", res);
-                    free(res);
-                    res = tmp;
+                    memcpy(ptr, ", ...", 5);
+                    ptr += 5;
                 }
                 else
                 {
-                    char *tmp = xmalloc(strlen(res) + 4);
-                    sprintf(tmp, "%s...", res);
-                    free(res);
-                    res = tmp;
+                    memcpy(ptr, "...", 3);
+                    ptr += 3;
                 }
             }
-            char *tmp = xmalloc(strlen(res) + 2);
-            sprintf(tmp, "%s)", res);
-            free(res);
-            res = tmp;
+
+            memcpy(ptr, ")", 2); // Includes null terminator implicitly if we just do \0 next
+            ptr += 1;
+            *ptr = '\0';
+
             free(ret);
             return res;
         }

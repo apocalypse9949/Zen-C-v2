@@ -1,0 +1,3 @@
+## 2026-05-10 - Optimization: Replaced O(N^2) formatting in `type_to_string` with O(N) two-pass pre-allocation
+**Learning:** Sequential calls to `xmalloc` and `snprintf` in loops that concatenate function parameters generated O(N^2) allocations and operations, which degrades significantly for complex nested generic/function structures.
+**Action:** When constructing strings across unbounded lists in C (e.g. function type parameter lists), always default to a two-pass architecture: calculate total capacity in a pre-pass, perform a single contiguous memory allocation, and use manual pointer arithmetic with `memcpy` to populate the buffer.
