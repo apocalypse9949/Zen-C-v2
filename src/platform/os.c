@@ -492,15 +492,23 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
 
     CloseHandle(hWritePipe);
 
-    DWORD bytesRead;
-    if (ReadFile(hReadPipe, buffer, (DWORD)size - 1, &bytesRead, NULL))
+    DWORD total = 0;
+    while (1)
     {
-        buffer[bytesRead] = '\0';
+        DWORD bytesRead = 0;
+        if (!ReadFile(hReadPipe, buffer + total, (DWORD)(size - 1 - total), &bytesRead, NULL) || bytesRead == 0)
+        {
+            break;
+        }
+        total += bytesRead;
+        if (total >= size - 1)
+        {
+            char discard[1024];
+            while (ReadFile(hReadPipe, discard, sizeof(discard), &bytesRead, NULL) && bytesRead > 0) {}
+            break;
+        }
     }
-    else
-    {
-        buffer[0] = '\0';
-    }
+    buffer[total] = '\0';
 
     CloseHandle(hReadPipe);
     WaitForSingleObject(pi.hProcess, INFINITE);
@@ -535,15 +543,23 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
     else
     {
         close(pipefd[1]);
-        ssize_t n = read(pipefd[0], buffer, size - 1);
-        if (n >= 0)
+        size_t total = 0;
+        while (1)
         {
-            buffer[n] = '\0';
+            ssize_t n = read(pipefd[0], buffer + total, size - 1 - total);
+            if (n <= 0)
+            {
+                break;
+            }
+            total += n;
+            if (total >= size - 1)
+            {
+                char discard[1024];
+                while (read(pipefd[0], discard, sizeof(discard)) > 0) {}
+                break;
+            }
         }
-        else
-        {
-            buffer[0] = '\0';
-        }
+        buffer[total] = '\0';
         close(pipefd[0]);
 
         int status;
