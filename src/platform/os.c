@@ -496,7 +496,8 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
     while (1)
     {
         DWORD bytesRead = 0;
-        if (!ReadFile(hReadPipe, buffer + total, (DWORD)(size - 1 - total), &bytesRead, NULL) || bytesRead == 0)
+        if (!ReadFile(hReadPipe, buffer + total, (DWORD)(size - 1 - total), &bytesRead, NULL) ||
+            bytesRead == 0)
         {
             break;
         }
@@ -504,7 +505,9 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
         if (total >= size - 1)
         {
             char discard[1024];
-            while (ReadFile(hReadPipe, discard, sizeof(discard), &bytesRead, NULL) && bytesRead > 0) {}
+            while (ReadFile(hReadPipe, discard, sizeof(discard), &bytesRead, NULL) && bytesRead > 0)
+            {
+            }
             break;
         }
     }
@@ -555,7 +558,9 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
             if (total >= size - 1)
             {
                 char discard[1024];
-                while (read(pipefd[0], discard, sizeof(discard)) > 0) {}
+                while (read(pipefd[0], discard, sizeof(discard)) > 0)
+                {
+                }
                 break;
             }
         }
