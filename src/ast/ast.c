@@ -639,15 +639,21 @@ static char *type_to_string_impl(Type *t)
             arg_strs[i] = type_to_string(t->args[i]);
             total_len += strlen(arg_strs[i]);
             if (i > 0)
+            {
                 total_len += 2; // ", "
+            }
         }
 
         if (t->is_varargs)
         {
             if (t->arg_count > 0)
+            {
                 total_len += 5; // ", ..."
+            }
             else
+            {
                 total_len += 3; // "..."
+            }
         }
 
         char *res = xmalloc(total_len);
@@ -988,15 +994,21 @@ static char *type_to_c_string_impl(Type *t)
                 arg_strs[i] = type_to_c_string(t->args[i]);
                 total_len += strlen(arg_strs[i]);
                 if (i > 0)
+                {
                     total_len += 2; // ", "
+                }
             }
 
             if (t->is_varargs)
             {
                 if (t->arg_count > 0)
+                {
                     total_len += 5; // ", ..."
+                }
                 else
+                {
                     total_len += 3; // "..."
+                }
             }
 
             total_len += 2; // ")" + \0
