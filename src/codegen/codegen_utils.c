@@ -676,8 +676,9 @@ char *extract_call_args(const char *args)
     {
         return xstrdup("");
     }
-    char *out = xmalloc(strlen(args) + 1);
+    char *out = xmalloc(strlen(args) * 2 + 1);
     out[0] = 0;
+    size_t out_len = 0;
 
     char *dup = xstrdup(args);
     char *p = strtok(dup, ",");
@@ -700,11 +701,15 @@ char *extract_call_args(const char *args)
             name = ptr_star + 1;
         }
 
-        if (strlen(out) > 0)
+        if (out_len > 0)
         {
-            strcat(out, ", ");
+            memcpy(out + out_len, ", ", 2);
+            out_len += 2;
         }
-        strcat(out, name);
+        size_t name_len = strlen(name);
+        memcpy(out + out_len, name, name_len);
+        out_len += name_len;
+        out[out_len] = '\0';
 
         p = strtok(NULL, ",");
     }
@@ -742,6 +747,7 @@ char *replace_string_type(const char *args)
     }
     char *res = xmalloc(strlen(args) * 2 + 1);
     res[0] = 0;
+    size_t res_len = 0;
     const char *p = args;
     while (*p)
     {
@@ -750,22 +756,31 @@ char *replace_string_type(const char *args)
         {
             if (match > args && (isalnum(*(match - 1)) || *(match - 1) == '_'))
             {
-                strncat(res, p, match - p + 6);
+                size_t len = match - p + 6;
+                memcpy(res + res_len, p, len);
+                res_len += len;
                 p = match + 6;
             }
             else
             {
-                strncat(res, p, match - p);
-                strcat(res, "const char* ");
+                size_t len = match - p;
+                memcpy(res + res_len, p, len);
+                res_len += len;
+
+                memcpy(res + res_len, "const char* ", 12);
+                res_len += 12;
                 p = match + 7;
             }
         }
         else
         {
-            strcat(res, p);
+            size_t len = strlen(p);
+            memcpy(res + res_len, p, len);
+            res_len += len;
             break;
         }
     }
+    res[res_len] = '\0';
     return res;
 }
 
