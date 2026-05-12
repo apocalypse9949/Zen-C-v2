@@ -1,0 +1,3 @@
+## 2024-05-12 - Optimize extract_call_args with O(N) string construction
+**Learning:** Sequential calls to `strcat` with `strlen(out) > 0` checks within a loop cause an O(N^2) operation when extracting parameter lists, slowing down the code generation process unnecessarily. Additionally, inserting comma-space delimiters effectively expands the length beyond original dimensions, making `strlen(args) + 1` an undersized buffer risk.
+**Action:** Replace sequential `strcat` calls inside loops with manual length tracking (e.g., `size_t out_len = 0`) and `memcpy`. Moreover, properly size extraction buffers (`strlen(args) * 2 + 1`) to account for any added delimiter characters.
