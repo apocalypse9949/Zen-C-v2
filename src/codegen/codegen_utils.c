@@ -678,7 +678,8 @@ char *extract_call_args(const char *args)
     }
 
     // ⚡ Bolt: Allocate strlen(args) * 2 + 1 to safely handle added ", " delimiters
-    // and use manual length tracking with memcpy for O(N) string construction instead of O(N^2) strcat.
+    // and use manual length tracking with memcpy for O(N) string construction instead of O(N^2)
+    // strcat.
     char *out = xmalloc(strlen(args) * 2 + 1);
     out[0] = 0;
     size_t out_len = 0;
