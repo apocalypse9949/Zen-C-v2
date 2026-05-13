@@ -535,15 +535,20 @@ int z_run_command_capture(char *const argv[], char *buffer, size_t size)
     else
     {
         close(pipefd[1]);
-        ssize_t n = read(pipefd[0], buffer, size - 1);
-        if (n >= 0)
+
+        size_t total_read = 0;
+        ssize_t n;
+        while (total_read < size - 1 && (n = read(pipefd[0], buffer + total_read, size - 1 - total_read)) > 0)
         {
-            buffer[n] = '\0';
+            total_read += n;
         }
-        else
-        {
-            buffer[0] = '\0';
-        }
+
+        buffer[total_read] = '\0';
+
+        // Drain the pipe if buffer is full to prevent child process deadlock
+        char discard[4096];
+        while (read(pipefd[0], discard, sizeof(discard)) > 0) {}
+
         close(pipefd[0]);
 
         int status;
