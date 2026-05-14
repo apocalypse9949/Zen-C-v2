@@ -1425,9 +1425,10 @@ void run_repl(const char *self_path)
 
                             char edit_path[MAX_PATH_SIZE];
                             const char *tmpdir = z_get_temp_dir();
-                            snprintf(edit_path, sizeof(edit_path), "%s/zprep_edit_%d.zc", tmpdir,
-                                     rand());
-                            FILE *f = fopen(edit_path, "w");
+                            snprintf(edit_path, sizeof(edit_path), "%s/zprep_edit_XXXXXX.zc", tmpdir);
+                            int fd = z_mkstemps(edit_path, 3);
+                            FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
+                            if (!f && fd != -1) close(fd);
                             if (f)
                             {
                                 fclose(f);
@@ -1494,8 +1495,10 @@ void run_repl(const char *self_path)
 
                     char edit_path[MAX_PATH_SIZE];
                     const char *tmpdir = z_get_temp_dir();
-                    snprintf(edit_path, sizeof(edit_path), "%s/zprep_edit_%d.zc", tmpdir, rand());
-                    FILE *f = fopen(edit_path, "w");
+                    snprintf(edit_path, sizeof(edit_path), "%s/zprep_edit_XXXXXX.zc", tmpdir);
+                    int fd = z_mkstemps(edit_path, 3);
+                    FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
+                    if (!f && fd != -1) close(fd);
                     if (f)
                     {
                         fprintf(f, "%s", history[idx]);
@@ -1882,9 +1885,11 @@ void run_repl(const char *self_path)
 
                         // Execute
                         char tmp_path[MAX_PATH_SIZE];
-                        snprintf(tmp_path, sizeof(tmp_path), "%s/zen_repl_vars_%d.zc",
-                                 z_get_temp_dir(), z_get_pid());
-                        FILE *f = fopen(tmp_path, "w");
+                        snprintf(tmp_path, sizeof(tmp_path), "%s/zen_repl_vars_XXXXXX.zc",
+                                 z_get_temp_dir());
+                        int fd = z_mkstemps(tmp_path, 3);
+                        FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
+                        if (!f && fd != -1) close(fd);
                         if (f)
                         {
                             fprintf(f, "%s", probe_code);
@@ -1964,9 +1969,10 @@ void run_repl(const char *self_path)
 
                     char tmp_path[MAX_PATH_SIZE];
                     const char *tmpdir = z_get_temp_dir();
-                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_type_%d.zc", tmpdir,
-                             rand());
-                    FILE *f = fopen(tmp_path, "w");
+                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_type_XXXXXX.zc", tmpdir);
+                    int fd = z_mkstemps(tmp_path, 3);
+                    FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
+                    if (!f && fd != -1) close(fd);
                     if (f)
                     {
                         fprintf(f, "%s", probe_code);
@@ -2083,9 +2089,10 @@ void run_repl(const char *self_path)
 
                     char tmp_path[MAX_PATH_SIZE];
                     const char *tmpdir = z_get_temp_dir();
-                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_time_%d.zc", tmpdir,
-                             rand());
-                    FILE *f = fopen(tmp_path, "w");
+                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_time_XXXXXX.zc", tmpdir);
+                    int fd = z_mkstemps(tmp_path, 3);
+                    FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
+                    if (!f && fd != -1) close(fd);
                     if (f)
                     {
                         fprintf(f, "%s", code);
@@ -2164,8 +2171,10 @@ void run_repl(const char *self_path)
                     free(expr_buf);
 
                     char tmp_path[MAX_PATH_SIZE];
-                    sprintf(tmp_path, "/tmp/zprep_repl_c_%d.zc", rand());
-                    FILE *f = fopen(tmp_path, "w");
+                    strcpy(tmp_path, "/tmp/zprep_repl_c_XXXXXX.zc");
+                    int fd = z_mkstemps(tmp_path, 3);
+                    FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
+                    if (!f && fd != -1) close(fd);
                     if (f)
                     {
                         fprintf(f, "%s", code);
@@ -2197,8 +2206,10 @@ void run_repl(const char *self_path)
                     free(main_code);
 
                     char tmp_path[MAX_PATH_SIZE];
-                    sprintf(tmp_path, "%s/zprep_repl_run_%d.zc", z_get_temp_dir(), rand());
-                    FILE *f = fopen(tmp_path, "w");
+                    snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_run_XXXXXX.zc", z_get_temp_dir());
+                    int fd = z_mkstemps(tmp_path, 3);
+                    FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
+                    if (!f && fd != -1) close(fd);
                     if (f)
                     {
                         fprintf(f, "%s", code);
@@ -2465,8 +2476,10 @@ void run_repl(const char *self_path)
                     strcat(probe_code, "); }");
 
                     char p_path[MAX_PATH_SIZE];
-                    sprintf(p_path, "%s/zprep_repl_probe_%d.zc", z_get_temp_dir(), rand());
-                    FILE *pf = fopen(p_path, "w");
+                    snprintf(p_path, sizeof(p_path), "%s/zprep_repl_probe_XXXXXX.zc", z_get_temp_dir());
+                    int fd = z_mkstemps(p_path, 3);
+                    FILE *pf = fd != -1 ? fdopen(fd, "w") : NULL;
+                    if (!pf && fd != -1) close(fd);
                     if (pf)
                     {
                         fprintf(pf, "%s", probe_code);
@@ -2530,10 +2543,12 @@ void run_repl(const char *self_path)
             strcat(full_code, " }");
 
             char tmp_path[MAX_PATH_SIZE];
-            sprintf(tmp_path, "%s/zprep_repl_%d.zc", z_get_temp_dir(), rand());
-            FILE *f = fopen(tmp_path, "w");
+            snprintf(tmp_path, sizeof(tmp_path), "%s/zprep_repl_XXXXXX.zc", z_get_temp_dir());
+            int fd = z_mkstemps(tmp_path, 3);
+            FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
             if (!f)
             {
+                if (fd != -1) close(fd);
                 printf("Error: Cannot write temp file\n");
                 free(full_code);
                 break;

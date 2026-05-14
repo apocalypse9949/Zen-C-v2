@@ -309,6 +309,35 @@ FILE *z_tmpfile(void)
 #endif
 }
 
+int z_mkstemps(char *template, int suffix_len)
+{
+#if ZC_OS_WINDOWS
+    int len = strlen(template);
+    if (len < 6 + suffix_len || strncmp(template + len - 6 - suffix_len, "XXXXXX", 6) != 0)
+    {
+        return -1;
+    }
+    char *tmp = malloc(len + 1);
+    if (!tmp)
+    {
+        return -1;
+    }
+    strcpy(tmp, template);
+    tmp[len - suffix_len] = '\0';
+    if (_mktemp_s(tmp, len - suffix_len + 1) != 0)
+    {
+        free(tmp);
+        return -1;
+    }
+    strcat(tmp, template + len - suffix_len);
+    strcpy(template, tmp);
+    free(tmp);
+    return _open(template, _O_CREAT | _O_EXCL | _O_RDWR | _O_BINARY, _S_IREAD | _S_IWRITE);
+#else
+    return mkstemps(template, suffix_len);
+#endif
+}
+
 #if ZC_OS_WINDOWS
 static char *quote_arg(const char *arg)
 {

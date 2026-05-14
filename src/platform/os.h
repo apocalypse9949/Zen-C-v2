@@ -164,6 +164,14 @@ const char *z_get_system_name(void);
 FILE *z_tmpfile(void);
 
 /**
+ * @brief Securely create a temporary file with a given template and suffix length.
+ * @param template Buffer modifying the template (must end with XXXXXX + suffix).
+ * @param suffix_len Length of the suffix to preserve.
+ * @return File descriptor or -1 on error.
+ */
+int z_mkstemps(char *template, int suffix_len);
+
+/**
  * @brief Check if a compiler path/command matches a specific compiler family.
  * @param path The compiler path or command string.
  * @param compiler_name The name to match against (e.g. "gcc", "clang", "tcc", "emcc", "msvc").

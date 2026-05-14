@@ -4693,10 +4693,12 @@ char *run_comptime_block(ParserContext *ctx, Lexer *l)
     free(wrapped_code);
 
     char filename[64];
-    sprintf(filename, "_tmp_comptime_%d.c", rand());
-    FILE *f = fopen(filename, "w");
+    sprintf(filename, "_tmp_comptime_XXXXXX.c");
+    int fd = z_mkstemps(filename, 2);
+    FILE *f = fd != -1 ? fdopen(fd, "w") : NULL;
     if (!f)
     {
+        if (fd != -1) close(fd);
         zpanic_at(lexer_peek(l), "Could not create temp file %s", filename);
         return NULL; // Prevent crash in LSP mode
     }
