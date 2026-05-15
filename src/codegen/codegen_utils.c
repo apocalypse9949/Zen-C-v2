@@ -672,12 +672,14 @@ char *infer_type(ParserContext *ctx, ASTNode *node)
 // Extract variable names from argument string.
 char *extract_call_args(const char *args)
 {
-    if (!args || strlen(args) == 0)
+    if (!args || args[0] == '\0')
     {
         return xstrdup("");
     }
-    char *out = xmalloc(strlen(args) + 1);
-    out[0] = 0;
+
+    // Allocate enough space to accommodate added comma-space separators
+    char *out = xmalloc(strlen(args) * 2 + 1);
+    size_t curr_len = 0;
 
     char *dup = xstrdup(args);
     char *p = strtok(dup, ",");
@@ -700,14 +702,19 @@ char *extract_call_args(const char *args)
             name = ptr_star + 1;
         }
 
-        if (strlen(out) > 0)
+        if (curr_len > 0)
         {
-            strcat(out, ", ");
+            out[curr_len++] = ',';
+            out[curr_len++] = ' ';
         }
-        strcat(out, name);
+
+        size_t name_len = strlen(name);
+        memcpy(out + curr_len, name, name_len);
+        curr_len += name_len;
 
         p = strtok(NULL, ",");
     }
+    out[curr_len] = '\0';
     free(dup);
     return out;
 }
