@@ -10,7 +10,6 @@
 #include <io.h>
 #include <process.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 #else
 #include <unistd.h>
 #include <time.h>
@@ -334,7 +333,7 @@ int z_mkstemps(char *template, int suffix_len)
     strcat(tmp, template + len - suffix_len);
     strcpy(template, tmp);
     free(tmp);
-    return _open(template, _O_CREAT | _O_EXCL | _O_RDWR | _O_BINARY, _S_IREAD | _S_IWRITE);
+    return _open(template, O_CREAT | O_EXCL | O_RDWR | O_BINARY, 0600);
 #else
     return mkstemps(template, suffix_len);
 #endif

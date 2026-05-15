@@ -1,0 +1,10 @@
+--- src/platform/os.c
++++ src/platform/os.c
+@@ -10,6 +10,7 @@
+ #include <windows.h>
+ #include <io.h>
+ #include <process.h>
++#include <fcntl.h>
+ #else
+ #include <unistd.h>
+ #include <time.h>
