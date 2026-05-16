@@ -3076,16 +3076,32 @@ static ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                         char full_concrete[MAX_ERROR_MSG_LEN] = {0};
                         char full_unmangled[MAX_ERROR_MSG_LEN] = {0};
 
+                        size_t c_len = 0;
+                        size_t u_len = 0;
+
                         for (int i = 0; i < arg_count; ++i)
                         {
                             if (i > 0)
                             {
-                                strcat(full_concrete, ",");
-                                strcat(full_unmangled, ",");
+                                if (c_len < MAX_ERROR_MSG_LEN - 1) full_concrete[c_len++] = ',';
+                                if (u_len < MAX_ERROR_MSG_LEN - 1) full_unmangled[u_len++] = ',';
                             }
-                            strcat(full_concrete, concrete_types[i]);
-                            strcat(full_unmangled, unmangled_types[i]);
+
+                            size_t t_c_len = strlen(concrete_types[i]);
+                            if (c_len + t_c_len < MAX_ERROR_MSG_LEN) {
+                                memcpy(full_concrete + c_len, concrete_types[i], t_c_len);
+                                c_len += t_c_len;
+                            }
+
+                            size_t t_u_len = strlen(unmangled_types[i]);
+                            if (u_len + t_u_len < MAX_ERROR_MSG_LEN) {
+                                memcpy(full_unmangled + u_len, unmangled_types[i], t_u_len);
+                                u_len += t_u_len;
+                            }
                         }
+
+                        full_concrete[c_len] = '\0';
+                        full_unmangled[u_len] = '\0';
 
                         char *m =
                             instantiate_function_template(ctx, acc, full_concrete, full_unmangled);

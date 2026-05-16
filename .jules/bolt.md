@@ -1,0 +1,3 @@
+## 2024-05-24 - Optimizing String Concatenation in Parser
+**Learning:** Sequential `strcat` calls in loops, especially for building mangled generic type names with many parameters, cause severe $O(N^2)$ performance degradation in C. Given the compiler uses an arena allocator (`xmalloc` never actually frees until exit), this also exacerbates memory fragmentation during compilation.
+**Action:** Replaced `strcat` loops with manual length tracking (`c_len`, `u_len`) and `memcpy` inside `src/parser/parser_expr.c` and `src/parser/parser_type.c`, which safely bounds-checks against `MAX_ERROR_MSG_LEN` and turns concatenation into an $O(N)$ operation.
