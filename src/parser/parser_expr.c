@@ -3083,18 +3083,26 @@ static ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                         {
                             if (i > 0)
                             {
-                                if (c_len < MAX_ERROR_MSG_LEN - 1) full_concrete[c_len++] = ',';
-                                if (u_len < MAX_ERROR_MSG_LEN - 1) full_unmangled[u_len++] = ',';
+                                if (c_len < MAX_ERROR_MSG_LEN - 1)
+                                {
+                                    full_concrete[c_len++] = ',';
+                                }
+                                if (u_len < MAX_ERROR_MSG_LEN - 1)
+                                {
+                                    full_unmangled[u_len++] = ',';
+                                }
                             }
 
                             size_t t_c_len = strlen(concrete_types[i]);
-                            if (c_len + t_c_len < MAX_ERROR_MSG_LEN) {
+                            if (c_len + t_c_len < MAX_ERROR_MSG_LEN)
+                            {
                                 memcpy(full_concrete + c_len, concrete_types[i], t_c_len);
                                 c_len += t_c_len;
                             }
 
                             size_t t_u_len = strlen(unmangled_types[i]);
-                            if (u_len + t_u_len < MAX_ERROR_MSG_LEN) {
+                            if (u_len + t_u_len < MAX_ERROR_MSG_LEN)
+                            {
                                 memcpy(full_unmangled + u_len, unmangled_types[i], t_u_len);
                                 u_len += t_u_len;
                             }
