@@ -22,6 +22,11 @@ static unsigned int struct_name_hash(const char *name)
 
 void struct_hash_insert(ParserContext *ctx, const char *name, ASTNode *node)
 {
+    if (!name)
+    {
+        return;
+    }
+
     unsigned int idx = struct_name_hash(name) & (STRUCT_HASH_SIZE - 1);
     char first_char = name[0];
     for (int i = 0; i < STRUCT_HASH_SIZE; i++)
@@ -40,6 +45,11 @@ void struct_hash_insert(ParserContext *ctx, const char *name, ASTNode *node)
 
 static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
 {
+    if (!name)
+    {
+        return NULL;
+    }
+
     unsigned int idx = struct_name_hash(name) & (STRUCT_HASH_SIZE - 1);
     char first_char = name[0];
     for (int i = 0; i < STRUCT_HASH_SIZE; i++)
@@ -439,6 +449,11 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
 
 ASTNode *find_struct_def(ParserContext *ctx, const char *name)
 {
+    if (!name)
+    {
+        return NULL;
+    }
+
     if (ctx)
     {
         ASTNode *cached = struct_hash_lookup(ctx, name);

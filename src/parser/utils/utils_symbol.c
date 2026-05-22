@@ -96,6 +96,11 @@ ZenSymbol *find_symbol_entry(ParserContext *ctx, const char *n)
 
 ZenSymbol *find_symbol_in_all(ParserContext *ctx, const char *n)
 {
+    if (!n)
+    {
+        return NULL;
+    }
+
     ZenSymbol *sym = ctx->all_symbols;
     char first_char = n[0];
     while (sym)
