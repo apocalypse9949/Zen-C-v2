@@ -100,10 +100,9 @@ ZenSymbol *symbol_lookup_local(Scope *s, const char *name)
     }
 
     ZenSymbol *curr = s->symbols;
-    char first_char = name[0];
     while (curr)
     {
-        if (curr->name && curr->name[0] == first_char && strcmp(curr->name, name) == 0)
+        if (curr->name && strcmp(curr->name, name) == 0)
         {
             return curr;
         }
@@ -143,11 +142,9 @@ ZenSymbol *symbol_lookup_kind(Scope *s, const char *name, SymbolKind kind)
     while (curr_scope)
     {
         ZenSymbol *sym = curr_scope->symbols;
-        char first_char = name[0];
         while (sym)
         {
-            if (sym->kind == kind && sym->name && sym->name[0] == first_char &&
-                strcmp(sym->name, name) == 0)
+            if (sym->kind == kind && sym->name && strcmp(sym->name, name) == 0)
             {
                 return sym;
             }
