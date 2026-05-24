@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Install Dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev
@@ -31,8 +33,7 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         # Try to fetch gh-pages; if it doesn't exist on remote, create it locally as an orphan
-        git fetch origin gh-pages || git checkout --orphan gh-pages
-        git checkout main
+        git fetch origin gh-pages:gh-pages || git branch gh-pages
 
     - name: Store Benchmark Results
       uses: benchmark-action/github-action-benchmark@v1
@@ -46,6 +47,6 @@ jobs:
         # Show alert if performance regresses by 20%
         alert-threshold: '120%'
         gh-pages-branch: 'gh-pages'
-        skip-fetch-gh-pages: true
+        skip-fetch-gh-pages: false
         comment-on-alert: true
         fail-on-alert: true
