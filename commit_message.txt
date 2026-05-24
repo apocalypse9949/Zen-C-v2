@@ -1,0 +1,7 @@
+Bolt: fix bench workflow missing gh-pages branch in CI
+
+Passed `fetch-depth: 0` to checkout action to ensure we have all history.
+Used `git fetch origin gh-pages:gh-pages || git branch gh-pages` to properly configure the gh-pages branch locally without failing on switch if it exists remotely.
+Removed skip-fetch-gh-pages as it's no longer necessary since the branch is now present locally.
+
+Also fixes previous string strcmp lookups across the codebase.
