@@ -1,0 +1,1 @@
+[{"name": "Compiler (Full Suite Transpilation)", "value": 26235, "unit": "ms"}, {"name": "Compiler (Avg per file)", "value": 59, "unit": "ms"}, {"name": "Runtime (test_hello)", "value": 0, "unit": "ms"}, {"name": "Runtime (test_sha256)", "value": 189, "unit": "ms"}, {"name": "Runtime (test_sort_large)", "value": 108, "unit": "ms"}]
