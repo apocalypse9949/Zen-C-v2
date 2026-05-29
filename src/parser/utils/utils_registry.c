@@ -588,7 +588,8 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
     ASTNode *s = ctx->instantiated_structs;
     while (s)
     {
-        if (s->type == NODE_STRUCT && !s->strct.is_template && s->strct.name[0] == name[0] && strcmp(s->strct.name, name) == 0)
+        if (s->type == NODE_STRUCT && !s->strct.is_template && s->strct.name[0] == name[0] &&
+            strcmp(s->strct.name, name) == 0)
         {
             return s;
         }
