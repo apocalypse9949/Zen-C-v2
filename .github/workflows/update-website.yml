@@ -17,7 +17,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Checkout Website Repository
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
           repository: 'zenc-lang/www'
           token: ${{ secrets.WEBSITE_REPO_TOKEN }}

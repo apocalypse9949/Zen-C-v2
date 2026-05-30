@@ -39,7 +39,7 @@ jobs:
   manual-test:
     runs-on: ${{ inputs.os }}
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v4
 
       - name: Setup Compiler Environment
         shell: bash
