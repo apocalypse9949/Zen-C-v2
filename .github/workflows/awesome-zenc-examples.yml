@@ -18,12 +18,12 @@ jobs:
     
     steps:
     - name: Checkout zenc
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
       with:
         path: zenc
 
     - name: Checkout awesome-zenc
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
       with:
         repository: zenc-lang/awesome-zenc
         path: awesome-zenc

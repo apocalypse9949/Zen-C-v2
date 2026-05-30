@@ -14,7 +14,7 @@ jobs:
     name: Run Benchmarks
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
 
     - name: Install Dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev
@@ -47,3 +47,4 @@ jobs:
         alert-threshold: '120%'
         comment-on-alert: true
         fail-on-alert: true
+        skip-fetch-gh-pages: true

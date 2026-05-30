@@ -15,14 +15,14 @@ jobs:
       PYTHONDONTWRITEBYTECODE: 1
     steps:
       - name: Checkout Zen-C Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           path: 'zen-c'
           token: ${{ secrets.WEBSITE_REPO_TOKEN }}
           fetch-depth: 0
 
       - name: Checkout Docs Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           repository: 'zenc-lang/docs'
           token: ${{ secrets.WEBSITE_REPO_TOKEN }}
