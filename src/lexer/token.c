@@ -337,6 +337,8 @@ Token lexer_next(Lexer *l)
                 return (Token){TOK_VOLATILE, s, 8, start_line, start_col, l->filename};
             }
             break;
+        default:
+            break;
         }
 
         // F-Strings
