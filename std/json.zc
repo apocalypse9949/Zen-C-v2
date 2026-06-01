@@ -29,15 +29,41 @@ struct JsonValue {
 alias JsonValuePtr = JsonValue*;
 
 fn _json_skip_ws(data: char*, pos: usize*) {
-    while (data[*pos] == ' ' || data[*pos] == '\t' ||
-           data[*pos] == '\n' || data[*pos] == '\r') {
-        *pos = *pos + 1;
+    let p = *pos;
+    while (true) {
+        let c = data[p];
+        if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+            p = p + 1;
+        } else {
+            break;
+        }
     }
+    *pos = p;
 }
 
 fn _json_parse_string(data: char*, pos: usize*) -> char* {
     if (data[*pos] != '"') return NULL;
     *pos = *pos + 1;
+
+    // Fast path: find end of simple string
+    let start = *pos;
+    let p = start;
+    while (data[p] != 0 && data[p] != '"' && data[p] != '\\') {
+        p = p + 1;
+    }
+
+    if (data[p] == '"') {
+        let len = p - start;
+        let v: char* = alloc_n<char>(len + 1);
+        if (v != NULL) {
+            memcpy(v, data + start, len);
+            v[len] = 0;
+        }
+        *pos = p + 1;
+        return v;
+    }
+
+    *pos = start;
     let v = Vec<char>::new();
     while (data[*pos] != 0 && data[*pos] != '"') {
         if (data[*pos] == '\\' && data[*pos + 1] != 0) {
