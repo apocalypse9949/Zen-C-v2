@@ -224,7 +224,9 @@ static int repl_process_line(ReplState *state, char *line_buf, int *brace_depth,
     /* Shell escape */
     if (line_buf[0] == '!')
     {
-        system(line_buf + 1);
+        if (system(line_buf + 1) == -1) {
+            // Error handling ignored intentionally
+        }
         return REPL_HANDLED;
     }
 
