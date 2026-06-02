@@ -224,10 +224,8 @@ static int repl_process_line(ReplState *state, char *line_buf, int *brace_depth,
     /* Shell escape */
     if (line_buf[0] == '!')
     {
-        if (system(line_buf + 1) == -1)
-        {
-            // Error handling ignored intentionally
-        }
+        int status = system(line_buf + 1);
+        (void)status; // Suppress unused result warning
         return REPL_HANDLED;
     }
 

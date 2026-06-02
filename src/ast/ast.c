@@ -592,7 +592,7 @@ static char *type_to_string_impl(Type *t)
         int dims_cap = 0;
         int dims_count = 0;
 
-        while (base->kind == TYPE_ARRAY && base->array_size > 0)
+        while (base && base->kind == TYPE_ARRAY && base->array_size > 0)
         {
             if (dims_count == dims_cap)
             {
@@ -929,7 +929,7 @@ static char *type_to_c_string_impl(Type *t)
         int dims_cap = 0;
         int dims_count = 0;
 
-        while (base->kind == TYPE_ARRAY && base->array_size > 0)
+        while (base && base->kind == TYPE_ARRAY && base->array_size > 0)
         {
             if (dims_count == dims_cap)
             {
