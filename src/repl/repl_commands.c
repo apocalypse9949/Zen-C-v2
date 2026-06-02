@@ -547,7 +547,8 @@ static int cmd_run(ReplState *state, const char *args)
 #else
         snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\" run \"%s\"", state->self_path, tmp_path);
 #endif
-        if (system(cmdbuf) == -1) {
+        if (system(cmdbuf) == -1)
+        {
             // Error handling ignored intentionally
         }
     }
@@ -733,7 +734,8 @@ static int cmd_vars_funcs_structs(ReplState *state, const char *args)
 #else
             snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\" run -q \"%s\"", state->self_path, tmp_path);
 #endif
-            if (system(cmdbuf) == -1) {
+            if (system(cmdbuf) == -1)
+            {
                 // Error handling ignored intentionally
             }
             remove(tmp_path);
@@ -929,7 +931,8 @@ static int cmd_time(ReplState *state, const char *args)
 #else
         snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\" run -q \"%s\"", state->self_path, tmp_path);
 #endif
-        if (system(cmdbuf) == -1) {
+        if (system(cmdbuf) == -1)
+        {
             // Error handling ignored intentionally
         }
     }

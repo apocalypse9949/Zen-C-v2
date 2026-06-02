@@ -162,7 +162,7 @@ static char *replace_mangled_part(const char *src, const char *param, const char
 {
     if (!src || !param || !concrete)
     {
-        return src ? xstrdup(src) : NULL;
+        return src ? xstrdup(src) : xstrdup("");
     }
 
     size_t plen = strlen(param);
@@ -292,10 +292,13 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
         char *res = NULL;
-        if (nb) {
+        if (nb)
+        {
             res = xmalloc(strlen(nb) + 2);
             sprintf(res, "%s*", nb); /* safe */
-        } else {
+        }
+        else
+        {
             res = xmalloc(2);
             sprintf(res, "*");
         }
