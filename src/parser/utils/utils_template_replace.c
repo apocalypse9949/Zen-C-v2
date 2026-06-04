@@ -15,8 +15,10 @@ int is_unmangle_primitive(const char *base);
 
 static char *replace_in_string(const char *src, const char *old_w, const char *new_w)
 {
-    if (!src) return NULL;
-    if (!old_w || !new_w) return xstrdup(src);
+    if (!src || !old_w || !new_w)
+    {
+        return src ? xstrdup(src) : NULL;
+    }
 
     // Check for multiple parameters (comma separated)
     if (strchr(old_w, ','))
@@ -158,8 +160,10 @@ Type *replace_type_formal(Type *t, const char *p, const char *c, const char *os,
 // Option_int_None)
 static char *replace_mangled_part(const char *src, const char *param, const char *concrete)
 {
-    if (!src) return NULL;
-    if (!param || !concrete) return xstrdup(src);
+    if (!src || !param || !concrete)
+    {
+        return src ? xstrdup(src) : NULL;
+    }
 
     size_t plen = strlen(param);
     size_t clen = strlen(concrete);
@@ -287,6 +291,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
+        if (!nb) { zfree(base); return NULL; }
         char *res = xmalloc(strlen(nb) + 2);
         sprintf(res, "%s*", nb); /* safe */
         zfree(base);
