@@ -291,6 +291,11 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
+        if (!nb)
+        {
+            zfree(base);
+            return NULL;
+        }
         char *res = xmalloc(strlen(nb) + 2);
         sprintf(res, "%s*", nb); /* safe */
         zfree(base);
@@ -310,6 +315,10 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         {
             char *tmp = replace_in_string(res, tpl_w, new_struct);
             zfree(res);
+            if (!tmp)
+            {
+                return NULL;
+            }
             res = tmp;
         }
     }
@@ -374,11 +383,13 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     else
     {
         char *t1 = replace_in_string(final_res, param, concrete);
+        if (!t1) { zfree(final_res); return NULL; }
         zfree(final_res);
         final_res = t1;
 
         char *clean_c = sanitize_mangled_name(concrete);
         char *tmp = replace_mangled_part(final_res, param, clean_c);
+        if (!tmp) { zfree(final_res); zfree(clean_c); return NULL; }
         zfree(final_res);
         final_res = tmp;
         zfree(clean_c);

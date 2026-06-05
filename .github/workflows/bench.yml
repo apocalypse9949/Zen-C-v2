@@ -37,6 +37,7 @@ jobs:
     - name: Store Benchmark Results
       uses: benchmark-action/github-action-benchmark@v1
       with:
+        skip-fetch-gh-pages: true
         name: Zen Compiler Benchmarks
         tool: 'customSmallerIsBetter'
         output-file-path: benchmarks_result.json

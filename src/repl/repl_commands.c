@@ -547,7 +547,8 @@ static int cmd_run(ReplState *state, const char *args)
 #else
         snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\" run \"%s\"", state->self_path, tmp_path);
 #endif
-        system(cmdbuf);
+        int status = system(cmdbuf);
+        (void)status;
     }
     zfree(code);
     return REPL_HANDLED;
@@ -731,7 +732,8 @@ static int cmd_vars_funcs_structs(ReplState *state, const char *args)
 #else
             snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\" run -q \"%s\"", state->self_path, tmp_path);
 #endif
-            system(cmdbuf);
+            int status = system(cmdbuf);
+            (void)status;
             remove(tmp_path);
         }
         zfree(probe_code);
@@ -925,7 +927,8 @@ static int cmd_time(ReplState *state, const char *args)
 #else
         snprintf(cmdbuf, sizeof(cmdbuf), "\"%s\" run -q \"%s\"", state->self_path, tmp_path);
 #endif
-        system(cmdbuf);
+        int status = system(cmdbuf);
+        (void)status;
     }
     zfree(code);
     return REPL_HANDLED;
