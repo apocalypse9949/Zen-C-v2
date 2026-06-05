@@ -1,0 +1,11 @@
+--- .github/workflows/bench.yml
++++ .github/workflows/bench.yml
+@@ -21,7 +21,7 @@
+         git config user.name "github-actions[bot]"
+         git config user.email "github-actions[bot]@users.noreply.github.com"
+         # Try to fetch gh-pages; if it doesn't exist on remote, create it locally as an orphan
+-        git fetch origin gh-pages || git checkout --orphan gh-pages
++        git fetch origin gh-pages:gh-pages || git checkout --orphan gh-pages
+         git checkout main
+
+     - name: Store Benchmark Results

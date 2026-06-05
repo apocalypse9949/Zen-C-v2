@@ -277,9 +277,9 @@ static int cmd_edit(ReplState *state, const char *args)
 #else
             snprintf(cmdbuf, sizeof(cmdbuf), "%s \"%s\"", editor, edit_path);
 #endif
-            int status = system(cmdbuf);
+            int status = system(cmdbuf) == 0 ? 0 : 1;
 
-            if (0 == status)
+            if (status == 0)
             {
                 FILE *fr = fopen(edit_path, "r");
                 if (fr)
@@ -352,9 +352,9 @@ static int cmd_edit(ReplState *state, const char *args)
 #else
         snprintf(cmdbuf, sizeof(cmdbuf), "%s \"%s\"", editor, edit_path);
 #endif
-        int status = system(cmdbuf);
+        int status = system(cmdbuf) == 0 ? 0 : 1;
 
-        if (0 == status)
+        if (status == 0)
         {
             FILE *fr = fopen(edit_path, "r");
             if (fr)
