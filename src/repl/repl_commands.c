@@ -277,7 +277,7 @@ static int cmd_edit(ReplState *state, const char *args)
 #else
             snprintf(cmdbuf, sizeof(cmdbuf), "%s \"%s\"", editor, edit_path);
 #endif
-            int status = system(cmdbuf) == 0 ? 0 : 1;
+            int status = system(cmdbuf);
 
             if (status == 0)
             {
@@ -352,7 +352,7 @@ static int cmd_edit(ReplState *state, const char *args)
 #else
         snprintf(cmdbuf, sizeof(cmdbuf), "%s \"%s\"", editor, edit_path);
 #endif
-        int status = system(cmdbuf) == 0 ? 0 : 1;
+        int status = system(cmdbuf);
 
         if (status == 0)
         {
