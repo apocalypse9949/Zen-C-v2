@@ -291,8 +291,9 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
-        char *res = xmalloc(strlen(nb) + 2);
-        sprintf(res, "%s*", nb); /* safe */
+        char *res = xmalloc((nb ? strlen(nb) : 0) + 2);
+        if (nb) sprintf(res, "%s*", nb); else sprintf(res, "*"); /* safe */
+        if (!res) { return NULL; }
         zfree(base);
         zfree(nb);
         return res;
@@ -302,11 +303,11 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     char *res = xstrdup(src);
 
     // Case 3a: Explicit template replacement (e.g. Vec<T> -> Vec__int32_t)
-    if (old_struct && new_struct && param)
+    if (old_struct && new_struct && param && res)
     {
         char tpl_w[MAX_TYPE_NAME_LEN];
         snprintf(tpl_w, sizeof(tpl_w), "%s<%s>", old_struct, param);
-        if (strstr(res, tpl_w))
+        if (res && strstr(res, tpl_w))
         {
             char *tmp = replace_in_string(res, tpl_w, new_struct);
             zfree(res);
@@ -315,7 +316,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     }
 
     // Case 3b: Base struct replacement (e.g. Vec -> Vec__int32_t)
-    if (old_struct && new_struct && strstr(res, old_struct))
+    if (old_struct && new_struct && res && strstr(res, old_struct))
     {
         char *tmp = replace_in_string(res, old_struct, new_struct);
         zfree(res);

@@ -9,6 +9,8 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:
   benchmark:
     name: Run Benchmarks
@@ -43,6 +45,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         # Only push on main branch
         auto-push: ${{ github.ref == 'refs/heads/main' }}
+        skip-fetch-gh-pages: true
         # Show alert if performance regresses by 20%
         alert-threshold: '120%'
         comment-on-alert: true
