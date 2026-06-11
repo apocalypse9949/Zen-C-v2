@@ -12,7 +12,6 @@ jobs:
   scrape-and-publish:
     runs-on: ubuntu-latest
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       PYTHONDONTWRITEBYTECODE: 1
     steps:
       - name: Checkout Zen-C Repository
