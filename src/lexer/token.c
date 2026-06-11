@@ -230,93 +230,110 @@ Token lexer_next(Lexer *l)
         l->pos += len;
         l->col += len;
 
-        if (len == 4 && strncmp(s, "test", 4) == 0)
+        switch (len)
         {
-            return (Token){TOK_TEST, s, 4, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "assert", 6) == 0)
-        {
-            return (Token){TOK_ASSERT, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "expect", 6) == 0)
-        {
-            return (Token){TOK_EXPECT, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "sizeof", 6) == 0)
-        {
-            return (Token){TOK_SIZEOF, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "defer", 5) == 0)
-        {
-            return (Token){TOK_DEFER, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "def", 3) == 0)
-        {
-            return (Token){TOK_DEF, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "trait", 5) == 0)
-        {
-            return (Token){TOK_TRAIT, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 4 && strncmp(s, "impl", 4) == 0)
-        {
-            return (Token){TOK_IMPL, s, 4, start_line, start_col, l->filename};
-        }
-        if (len == 8 && strncmp(s, "autofree", 8) == 0)
-        {
-            return (Token){TOK_AUTOFREE, s, 8, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "alias", 5) == 0)
-        {
-            return (Token){TOK_ALIAS, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "use", 3) == 0)
-        {
-            return (Token){TOK_USE, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 8 && strncmp(s, "comptime", 8) == 0)
-        {
-            return (Token){TOK_COMPTIME, s, 8, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "union", 5) == 0)
-        {
-            return (Token){TOK_UNION, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "asm", 3) == 0)
-        {
-            return (Token){TOK_ASM, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 8 && strncmp(s, "volatile", 8) == 0)
-        {
-            return (Token){TOK_VOLATILE, s, 8, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "async", 5) == 0)
-        {
-            return (Token){TOK_ASYNC, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "await", 5) == 0)
-        {
-            return (Token){TOK_AWAIT, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "and", 3) == 0)
-        {
-            return (Token){TOK_AND, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 2 && strncmp(s, "or", 2) == 0)
-        {
-            return (Token){TOK_OR, s, 2, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "not", 3) == 0)
-        {
-            return (Token){TOK_NOT, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "opaque", 6) == 0)
-        {
-            return (Token){TOK_OPAQUE, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 2 && strncmp(s, "do", 2) == 0)
-        {
-            return (Token){TOK_DO, s, 2, start_line, start_col, l->filename};
+        case 2:
+            if (s[0] == 'o' && strncmp(s, "or", 2) == 0)
+            {
+                return (Token){TOK_OR, s, 2, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'd' && strncmp(s, "do", 2) == 0)
+            {
+                return (Token){TOK_DO, s, 2, start_line, start_col, l->filename};
+            }
+            break;
+        case 3:
+            if (s[0] == 'd' && strncmp(s, "def", 3) == 0)
+            {
+                return (Token){TOK_DEF, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'u' && strncmp(s, "use", 3) == 0)
+            {
+                return (Token){TOK_USE, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && strncmp(s, "asm", 3) == 0)
+            {
+                return (Token){TOK_ASM, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && strncmp(s, "and", 3) == 0)
+            {
+                return (Token){TOK_AND, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'n' && strncmp(s, "not", 3) == 0)
+            {
+                return (Token){TOK_NOT, s, 3, start_line, start_col, l->filename};
+            }
+            break;
+        case 4:
+            if (s[0] == 't' && strncmp(s, "test", 4) == 0)
+            {
+                return (Token){TOK_TEST, s, 4, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'i' && strncmp(s, "impl", 4) == 0)
+            {
+                return (Token){TOK_IMPL, s, 4, start_line, start_col, l->filename};
+            }
+            break;
+        case 5:
+            if (s[0] == 'd' && strncmp(s, "defer", 5) == 0)
+            {
+                return (Token){TOK_DEFER, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 't' && strncmp(s, "trait", 5) == 0)
+            {
+                return (Token){TOK_TRAIT, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && strncmp(s, "alias", 5) == 0)
+            {
+                return (Token){TOK_ALIAS, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'u' && strncmp(s, "union", 5) == 0)
+            {
+                return (Token){TOK_UNION, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && strncmp(s, "async", 5) == 0)
+            {
+                return (Token){TOK_ASYNC, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && strncmp(s, "await", 5) == 0)
+            {
+                return (Token){TOK_AWAIT, s, 5, start_line, start_col, l->filename};
+            }
+            break;
+        case 6:
+            if (s[0] == 'a' && strncmp(s, "assert", 6) == 0)
+            {
+                return (Token){TOK_ASSERT, s, 6, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'e' && strncmp(s, "expect", 6) == 0)
+            {
+                return (Token){TOK_EXPECT, s, 6, start_line, start_col, l->filename};
+            }
+            if (s[0] == 's' && strncmp(s, "sizeof", 6) == 0)
+            {
+                return (Token){TOK_SIZEOF, s, 6, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'o' && strncmp(s, "opaque", 6) == 0)
+            {
+                return (Token){TOK_OPAQUE, s, 6, start_line, start_col, l->filename};
+            }
+            break;
+        case 8:
+            if (s[0] == 'a' && strncmp(s, "autofree", 8) == 0)
+            {
+                return (Token){TOK_AUTOFREE, s, 8, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'c' && strncmp(s, "comptime", 8) == 0)
+            {
+                return (Token){TOK_COMPTIME, s, 8, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'v' && strncmp(s, "volatile", 8) == 0)
+            {
+                return (Token){TOK_VOLATILE, s, 8, start_line, start_col, l->filename};
+            }
+            break;
+        default:
+            break;
         }
 
         // F-Strings
