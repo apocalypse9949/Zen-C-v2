@@ -45,8 +45,11 @@ static char *replace_in_string(const char *src, const char *old_w, const char *n
             curr_c[c_len] = 0;
 
             char *next_src = replace_in_string(running_src, curr_p, curr_c);
-            zfree(running_src);
-            running_src = next_src;
+            if (next_src)
+            {
+                zfree(running_src);
+                running_src = next_src;
+            }
 
             zfree(curr_p);
             zfree(curr_c);
@@ -291,6 +294,10 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
+        if (!nb)
+        {
+            nb = xstrdup("*");
+        }
         char *res = xmalloc(strlen(nb) + 2);
         sprintf(res, "%s*", nb); /* safe */
         zfree(base);
@@ -302,24 +309,30 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     char *res = xstrdup(src);
 
     // Case 3a: Explicit template replacement (e.g. Vec<T> -> Vec__int32_t)
-    if (old_struct && new_struct && param)
+    if (old_struct && new_struct && param && res)
     {
         char tpl_w[MAX_TYPE_NAME_LEN];
         snprintf(tpl_w, sizeof(tpl_w), "%s<%s>", old_struct, param);
         if (strstr(res, tpl_w))
         {
             char *tmp = replace_in_string(res, tpl_w, new_struct);
-            zfree(res);
-            res = tmp;
+            if (tmp)
+            {
+                zfree(res);
+                res = tmp;
+            }
         }
     }
 
     // Case 3b: Base struct replacement (e.g. Vec -> Vec__int32_t)
-    if (old_struct && new_struct && strstr(res, old_struct))
+    if (old_struct && new_struct && res && strstr(res, old_struct))
     {
         char *tmp = replace_in_string(res, old_struct, new_struct);
-        zfree(res);
-        res = tmp;
+        if (tmp)
+        {
+            zfree(res);
+            res = tmp;
+        }
     }
 
     // 4. Boundary-safe mangled replacement (e.g. "Option_T" or "Option__T")
@@ -346,8 +359,11 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
 
             char *clean_c = sanitize_mangled_name(c_part);
             char *tmp = replace_mangled_part(final_res, p_part, clean_c);
-            zfree(final_res);
-            final_res = tmp;
+            if (tmp)
+            {
+                zfree(final_res);
+                final_res = tmp;
+            }
 
             zfree(p_part);
             zfree(c_part);
@@ -374,13 +390,19 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     else
     {
         char *t1 = replace_in_string(final_res, param, concrete);
-        zfree(final_res);
-        final_res = t1;
+        if (t1)
+        {
+            zfree(final_res);
+            final_res = t1;
+        }
 
         char *clean_c = sanitize_mangled_name(concrete);
         char *tmp = replace_mangled_part(final_res, param, clean_c);
-        zfree(final_res);
-        final_res = tmp;
+        if (tmp)
+        {
+            zfree(final_res);
+            final_res = tmp;
+        }
         zfree(clean_c);
     }
 
