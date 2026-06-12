@@ -212,32 +212,34 @@ void emit_preamble(ParserContext *ctx)
         // C++ compatible readln helper
         if (ctx->config->use_cpp)
         {
-            EMIT(ctx, "%s",
-                 "static string _z_readln_raw() { size_t cap = 64; size_t len = 0; char *line = "
-                 "static_cast<char*>(malloc(cap)); if(!line) return NULL; int c; while((c = "
-                 "fgetc(stdin)) != EOF) { if(c == '\\n') break; if(len + 1 >= cap) { cap *= 2; "
-                 "char *n = static_cast<char*>(realloc(line, cap)); if(!n) { z_free(line); return "
-                 "NULL; } line = n; } line[len++] = c; } if(len == 0 && c == EOF) { z_free(line); "
-                 "return NULL; } line[len] = 0; return line; }\n");
+            EMIT(
+                ctx, "%s",
+                "static string _z_readln_raw(void) { size_t cap = 64; size_t len = 0; char *line = "
+                "static_cast<char*>(malloc(cap)); if(!line) return NULL; int c; while((c = "
+                "fgetc(stdin)) != EOF) { if(c == '\\n') break; if(len + 1 >= cap) { cap *= 2; "
+                "char *n = static_cast<char*>(realloc(line, cap)); if(!n) { z_free(line); return "
+                "NULL; } line = n; } line[len++] = c; } if(len == 0 && c == EOF) { z_free(line); "
+                "return NULL; } line[len] = 0; return line; }\n");
         }
         else
         {
             EMIT(
                 ctx, "%s",
-                "static string _z_readln_raw() { size_t cap = 64; size_t len = 0; char *line = "
+                "static string _z_readln_raw(void) { size_t cap = 64; size_t len = 0; char *line = "
                 "z_malloc(cap); if(!line) return NULL; int c; while((c = fgetc(stdin)) != EOF) { "
                 "if(c == '\\n') break; if(len + 1 >= cap) { cap *= 2; char *n = z_realloc(line, "
                 "cap); if(!n) { z_free(line); return NULL; } line = n; } line[len++] = c; } if(len "
                 "== 0 && c == EOF) { z_free(line); return NULL; } line[len] = 0; return line; }\n");
         }
         EMIT(ctx, "%s",
-             "static int _z_scan_helper(const char *fmt, ...) { char *l = _z_readln_raw(); if(!l) "
+             "static int _z_scan_helper(const char *fmt, ...) { char *l = _z_readln_raw(); "
+             "if(!l) "
              "return 0; va_list ap; va_start(ap, fmt); int r = vsscanf(l, fmt, ap); va_end(ap); "
              "z_free(l); return r; }\n");
 
         // REPL helpers: suppress/restore stdout.
         EMIT(ctx, "%s", "static int _z_orig_stdout = -1;\n");
-        EMIT(ctx, "%s", "static void _z_suppress_stdout() {\n");
+        EMIT(ctx, "%s", "static void _z_suppress_stdout(void) {\n");
         emitter_indent(&ctx->cg.emitter);
         EMIT(ctx, "%s", "fflush(stdout);\n");
         EMIT(ctx, "%s", "if (_z_orig_stdout == -1) _z_orig_stdout = dup(STDOUT_FILENO);\n");
@@ -246,7 +248,7 @@ void emit_preamble(ParserContext *ctx)
         EMIT(ctx, "%s", "close(nullfd);\n");
         emitter_dedent(&ctx->cg.emitter);
         EMIT(ctx, "%s", "}\n");
-        EMIT(ctx, "%s", "static void _z_restore_stdout() {\n");
+        EMIT(ctx, "%s", "static void _z_restore_stdout(void) {\n");
         emitter_indent(&ctx->cg.emitter);
         EMIT(ctx, "%s", "fflush(stdout);\n");
         EMIT(ctx, "%s", "if (_z_orig_stdout != -1) {\n");
