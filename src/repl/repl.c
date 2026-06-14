@@ -224,7 +224,7 @@ static int repl_process_line(ReplState *state, char *line_buf, int *brace_depth,
     /* Shell escape */
     if (line_buf[0] == '!')
     {
-        system(line_buf + 1);
+        int status = system(line_buf + 1); (void)status;
         return REPL_HANDLED;
     }
 
