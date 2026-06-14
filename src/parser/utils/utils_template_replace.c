@@ -310,6 +310,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         if (strstr(res, tpl_w))
         {
             char *tmp = replace_in_string(res, tpl_w, new_struct);
+            if (!tmp) { zfree(res); return NULL; }
             zfree(res);
             res = tmp;
         }
@@ -319,6 +320,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     if (old_struct && new_struct && strstr(res, old_struct))
     {
         char *tmp = replace_in_string(res, old_struct, new_struct);
+        if (!tmp) { zfree(res); return NULL; }
         zfree(res);
         res = tmp;
     }
@@ -375,11 +377,13 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     else
     {
         char *t1 = replace_in_string(final_res, param, concrete);
+        if (!t1) { zfree(final_res); return NULL; }
         zfree(final_res);
         final_res = t1;
 
         char *clean_c = sanitize_mangled_name(concrete);
         char *tmp = replace_mangled_part(final_res, param, clean_c);
+        if (!tmp) { zfree(final_res); return NULL; }
         zfree(final_res);
         final_res = tmp;
         zfree(clean_c);
