@@ -40,6 +40,7 @@ void struct_hash_insert(ParserContext *ctx, const char *name, ASTNode *node)
 static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
 {
     unsigned int idx = struct_name_hash(name) & (STRUCT_HASH_SIZE - 1);
+    char first_char = name[0];
     for (int i = 0; i < STRUCT_HASH_SIZE; i++)
     {
         unsigned int slot =
@@ -48,7 +49,8 @@ static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
         {
             return NULL;
         }
-        if (strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if (ctx->struct_hash[slot].name[0] == first_char &&
+            strcmp(ctx->struct_hash[slot].name, name) == 0)
         {
             return ctx->struct_hash[slot].node;
         }
@@ -776,10 +778,11 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
         return sym->data.sig;
     }
 
+    char first_char = name[0];
     FuncSig *c = ctx->func_registry;
     while (c)
     {
-        if (strcmp(c->name, name) == 0)
+        if (c->name && c->name[0] == first_char && strcmp(c->name, name) == 0)
         {
             return c;
         }
