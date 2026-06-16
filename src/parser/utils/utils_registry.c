@@ -49,8 +49,7 @@ static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
         {
             return NULL;
         }
-        if (ctx->struct_hash[slot].name[0] == first_char &&
-            strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if (ctx->struct_hash[slot].name[0] == first_char && strcmp(ctx->struct_hash[slot].name, name) == 0)
         {
             return ctx->struct_hash[slot].node;
         }
