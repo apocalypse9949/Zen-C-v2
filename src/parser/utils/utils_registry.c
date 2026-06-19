@@ -48,7 +48,8 @@ static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
         {
             return NULL;
         }
-        if (strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if (ctx->struct_hash[slot].name[0] == name[0] &&
+            strcmp(ctx->struct_hash[slot].name, name) == 0)
         {
             return ctx->struct_hash[slot].node;
         }
@@ -779,7 +780,7 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
     FuncSig *c = ctx->func_registry;
     while (c)
     {
-        if (strcmp(c->name, name) == 0)
+        if (c->name[0] == name[0] && strcmp(c->name, name) == 0)
         {
             return c;
         }
