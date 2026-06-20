@@ -776,10 +776,11 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
         return sym->data.sig;
     }
 
+    char first_char = name[0];
     FuncSig *c = ctx->func_registry;
     while (c)
     {
-        if (strcmp(c->name, name) == 0)
+        if (c->name[0] == first_char && strcmp(c->name, name) == 0)
         {
             return c;
         }
@@ -791,7 +792,8 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
         ASTNode *n = ctx->current_impl_methods;
         while (n)
         {
-            if (n->type == NODE_FUNCTION && strcmp(n->func.name, name) == 0)
+            if (n->type == NODE_FUNCTION && n->func.name[0] == first_char &&
+                strcmp(n->func.name, name) == 0)
             {
                 FuncSig *sig = xmalloc(sizeof(FuncSig));
                 sig->name = n->func.name;
