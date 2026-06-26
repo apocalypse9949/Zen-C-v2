@@ -421,19 +421,18 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
 
 ASTNode *find_struct_def(ParserContext *ctx, const char *name)
 {
-    if (ctx)
-    {
-        ASTNode *cached = struct_hash_lookup(ctx, name);
-        if (cached)
-        {
-            return cached;
-        }
-    }
-
     if (!ctx)
     {
         return NULL;
     }
+
+    ASTNode *cached = struct_hash_lookup(ctx, name);
+    if (cached)
+    {
+        return cached;
+    }
+
+    char first_char = name[0];
 
     ZenSymbol *sym = symbol_lookup_kind(ctx->current_scope, name, SYM_STRUCT);
     if (!sym)
@@ -465,7 +464,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     Instantiation *i = ctx->instantiations;
     while (i)
     {
-        if (strcmp(i->name, name) == 0)
+        if (i->name[0] == first_char && strcmp(i->name, name) == 0)
         {
             CACHE_RESULT(i->struct_node);
         }
@@ -476,6 +475,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     while (s)
     {
         if ((s->type == NODE_STRUCT || s->type == NODE_ENUM) &&
+            (s->type == NODE_STRUCT ? s->strct.name[0] : s->enm.name[0]) == first_char &&
             strcmp((s->type == NODE_STRUCT ? s->strct.name : s->enm.name), name) == 0)
         {
             CACHE_RESULT(s);
@@ -486,11 +486,13 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     StructRef *r = ctx->parsed_structs_list;
     while (r)
     {
-        if (r->node->type == NODE_STRUCT && strcmp(r->node->strct.name, name) == 0)
+        if (r->node->type == NODE_STRUCT && r->node->strct.name[0] == first_char &&
+            strcmp(r->node->strct.name, name) == 0)
         {
             CACHE_RESULT(r->node);
         }
-        if (r->node->type == NODE_ENUM && strcmp(r->node->enm.name, name) == 0)
+        if (r->node->type == NODE_ENUM && r->node->enm.name[0] == first_char &&
+            strcmp(r->node->enm.name, name) == 0)
         {
             CACHE_RESULT(r->node);
         }
@@ -500,8 +502,8 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     ZenSymbol *all = ctx->all_symbols;
     while (all)
     {
-        if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && strcmp(all->name, name) == 0 &&
-            all->data.node)
+        if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && all->name[0] == first_char &&
+            strcmp(all->name, name) == 0 && all->data.node)
         {
             CACHE_RESULT(all->data.node);
         }
@@ -511,7 +513,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     StructDef *d = ctx->struct_defs;
     while (d)
     {
-        if (strcmp(d->name, name) == 0)
+        if (d->name[0] == first_char && strcmp(d->name, name) == 0)
         {
             CACHE_RESULT(d->node);
         }
@@ -521,7 +523,8 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     StructRef *e = ctx->parsed_enums_list;
     while (e)
     {
-        if (e->node->type == NODE_ENUM && strcmp(e->node->enm.name, name) == 0)
+        if (e->node->type == NODE_ENUM && e->node->enm.name[0] == first_char &&
+            strcmp(e->node->enm.name, name) == 0)
         {
             CACHE_RESULT(e->node);
         }
@@ -776,10 +779,12 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
         return sym->data.sig;
     }
 
+    char first_char = name[0];
+
     FuncSig *c = ctx->func_registry;
     while (c)
     {
-        if (strcmp(c->name, name) == 0)
+        if (c->name[0] == first_char && strcmp(c->name, name) == 0)
         {
             return c;
         }
