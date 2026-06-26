@@ -20,10 +20,14 @@ jobs:
     - name: Checkout zenc
       uses: actions/checkout@v4
       with:
+        node-version: 20
+      with:
         path: zenc
 
     - name: Checkout awesome-zenc
       uses: actions/checkout@v4
+      with:
+        node-version: 20
       with:
         repository: zenc-lang/awesome-zenc
         path: awesome-zenc

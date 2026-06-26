@@ -315,7 +315,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     }
 
     // Case 3b: Base struct replacement (e.g. Vec -> Vec__int32_t)
-    if (old_struct && new_struct && strstr(res, old_struct))
+    if (res && old_struct && new_struct && strstr(res, old_struct))
     {
         char *tmp = replace_in_string(res, old_struct, new_struct);
         zfree(res);
