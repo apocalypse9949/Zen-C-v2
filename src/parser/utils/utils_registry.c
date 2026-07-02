@@ -27,7 +27,8 @@ void struct_hash_insert(ParserContext *ctx, const char *name, ASTNode *node)
     {
         unsigned int slot =
             ((unsigned)(idx) + (unsigned)(i) + STRUCT_HASH_SIZE) & (STRUCT_HASH_SIZE - 1U);
-        if (!ctx->struct_hash[slot].name[0] || strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if (!ctx->struct_hash[slot].name[0] || (ctx->struct_hash[slot].name[0] == name[0] &&
+                                                strcmp(ctx->struct_hash[slot].name, name) == 0))
         {
             strncpy(ctx->struct_hash[slot].name, name, sizeof(ctx->struct_hash[slot].name) - 1);
             ctx->struct_hash[slot].name[sizeof(ctx->struct_hash[slot].name) - 1] = '\0';
@@ -230,7 +231,7 @@ void register_slice(ParserContext *ctx, const char *type)
     SliceType *c = ctx->used_slices;
     while (c)
     {
-        if (strcmp(c->name, type) == 0)
+        if (c->name[0] == type[0] && strcmp(c->name, type) == 0)
         {
             return;
         }
@@ -332,7 +333,7 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
         StructDef *curr = ctx->struct_defs;
         while (curr)
         {
-            if (strcmp(curr->name, name) == 0)
+            if (curr->name[0] == name[0] && strcmp(curr->name, name) == 0)
             {
                 existing = curr;
                 break;
@@ -351,7 +352,7 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
         StructDef *curr = ctx->struct_defs;
         while (curr)
         {
-            if (strcmp(curr->name, name) == 0)
+            if (curr->name[0] == name[0] && strcmp(curr->name, name) == 0)
             {
                 d = curr;
                 break;
@@ -376,7 +377,8 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
         ZenSymbol *all = ctx->all_symbols;
         while (all)
         {
-            if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && strcmp(all->name, name) == 0)
+            if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && all->name[0] == name[0] &&
+                strcmp(all->name, name) == 0)
             {
                 zerror_at(node ? node->token : TOKEN_UNKNOWN, "MISRA Rule 5.7");
                 break;
@@ -451,6 +453,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
         while (s)
         {
             if ((s->type == NODE_STRUCT || s->type == NODE_ENUM) &&
+                ((s->type == NODE_STRUCT ? s->strct.name : s->enm.name)[0] == name[0]) &&
                 strcmp((s->type == NODE_STRUCT ? s->strct.name : s->enm.name), name) == 0)
             {
                 if (!(s->type == NODE_STRUCT && s->strct.is_incomplete))
@@ -465,7 +468,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     Instantiation *i = ctx->instantiations;
     while (i)
     {
-        if (strcmp(i->name, name) == 0)
+        if (i->name[0] == name[0] && strcmp(i->name, name) == 0)
         {
             CACHE_RESULT(i->struct_node);
         }
@@ -476,6 +479,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     while (s)
     {
         if ((s->type == NODE_STRUCT || s->type == NODE_ENUM) &&
+            ((s->type == NODE_STRUCT ? s->strct.name : s->enm.name)[0] == name[0]) &&
             strcmp((s->type == NODE_STRUCT ? s->strct.name : s->enm.name), name) == 0)
         {
             CACHE_RESULT(s);
@@ -486,11 +490,13 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     StructRef *r = ctx->parsed_structs_list;
     while (r)
     {
-        if (r->node->type == NODE_STRUCT && strcmp(r->node->strct.name, name) == 0)
+        if (r->node->type == NODE_STRUCT && r->node->strct.name[0] == name[0] &&
+            strcmp(r->node->strct.name, name) == 0)
         {
             CACHE_RESULT(r->node);
         }
-        if (r->node->type == NODE_ENUM && strcmp(r->node->enm.name, name) == 0)
+        if (r->node->type == NODE_ENUM && r->node->enm.name[0] == name[0] &&
+            strcmp(r->node->enm.name, name) == 0)
         {
             CACHE_RESULT(r->node);
         }
@@ -500,8 +506,8 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     ZenSymbol *all = ctx->all_symbols;
     while (all)
     {
-        if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && strcmp(all->name, name) == 0 &&
-            all->data.node)
+        if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && all->name[0] == name[0] &&
+            strcmp(all->name, name) == 0 && all->data.node)
         {
             CACHE_RESULT(all->data.node);
         }
@@ -511,7 +517,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     StructDef *d = ctx->struct_defs;
     while (d)
     {
-        if (strcmp(d->name, name) == 0)
+        if (d->name[0] == name[0] && strcmp(d->name, name) == 0)
         {
             CACHE_RESULT(d->node);
         }
@@ -521,7 +527,8 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     StructRef *e = ctx->parsed_enums_list;
     while (e)
     {
-        if (e->node->type == NODE_ENUM && strcmp(e->node->enm.name, name) == 0)
+        if (e->node->type == NODE_ENUM && e->node->enm.name[0] == name[0] &&
+            strcmp(e->node->enm.name, name) == 0)
         {
             CACHE_RESULT(e->node);
         }
@@ -557,8 +564,8 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
     Instantiation *i = ctx->instantiations;
     while (i)
     {
-        if (strcmp(i->name, name) == 0 && i->struct_node && i->struct_node->type == NODE_STRUCT &&
-            !i->struct_node->strct.is_template)
+        if (i->name[0] == name[0] && strcmp(i->name, name) == 0 && i->struct_node &&
+            i->struct_node->type == NODE_STRUCT && !i->struct_node->strct.is_template)
         {
             return i->struct_node;
         }
@@ -568,7 +575,8 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
     ASTNode *s = ctx->instantiated_structs;
     while (s)
     {
-        if (s->type == NODE_STRUCT && !s->strct.is_template && strcmp(s->strct.name, name) == 0)
+        if (s->type == NODE_STRUCT && !s->strct.is_template && s->strct.name[0] == name[0] &&
+            strcmp(s->strct.name, name) == 0)
         {
             return s;
         }
@@ -579,7 +587,7 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
     while (r)
     {
         if (r->node->type == NODE_STRUCT && !r->node->strct.is_template &&
-            strcmp(r->node->strct.name, name) == 0)
+            r->node->strct.name[0] == name[0] && strcmp(r->node->strct.name, name) == 0)
         {
             return r->node;
         }
@@ -590,7 +598,7 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
     while (d)
     {
         if (d->node && d->node->type == NODE_STRUCT && !d->node->strct.is_template &&
-            strcmp(d->name, name) == 0)
+            d->name[0] == name[0] && strcmp(d->name, name) == 0)
         {
             return d->node;
         }
@@ -779,7 +787,7 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
     FuncSig *c = ctx->func_registry;
     while (c)
     {
-        if (strcmp(c->name, name) == 0)
+        if (c->name[0] == name[0] && strcmp(c->name, name) == 0)
         {
             return c;
         }

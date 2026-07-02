@@ -99,7 +99,7 @@ ZenSymbol *find_symbol_in_all(ParserContext *ctx, const char *n)
     ZenSymbol *sym = ctx->all_symbols;
     while (sym)
     {
-        if (strcmp(sym->name, n) == 0)
+        if (sym->name[0] == n[0] && strcmp(sym->name, n) == 0)
         {
             return sym;
         }
@@ -219,7 +219,7 @@ GenericFuncTemplate *find_func_template(ParserContext *ctx, const char *name)
     GenericFuncTemplate *t = ctx->func_templates;
     while (t)
     {
-        if (strcmp(t->name, name) == 0)
+        if (t->name[0] == name[0] && strcmp(t->name, name) == 0)
         {
             return t;
         }
@@ -232,7 +232,7 @@ void register_generic(ParserContext *ctx, char *name)
 {
     for (int i = 0; i < ctx->known_generics_count; i++)
     {
-        if (strcmp(ctx->known_generics[i], name) == 0)
+        if (ctx->known_generics[i][0] == name[0] && strcmp(ctx->known_generics[i], name) == 0)
         {
             return;
         }
@@ -244,7 +244,7 @@ int is_known_generic(ParserContext *ctx, char *name)
 {
     for (int i = 0; i < ctx->known_generics_count; i++)
     {
-        if (strcmp(ctx->known_generics[i], name) == 0)
+        if (ctx->known_generics[i][0] == name[0] && strcmp(ctx->known_generics[i], name) == 0)
         {
             return 1;
         }
