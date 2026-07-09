@@ -26,7 +26,7 @@ jobs:
       run: ./tests/scripts/run_benchmarks.sh
 
     - name: Ensure benchmark branch exists
-      if: github.ref == 'refs/heads/main'
+      if: always()
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -47,4 +47,3 @@ jobs:
         alert-threshold: '120%'
         comment-on-alert: true
         fail-on-alert: true
-        skip-fetch-gh-pages: true

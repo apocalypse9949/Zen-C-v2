@@ -592,7 +592,7 @@ static char *type_to_string_impl(Type *t)
         int dims_cap = 0;
         int dims_count = 0;
 
-        while (base->kind == TYPE_ARRAY && base->array_size > 0)
+        while (base && base->kind == TYPE_ARRAY && base->array_size > 0)
         {
             if (dims_count == dims_cap)
             {
@@ -602,7 +602,10 @@ static char *type_to_string_impl(Type *t)
             dims[dims_count++] = base->array_size;
             base = base->inner;
         }
-
+        if (!base) {
+            if (dims) zfree(dims);
+            return xstrdup("unknown");
+        }
         char *inner = type_to_string(base);
         size_t total_len = strlen(inner) + 1;
         for (int i = 0; i < dims_count; i++)
@@ -929,7 +932,7 @@ static char *type_to_c_string_impl(Type *t)
         int dims_cap = 0;
         int dims_count = 0;
 
-        while (base->kind == TYPE_ARRAY && base->array_size > 0)
+        while (base && base->kind == TYPE_ARRAY && base->array_size > 0)
         {
             if (dims_count == dims_cap)
             {
@@ -939,7 +942,10 @@ static char *type_to_c_string_impl(Type *t)
             dims[dims_count++] = base->array_size;
             base = base->inner;
         }
-
+        if (!base) {
+            if (dims) zfree(dims);
+            return xstrdup("unknown");
+        }
         char *inner = type_to_c_string(base);
         size_t total_len = strlen(inner) + 1;
         for (int i = 0; i < dims_count; i++)
