@@ -291,6 +291,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
+        if (!nb) { zfree(base); return NULL; }
         char *res = xmalloc(strlen(nb) + 2);
         sprintf(res, "%s*", nb); /* safe */
         zfree(base);
@@ -302,7 +303,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     char *res = xstrdup(src);
 
     // Case 3a: Explicit template replacement (e.g. Vec<T> -> Vec__int32_t)
-    if (old_struct && new_struct && param)
+    if (res && old_struct && new_struct && param)
     {
         char tpl_w[MAX_TYPE_NAME_LEN];
         snprintf(tpl_w, sizeof(tpl_w), "%s<%s>", old_struct, param);
@@ -315,7 +316,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     }
 
     // Case 3b: Base struct replacement (e.g. Vec -> Vec__int32_t)
-    if (old_struct && new_struct && strstr(res, old_struct))
+    if (res && old_struct && new_struct && strstr(res, old_struct))
     {
         char *tmp = replace_in_string(res, old_struct, new_struct);
         zfree(res);
@@ -324,7 +325,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
 
     // 4. Boundary-safe mangled replacement (e.g. "Option_T" or "Option__T")
     // Split multi-param strings (X, Y, Z) and replace each individually
-    char *final_res = xstrdup(res);
+    char *final_res = res ? xstrdup(res) : NULL;
     if (param && concrete && strchr(param, ','))
     {
         char *p_ptr = (char *)param;
