@@ -133,7 +133,8 @@ void audit_section_5(ParserContext *ctx, Scope *scope, const char *name, const c
         ZenSymbol *sh = p->symbols;
         while (sh)
         {
-            if (p != scope && strcmp(sh->name, name) == 0 && !ctx->silent_warnings)
+            if (p != scope && sh->name[0] == name[0] && strcmp(sh->name, name) == 0 &&
+                !ctx->silent_warnings)
             {
                 if (ctx->config->misra_mode)
                 {

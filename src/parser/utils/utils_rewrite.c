@@ -226,7 +226,7 @@ char *rewrite_expr_methods(ParserContext *ctx, char *raw)
                 ASTNode *f = def->strct.fields;
                 while (f)
                 {
-                    if (strcmp(f->field.name, method) == 0)
+                    if (f->field.name[0] == method[0] && strcmp(f->field.name, method) == 0)
                     {
                         is_field = 1;
                         break;

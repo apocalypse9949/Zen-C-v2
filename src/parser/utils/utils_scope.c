@@ -46,7 +46,7 @@ void register_symbol_to_lsp(ParserContext *ctx, ZenSymbol *s)
     {
         if (curr->kind == s->kind && curr->decl_token.line == s->decl_token.line &&
             curr->decl_token.col == s->decl_token.col && curr->name && s->name &&
-            strcmp(curr->name, s->name) == 0)
+            curr->name[0] == s->name[0] && strcmp(curr->name, s->name) == 0)
         {
             return;
         }
