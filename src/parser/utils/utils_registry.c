@@ -451,6 +451,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
         while (s)
         {
             if ((s->type == NODE_STRUCT || s->type == NODE_ENUM) &&
+                (s->type == NODE_STRUCT ? s->strct.name : s->enm.name)[0] == name[0] &&
                 strcmp((s->type == NODE_STRUCT ? s->strct.name : s->enm.name), name) == 0)
             {
                 if (!(s->type == NODE_STRUCT && s->strct.is_incomplete))
@@ -465,7 +466,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     Instantiation *i = ctx->instantiations;
     while (i)
     {
-        if (strcmp(i->name, name) == 0)
+        if (i->name[0] == name[0] && strcmp(i->name, name) == 0)
         {
             CACHE_RESULT(i->struct_node);
         }
@@ -476,6 +477,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
     while (s)
     {
         if ((s->type == NODE_STRUCT || s->type == NODE_ENUM) &&
+            (s->type == NODE_STRUCT ? s->strct.name : s->enm.name)[0] == name[0] &&
             strcmp((s->type == NODE_STRUCT ? s->strct.name : s->enm.name), name) == 0)
         {
             CACHE_RESULT(s);
