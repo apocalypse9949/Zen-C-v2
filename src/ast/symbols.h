@@ -96,7 +96,14 @@ typedef struct ZenSymbol
  */
 typedef struct Scope
 {
-    ZenSymbol *symbols;   ///< Linked list of symbols in this scope.
+    ZenSymbol *symbols; ///< Linked list of symbols in this scope.
+    struct
+    {
+        const char *name;
+        ZenSymbol *sym;
+    } *hash_table;
+    int hash_size;
+    int hash_count;
     struct Scope *parent; ///< Pointer to the parent scope (NULL for global).
     char *name;           ///< Optional name for the scope (e.g. "Module::Func").
     int is_loop;          ///< 1 if this is a loop scope (for break/continue).

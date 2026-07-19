@@ -27,7 +27,8 @@ void struct_hash_insert(ParserContext *ctx, const char *name, ASTNode *node)
     {
         unsigned int slot =
             ((unsigned)(idx) + (unsigned)(i) + STRUCT_HASH_SIZE) & (STRUCT_HASH_SIZE - 1U);
-        if (!ctx->struct_hash[slot].name[0] || strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if (!ctx->struct_hash[slot].name[0] || (ctx->struct_hash[slot].name[0] == name[0] &&
+                                                strcmp(ctx->struct_hash[slot].name, name) == 0))
         {
             strncpy(ctx->struct_hash[slot].name, name, sizeof(ctx->struct_hash[slot].name) - 1);
             ctx->struct_hash[slot].name[sizeof(ctx->struct_hash[slot].name) - 1] = '\0';
@@ -48,7 +49,8 @@ static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
         {
             return NULL;
         }
-        if (strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if (ctx->struct_hash[slot].name[0] == name[0] &&
+            strcmp(ctx->struct_hash[slot].name, name) == 0)
         {
             return ctx->struct_hash[slot].node;
         }
