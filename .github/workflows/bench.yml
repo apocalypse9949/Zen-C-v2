@@ -31,8 +31,8 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         # Try to fetch gh-pages; if it doesn't exist on remote, create it locally as an orphan
-        git fetch origin gh-pages:gh-pages || git branch gh-pages || true
-        git checkout main
+        git fetch origin gh-pages:gh-pages || git checkout --orphan gh-pages || true
+        git switch main || git checkout main || true
 
     - name: Store Benchmark Results
       uses: benchmark-action/github-action-benchmark@v1

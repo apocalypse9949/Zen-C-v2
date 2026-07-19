@@ -993,15 +993,19 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
         else
         {
             char *t1 = replace_in_string(s1, p, c);
-            zfree(s1);
-            s1 = t1;
+            if (t1) {
+                zfree(s1);
+                s1 = t1;
+            }
 
             if (p && c)
             {
                 char *clean_c = sanitize_mangled_name(c);
                 char *t2 = replace_mangled_part(s1, p, clean_c);
-                zfree(s1);
-                s1 = t2;
+                if (t2) {
+                    zfree(s1);
+                    s1 = t2;
+                }
                 zfree(clean_c);
             }
         }
@@ -1009,8 +1013,10 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
         if (os && ns)
         {
             char *s2 = replace_in_string(s1, os, ns);
-            zfree(s1);
-            s1 = s2;
+            if (s2) {
+                zfree(s1);
+                s1 = s2;
+            }
         }
 
         new_node->raw_stmt.content = s1;
@@ -1063,13 +1069,17 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
                 c_part[c_len] = 0;
 
                 char *t1 = replace_in_string(n1, p_part, c_part);
-                zfree(n1);
-                n1 = t1;
+                if (t1) {
+                    zfree(n1);
+                    n1 = t1;
+                }
 
                 char *clean_c = sanitize_mangled_name(c_part);
                 char *t2 = replace_mangled_part(n1, p_part, clean_c);
-                zfree(n1);
-                n1 = t2;
+                if (t2) {
+                    zfree(n1);
+                    n1 = t2;
+                }
 
                 zfree(p_part);
                 zfree(c_part);
@@ -1098,14 +1108,18 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
             if (p && c)
             {
                 char *t1 = replace_in_string(n1, p, c);
-                zfree(n1);
-                n1 = t1;
+                if (t1) {
+                    zfree(n1);
+                    n1 = t1;
+                }
 
                 char *clean_c = sanitize_mangled_name(c);
                 char *n2 = replace_mangled_part(n1, p, clean_c);
                 zfree(clean_c);
-                zfree(n1);
-                n1 = n2;
+                if (n2) {
+                    zfree(n1);
+                    n1 = n2;
+                }
             }
         }
 
