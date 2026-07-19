@@ -287,10 +287,14 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     size_t slen = strlen(src);
     if (slen > 1 && src[slen - 1] == '*')
     {
-        char *base = xmalloc((size_t)(intptr_t)(slen));
+        char *base = xmalloc((size_t)(slen));
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
+        if (!nb) {
+            zfree(base);
+            return NULL;
+        }
         char *res = xmalloc(strlen(nb) + 2);
         sprintf(res, "%s*", nb); /* safe */
         zfree(base);
