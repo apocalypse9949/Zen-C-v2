@@ -314,6 +314,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         {
             char *tmp = replace_in_string(res, tpl_w, new_struct);
             zfree(res);
+            if (!tmp) return NULL;
             res = tmp;
         }
     }
