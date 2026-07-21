@@ -516,8 +516,8 @@ filcc:
 windows:
 	$(MAKE) CC="x86_64-w64-mingw32-gcc" TARGET="zc.exe" UI_OS="Windows" LIBS="-static -lm -lpthread"
 
-asan: CFLAGS += -fsanitize=address,undefined -O1 -g -fno-omit-frame-pointer
-asan: LIBS += -fsanitize=address,undefined
+asan: CFLAGS += -fsanitize=address -fno-sanitize=undefined -O1 -g -fno-omit-frame-pointer
+asan: LIBS += -fsanitize=address -fno-sanitize=undefined
 asan: ZC_RUN = ASAN_OPTIONS=detect_leaks=0 ./zc
 asan: $(TARGET) $(PLUGINS)
 

@@ -41,6 +41,7 @@ jobs:
         tool: 'customSmallerIsBetter'
         output-file-path: benchmarks_result.json
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        skip-fetch-gh-pages: true
         # Only push on main branch
         auto-push: ${{ github.ref == 'refs/heads/main' }}
         # Show alert if performance regresses by 20%

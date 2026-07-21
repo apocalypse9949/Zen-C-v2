@@ -266,7 +266,7 @@ static char *replace_mangled_part(const char *src, const char *param, const char
 }
 
 char *replace_type_str(const char *src, const char *param, const char *concrete,
-                       const char *old_struct, const char *new_struct)
+                         const char *old_struct, const char *new_struct)
 {
     if (!src)
     {
@@ -291,6 +291,10 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
+        if (!nb) {
+            zfree(base);
+            return NULL;
+        }
         char *res = xmalloc(strlen(nb) + 2);
         sprintf(res, "%s*", nb); /* safe */
         zfree(base);
