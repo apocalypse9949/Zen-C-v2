@@ -291,6 +291,10 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
         strncpy(base, src, slen - 1);
         base[slen - 1] = 0;
         char *nb = replace_type_str(base, param, concrete, old_struct, new_struct);
+        if (!nb)
+        {
+            return NULL;
+        }
         char *res = xmalloc(strlen(nb) + 2);
         sprintf(res, "%s*", nb); /* safe */
         zfree(base);
@@ -315,9 +319,9 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     }
 
     // Case 3b: Base struct replacement (e.g. Vec -> Vec__int32_t)
-    if (old_struct && new_struct && strstr(res, old_struct))
+    if (res && old_struct && new_struct && strstr(res, old_struct))
     {
-        char *tmp = replace_in_string(res, old_struct, new_struct);
+        char *tmp = res ? replace_in_string(res, old_struct, new_struct) : NULL;
         zfree(res);
         res = tmp;
     }
@@ -345,7 +349,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
             c_part[c_len] = 0;
 
             char *clean_c = sanitize_mangled_name(c_part);
-            char *tmp = replace_mangled_part(final_res, p_part, clean_c);
+            char *tmp = final_res ? replace_mangled_part(final_res, p_part, clean_c) : NULL;
             zfree(final_res);
             final_res = tmp;
 
@@ -373,12 +377,12 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     }
     else
     {
-        char *t1 = replace_in_string(final_res, param, concrete);
+        char *t1 = final_res ? replace_in_string(final_res, param, concrete) : NULL;
         zfree(final_res);
         final_res = t1;
 
         char *clean_c = sanitize_mangled_name(concrete);
-        char *tmp = replace_mangled_part(final_res, param, clean_c);
+        char *tmp = final_res ? replace_mangled_part(final_res, param, clean_c) : NULL;
         zfree(final_res);
         final_res = tmp;
         zfree(clean_c);
@@ -829,7 +833,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
                 tmp_args = t1;
 
                 char *clean_c = sanitize_mangled_name(c_part);
-                char *t2 = replace_mangled_part(tmp_args, p_part, clean_c);
+                char *t2 = tmp_args ? replace_mangled_part(tmp_args, p_part, clean_c) : NULL;
                 zfree(tmp_args);
                 tmp_args = t2;
 
@@ -864,7 +868,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
             if (p && c)
             {
                 char *clean_c = sanitize_mangled_name(c);
-                char *t2 = replace_mangled_part(tmp_args, p, clean_c);
+                char *t2 = tmp_args ? replace_mangled_part(tmp_args, p, clean_c) : NULL;
                 zfree(tmp_args);
                 tmp_args = t2;
                 zfree(clean_c);
@@ -960,7 +964,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
                 s1 = t1;
 
                 char *clean_c = sanitize_mangled_name(c_part);
-                char *t2 = replace_mangled_part(s1, p_part, clean_c);
+                char *t2 = s1 ? replace_mangled_part(s1, p_part, clean_c) : NULL;
                 zfree(s1);
                 s1 = t2;
 
@@ -995,7 +999,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
             if (p && c)
             {
                 char *clean_c = sanitize_mangled_name(c);
-                char *t2 = replace_mangled_part(s1, p, clean_c);
+                char *t2 = s1 ? replace_mangled_part(s1, p, clean_c) : NULL;
                 zfree(s1);
                 s1 = t2;
                 zfree(clean_c);
@@ -1063,7 +1067,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
                 n1 = t1;
 
                 char *clean_c = sanitize_mangled_name(c_part);
-                char *t2 = replace_mangled_part(n1, p_part, clean_c);
+                char *t2 = n1 ? replace_mangled_part(n1, p_part, clean_c) : NULL;
                 zfree(n1);
                 n1 = t2;
 
@@ -1098,7 +1102,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
                 n1 = t1;
 
                 char *clean_c = sanitize_mangled_name(c);
-                char *n2 = replace_mangled_part(n1, p, clean_c);
+                char *n2 = n1 ? replace_mangled_part(n1, p, clean_c) : NULL;
                 zfree(clean_c);
                 zfree(n1);
                 n1 = n2;
@@ -1234,7 +1238,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
                     strncpy(c_part, c_ptr, (size_t)(c_len));
                     c_part[c_len] = 0;
 
-                    char *t1 = replace_mangled_part(s1, p_part, c_part);
+                    char *t1 = s1 ? replace_mangled_part(s1, p_part, c_part) : NULL;
                     zfree(s1);
                     s1 = t1;
 
@@ -1264,7 +1268,7 @@ ASTNode *copy_ast_replacing(ASTNode *n, const char *p, const char *c, const char
                 char *t1 = replace_in_string(s1, p, c);
                 zfree(s1);
                 s1 = t1;
-                char *t2 = replace_mangled_part(s1, p, c);
+                char *t2 = s1 ? replace_mangled_part(s1, p, c) : NULL;
                 zfree(s1);
                 s1 = t2;
             }
