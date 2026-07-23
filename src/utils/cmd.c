@@ -428,7 +428,21 @@ void cmd_add_fmt(CmdBuilder *cmd, const char *fmt, ...)
 
     // First pass to get size
     va_start(args, fmt);
-    int size = vsnprintf(NULL, 0, fmt, args);
+    #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+int size = vsnprintf(NULL, 0, fmt, args);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     va_end(args);
 
     if (size < 0)
@@ -446,7 +460,21 @@ void cmd_add_fmt(CmdBuilder *cmd, const char *fmt, ...)
     }
 
     va_start(args, fmt);
-    vsnprintf(cmd->buf + cmd->len, cmd->cap - cmd->len, fmt, args);
+    #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+vsnprintf(cmd->buf + cmd->len, cmd->cap - cmd->len, fmt, args);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     va_end(args);
 
     cmd->len += (size_t)(size);
@@ -496,7 +524,21 @@ void arg_list_add_fmt(ArgList *list, const char *fmt, ...)
         va_end(args);
         return;
     }
-    int size = vsnprintf(NULL, 0, fmt, args);
+    #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+int size = vsnprintf(NULL, 0, fmt, args);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     va_end(args);
 
     if (size < 0)
@@ -506,7 +548,21 @@ void arg_list_add_fmt(ArgList *list, const char *fmt, ...)
 
     char *buf = xmalloc((size_t)(size + 1));
     va_start(args, fmt);
-    vsnprintf(buf, (size_t)(size + 1), fmt, args);
+    #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+vsnprintf(buf, (size_t)(size + 1), fmt, args);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     va_end(args);
 
     arg_list_add(list, buf);

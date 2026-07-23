@@ -135,7 +135,21 @@ void emitter_vprintf(Emitter *e, const char *fmt, va_list args)
     }
     va_list args_copy;
     va_copy(args_copy, args);
-    int len = vsnprintf(NULL, 0, fmt, args_copy);
+    #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+int len = vsnprintf(NULL, 0, fmt, args_copy);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     va_end(args_copy);
     if (len < 0)
     {
@@ -162,7 +176,21 @@ void emitter_vprintf(Emitter *e, const char *fmt, va_list args)
             return;
         }
     }
-    vsnprintf(buf, (size_t)len + 1, fmt, args);
+    #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+vsnprintf(buf, (size_t)len + 1, fmt, args);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     emitter_flush_buffered(e, buf, (size_t)len);
     if (buf != stack_buf)
     {

@@ -51,13 +51,41 @@ int zvfprintf(FILE *stream, const char *format, va_list args)
 
     if (!should_strip)
     {
-        return vfprintf(stream, format, args);
+        #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+return vfprintf(stream, format, args);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     }
 
     char stack_buf[4096];
     va_list args_copy;
     va_copy(args_copy, args);
-    int len = vsnprintf(stack_buf, sizeof(stack_buf), format, args_copy);
+    #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+int len = vsnprintf(stack_buf, sizeof(stack_buf), format, args_copy);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     va_end(args_copy);
 
     if (len < 0)
@@ -73,7 +101,21 @@ int zvfprintf(FILE *stream, const char *format, va_list args)
         {
             return -1;
         }
-        vsnprintf(work_buf, (size_t)(len + 1), format, args);
+        #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+vsnprintf(work_buf, (size_t)(len + 1), format, args);
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
+
     }
 
     strip_ansi_codes(work_buf);
