@@ -13,6 +13,27 @@ void lexer_init(Lexer *l, const char *src, CompilerConfig *cfg, const char *file
     l->filename = filename;
 }
 
+static const unsigned char isspace_map[256] = {
+    [' '] = 1, ['\t'] = 1, ['\n'] = 1, ['\v'] = 1, ['\f'] = 1, ['\r'] = 1};
+
+static const unsigned char is_ident_start_map[256] = {
+    ['A'] = 1, ['B'] = 1, ['C'] = 1, ['D'] = 1, ['E'] = 1, ['F'] = 1, ['G'] = 1, ['H'] = 1,
+    ['I'] = 1, ['J'] = 1, ['K'] = 1, ['L'] = 1, ['M'] = 1, ['N'] = 1, ['O'] = 1, ['P'] = 1,
+    ['Q'] = 1, ['R'] = 1, ['S'] = 1, ['T'] = 1, ['U'] = 1, ['V'] = 1, ['W'] = 1, ['X'] = 1,
+    ['Y'] = 1, ['Z'] = 1, ['a'] = 1, ['b'] = 1, ['c'] = 1, ['d'] = 1, ['e'] = 1, ['f'] = 1,
+    ['g'] = 1, ['h'] = 1, ['i'] = 1, ['j'] = 1, ['k'] = 1, ['l'] = 1, ['m'] = 1, ['n'] = 1,
+    ['o'] = 1, ['p'] = 1, ['q'] = 1, ['r'] = 1, ['s'] = 1, ['t'] = 1, ['u'] = 1, ['v'] = 1,
+    ['w'] = 1, ['x'] = 1, ['y'] = 1, ['z'] = 1, ['_'] = 1};
+static const unsigned char is_ident_char_map[256] = {
+    ['A'] = 1, ['B'] = 1, ['C'] = 1, ['D'] = 1, ['E'] = 1, ['F'] = 1, ['G'] = 1, ['H'] = 1,
+    ['I'] = 1, ['J'] = 1, ['K'] = 1, ['L'] = 1, ['M'] = 1, ['N'] = 1, ['O'] = 1, ['P'] = 1,
+    ['Q'] = 1, ['R'] = 1, ['S'] = 1, ['T'] = 1, ['U'] = 1, ['V'] = 1, ['W'] = 1, ['X'] = 1,
+    ['Y'] = 1, ['Z'] = 1, ['a'] = 1, ['b'] = 1, ['c'] = 1, ['d'] = 1, ['e'] = 1, ['f'] = 1,
+    ['g'] = 1, ['h'] = 1, ['i'] = 1, ['j'] = 1, ['k'] = 1, ['l'] = 1, ['m'] = 1, ['n'] = 1,
+    ['o'] = 1, ['p'] = 1, ['q'] = 1, ['r'] = 1, ['s'] = 1, ['t'] = 1, ['u'] = 1, ['v'] = 1,
+    ['w'] = 1, ['x'] = 1, ['y'] = 1, ['z'] = 1, ['0'] = 1, ['1'] = 1, ['2'] = 1, ['3'] = 1,
+    ['4'] = 1, ['5'] = 1, ['6'] = 1, ['7'] = 1, ['8'] = 1, ['9'] = 1, ['_'] = 1};
+
 static __attribute__((unused)) int is_ident_start(char c)
 {
     return isalpha(c) || c == '_';
@@ -85,7 +106,7 @@ Token lexer_next(Lexer *l)
     int start_line = l->line;
     int start_col = l->col;
 
-    while (isspace(*s))
+    while (isspace_map[(unsigned char)*s])
     {
         if (*s == '\n')
         {
@@ -219,10 +240,10 @@ Token lexer_next(Lexer *l)
     }
 
     // Identifiers.
-    if (is_ident_start(*s))
+    if (is_ident_start_map[(unsigned char)*s])
     {
         int len = 0;
-        while (is_ident_char(s[len]))
+        while (is_ident_char_map[(unsigned char)s[len]])
         {
             len++;
         }
@@ -230,93 +251,117 @@ Token lexer_next(Lexer *l)
         l->pos += len;
         l->col += len;
 
-        if (len == 4 && strncmp(s, "test", 4) == 0)
+        switch (len)
         {
-            return (Token){TOK_TEST, s, 4, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "assert", 6) == 0)
-        {
-            return (Token){TOK_ASSERT, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "expect", 6) == 0)
-        {
-            return (Token){TOK_EXPECT, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "sizeof", 6) == 0)
-        {
-            return (Token){TOK_SIZEOF, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "defer", 5) == 0)
-        {
-            return (Token){TOK_DEFER, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "def", 3) == 0)
-        {
-            return (Token){TOK_DEF, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "trait", 5) == 0)
-        {
-            return (Token){TOK_TRAIT, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 4 && strncmp(s, "impl", 4) == 0)
-        {
-            return (Token){TOK_IMPL, s, 4, start_line, start_col, l->filename};
-        }
-        if (len == 8 && strncmp(s, "autofree", 8) == 0)
-        {
-            return (Token){TOK_AUTOFREE, s, 8, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "alias", 5) == 0)
-        {
-            return (Token){TOK_ALIAS, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "use", 3) == 0)
-        {
-            return (Token){TOK_USE, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 8 && strncmp(s, "comptime", 8) == 0)
-        {
-            return (Token){TOK_COMPTIME, s, 8, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "union", 5) == 0)
-        {
-            return (Token){TOK_UNION, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "asm", 3) == 0)
-        {
-            return (Token){TOK_ASM, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 8 && strncmp(s, "volatile", 8) == 0)
-        {
-            return (Token){TOK_VOLATILE, s, 8, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "async", 5) == 0)
-        {
-            return (Token){TOK_ASYNC, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 5 && strncmp(s, "await", 5) == 0)
-        {
-            return (Token){TOK_AWAIT, s, 5, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "and", 3) == 0)
-        {
-            return (Token){TOK_AND, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 2 && strncmp(s, "or", 2) == 0)
-        {
-            return (Token){TOK_OR, s, 2, start_line, start_col, l->filename};
-        }
-        if (len == 3 && strncmp(s, "not", 3) == 0)
-        {
-            return (Token){TOK_NOT, s, 3, start_line, start_col, l->filename};
-        }
-        if (len == 6 && strncmp(s, "opaque", 6) == 0)
-        {
-            return (Token){TOK_OPAQUE, s, 6, start_line, start_col, l->filename};
-        }
-        if (len == 2 && strncmp(s, "do", 2) == 0)
-        {
-            return (Token){TOK_DO, s, 2, start_line, start_col, l->filename};
+        case 2:
+            if (s[0] == 'o' && s[1] == 'r')
+            {
+                return (Token){TOK_OR, s, 2, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'd' && s[1] == 'o')
+            {
+                return (Token){TOK_DO, s, 2, start_line, start_col, l->filename};
+            }
+            break;
+        case 3:
+            if (s[0] == 'd' && s[1] == 'e' && s[2] == 'f')
+            {
+                return (Token){TOK_DEF, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'u' && s[1] == 's' && s[2] == 'e')
+            {
+                return (Token){TOK_USE, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && s[1] == 's' && s[2] == 'm')
+            {
+                return (Token){TOK_ASM, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && s[1] == 'n' && s[2] == 'd')
+            {
+                return (Token){TOK_AND, s, 3, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'n' && s[1] == 'o' && s[2] == 't')
+            {
+                return (Token){TOK_NOT, s, 3, start_line, start_col, l->filename};
+            }
+            break;
+        case 4:
+            if (s[0] == 't' && s[1] == 'e' && s[2] == 's' && s[3] == 't')
+            {
+                return (Token){TOK_TEST, s, 4, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'i' && s[1] == 'm' && s[2] == 'p' && s[3] == 'l')
+            {
+                return (Token){TOK_IMPL, s, 4, start_line, start_col, l->filename};
+            }
+            break;
+        case 5:
+            if (s[0] == 'd' && s[1] == 'e' && s[2] == 'f' && s[3] == 'e' && s[4] == 'r')
+            {
+                return (Token){TOK_DEFER, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 't' && s[1] == 'r' && s[2] == 'a' && s[3] == 'i' && s[4] == 't')
+            {
+                return (Token){TOK_TRAIT, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && s[1] == 'l' && s[2] == 'i' && s[3] == 'a' && s[4] == 's')
+            {
+                return (Token){TOK_ALIAS, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'u' && s[1] == 'n' && s[2] == 'i' && s[3] == 'o' && s[4] == 'n')
+            {
+                return (Token){TOK_UNION, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && s[1] == 's' && s[2] == 'y' && s[3] == 'n' && s[4] == 'c')
+            {
+                return (Token){TOK_ASYNC, s, 5, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'a' && s[1] == 'w' && s[2] == 'a' && s[3] == 'i' && s[4] == 't')
+            {
+                return (Token){TOK_AWAIT, s, 5, start_line, start_col, l->filename};
+            }
+            break;
+        case 6:
+            if (s[0] == 'a' && s[1] == 's' && s[2] == 's' && s[3] == 'e' && s[4] == 'r' &&
+                s[5] == 't')
+            {
+                return (Token){TOK_ASSERT, s, 6, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'e' && s[1] == 'x' && s[2] == 'p' && s[3] == 'e' && s[4] == 'c' &&
+                s[5] == 't')
+            {
+                return (Token){TOK_EXPECT, s, 6, start_line, start_col, l->filename};
+            }
+            if (s[0] == 's' && s[1] == 'i' && s[2] == 'z' && s[3] == 'e' && s[4] == 'o' &&
+                s[5] == 'f')
+            {
+                return (Token){TOK_SIZEOF, s, 6, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'o' && s[1] == 'p' && s[2] == 'a' && s[3] == 'q' && s[4] == 'u' &&
+                s[5] == 'e')
+            {
+                return (Token){TOK_OPAQUE, s, 6, start_line, start_col, l->filename};
+            }
+            break;
+        case 8:
+            if (s[0] == 'a' && s[1] == 'u' && s[2] == 't' && s[3] == 'o' && s[4] == 'f' &&
+                s[5] == 'r' && s[6] == 'e' && s[7] == 'e')
+            {
+                return (Token){TOK_AUTOFREE, s, 8, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'c' && s[1] == 'o' && s[2] == 'm' && s[3] == 'p' && s[4] == 't' &&
+                s[5] == 'i' && s[6] == 'm' && s[7] == 'e')
+            {
+                return (Token){TOK_COMPTIME, s, 8, start_line, start_col, l->filename};
+            }
+            if (s[0] == 'v' && s[1] == 'o' && s[2] == 'l' && s[3] == 'a' && s[4] == 't' &&
+                s[5] == 'i' && s[6] == 'l' && s[7] == 'e')
+            {
+                return (Token){TOK_VOLATILE, s, 8, start_line, start_col, l->filename};
+            }
+            break;
+        default:
+            break;
         }
 
         // F-Strings
@@ -436,9 +481,9 @@ Token lexer_next(Lexer *l)
 
             if (is_float)
             {
-                if (is_ident_start(s[len]))
+                if (is_ident_start_map[(unsigned char)s[len]])
                 {
-                    while (is_ident_char(s[len]))
+                    while (is_ident_char_map[(unsigned char)s[len]])
                     {
                         len++;
                     }
@@ -449,9 +494,9 @@ Token lexer_next(Lexer *l)
             }
         }
 
-        if (is_ident_start(s[len]))
+        if (is_ident_start_map[(unsigned char)s[len]])
         {
-            while (is_ident_char(s[len]))
+            while (is_ident_char_map[(unsigned char)s[len]])
             {
                 len++;
             }
