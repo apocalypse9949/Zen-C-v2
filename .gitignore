@@ -60,6 +60,4 @@ benchmarks_result.json
 .DS_Store
 Thumbs.db
 obj/
-zc
-bench_*
 *.d

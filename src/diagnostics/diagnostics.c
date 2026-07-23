@@ -154,21 +154,7 @@ void zwarn(const char *fmt, ...)
         char msg[MAX_ERROR_MSG_LEN];
         va_list a;
         va_start(a, fmt);
-        #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, a);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+        vsnprintf(msg, sizeof(msg), fmt, a);
         va_end(a);
         emit_json("warning", TOKEN_UNKNOWN, msg, NULL, DIAG_NONE);
         return;
@@ -191,21 +177,7 @@ void zwarn_at_diag(int diag_id, Token t, const char *fmt, ...)
     char msg[MAX_ERROR_MSG_LEN];
     va_list a;
     va_start(a, fmt);
-    #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, a);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+    vsnprintf(msg, sizeof(msg), fmt, a);
     va_end(a);
 
     if (diag_cfg()->json_output)
@@ -234,21 +206,7 @@ void zwarn_at(Token t, const char *fmt, ...)
         char msg[MAX_ERROR_MSG_LEN];
         va_list a;
         va_start(a, fmt);
-        #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, a);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+        vsnprintf(msg, sizeof(msg), fmt, a);
         va_end(a);
         emit_json("warning", t, msg, NULL, DIAG_NONE);
         return;
@@ -329,21 +287,7 @@ void zpanic_at(Token t, const char *fmt, ...)
         char msg[MAX_ERROR_MSG_LEN];
         va_list a;
         va_start(a, fmt);
-        #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, a);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+        vsnprintf(msg, sizeof(msg), fmt, a);
         va_end(a);
         emit_json("error", t, msg, NULL, DIAG_NONE);
         if (d_ctx.parser_ctx && d_ctx.parser_ctx->is_fault_tolerant && d_ctx.parser_ctx->on_error)
@@ -384,21 +328,7 @@ vsnprintf(msg, sizeof(msg), fmt, a);
         char msg[MAX_ERROR_MSG_LEN];
         va_list args2;
         va_start(args2, fmt);
-        #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, args2);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+        vsnprintf(msg, sizeof(msg), fmt, args2);
         va_end(args2);
 
         d_ctx.parser_ctx->had_error = 1;
@@ -575,21 +505,7 @@ void zerror_at(Token t, const char *fmt, ...)
         char msg[MAX_ERROR_MSG_LEN];
         va_list a;
         va_start(a, fmt);
-        #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, a);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+        vsnprintf(msg, sizeof(msg), fmt, a);
         va_end(a);
         emit_json("error", t, msg, NULL, DIAG_NONE);
         g_error_count++;
@@ -624,21 +540,7 @@ vsnprintf(msg, sizeof(msg), fmt, a);
         char msg[MAX_ERROR_MSG_LEN];
         va_list args2;
         va_start(args2, fmt);
-        #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, args2);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+        vsnprintf(msg, sizeof(msg), fmt, args2);
         va_end(args2);
 
         d_ctx.parser_ctx->on_error(d_ctx.parser_ctx->error_callback_data, t, msg);

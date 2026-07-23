@@ -70,21 +70,7 @@ static void append_to_gen_fmt(char **gen, size_t *cap, const char *fmt, ...)
         va_end(args);
         return;
     }
-    #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-int size = vsnprintf(NULL, 0, fmt, args);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+    int size = vsnprintf(NULL, 0, fmt, args);
     va_end(args);
 
     if (size < 0)
@@ -94,21 +80,7 @@ int size = vsnprintf(NULL, 0, fmt, args);
 
     char *buf = xmalloc((size_t)(size + 1));
     va_start(args, fmt);
-    #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(buf, (size_t)(size + 1), fmt, args);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+    vsnprintf(buf, (size_t)(size + 1), fmt, args);
     va_end(args);
 
     append_to_gen(gen, cap, buf);

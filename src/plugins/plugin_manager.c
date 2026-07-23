@@ -34,21 +34,7 @@ static void plugin_error(const ZApi *api, const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     char msg[MAX_ERROR_MSG_LEN];
-    #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, args);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+    vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
     Token t = {0};
@@ -64,21 +50,7 @@ static void plugin_warn(const ZApi *api, const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     char msg[MAX_ERROR_MSG_LEN];
-    #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, args);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+    vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
     Token t = {0};
@@ -94,21 +66,7 @@ static void plugin_note(const ZApi *api, const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     char msg[MAX_ERROR_MSG_LEN];
-    #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
-vsnprintf(msg, sizeof(msg), fmt, args);
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic pop
-
+    vsnprintf(msg, sizeof(msg), fmt, args);
     va_end(args);
 
     // Using printf for nnote if we don't have a znote_at

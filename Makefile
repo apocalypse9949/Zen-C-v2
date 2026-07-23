@@ -546,7 +546,6 @@ tsan: $(TARGET) $(PLUGINS)
 # because the MSAN-instrumented compiler aborts on use-of-uninitialized-value
 # at runtime during compilation.
 msan: CC = clang
-msan: CFLAGS := $(filter-out -Wduplicated-cond -Wlogical-op -Wformat-signedness -Wunsafe-loop-optimizations -Wsuggest-attribute=noreturn -Wsuggest-attribute=const,$(CFLAGS))
 msan: CFLAGS += -fsanitize=memory -O1 -g -fno-omit-frame-pointer -fsanitize-memory-track-origins
 msan: LIBS += -fsanitize=memory
 msan: $(TARGET)
