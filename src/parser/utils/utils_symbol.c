@@ -99,7 +99,7 @@ ZenSymbol *find_symbol_in_all(ParserContext *ctx, const char *n)
     ZenSymbol *sym = ctx->all_symbols;
     while (sym)
     {
-        if (strcmp(sym->name, n) == 0)
+        if ((sym->name[0] == n[0] && strcmp(sym->name, n) == 0))
         {
             return sym;
         }
@@ -219,7 +219,7 @@ GenericFuncTemplate *find_func_template(ParserContext *ctx, const char *name)
     GenericFuncTemplate *t = ctx->func_templates;
     while (t)
     {
-        if (strcmp(t->name, name) == 0)
+        if ((t->name[0] == name[0] && strcmp(t->name, name) == 0))
         {
             return t;
         }
@@ -232,7 +232,7 @@ void register_generic(ParserContext *ctx, char *name)
 {
     for (int i = 0; i < ctx->known_generics_count; i++)
     {
-        if (strcmp(ctx->known_generics[i], name) == 0)
+        if ((ctx->known_generics[i][0] == name[0] && strcmp(ctx->known_generics[i], name) == 0))
         {
             return;
         }
@@ -244,7 +244,7 @@ int is_known_generic(ParserContext *ctx, char *name)
 {
     for (int i = 0; i < ctx->known_generics_count; i++)
     {
-        if (strcmp(ctx->known_generics[i], name) == 0)
+        if ((ctx->known_generics[i][0] == name[0] && strcmp(ctx->known_generics[i], name) == 0))
         {
             return 1;
         }
@@ -302,7 +302,8 @@ void register_impl_template(ParserContext *ctx, const char *sname, const char *p
     Instantiation *inst = ctx->instantiations;
     while (inst)
     {
-        if (inst->template_name && strcmp(inst->template_name, sname) == 0)
+        if (inst->template_name &&
+            (inst->template_name[0] == sname[0] && strcmp(inst->template_name, sname) == 0))
         {
             instantiate_methods(ctx, t, inst->name, inst->concrete_arg, inst->unmangled_arg);
         }
@@ -360,9 +361,9 @@ EnumVariantReg *find_enum_variant(ParserContext *ctx, const char *name)
     EnumVariantReg *r = ctx->enum_variants;
     while (r)
     {
-        if (strcmp(r->variant_name, vname) == 0)
+        if ((r->variant_name[0] == vname[0] && strcmp(r->variant_name, vname) == 0))
         {
-            if (!ename || strcmp(r->enum_name, ename) == 0)
+            if (!ename || (r->enum_name[0] == ename[0] && strcmp(r->enum_name, ename) == 0))
             {
                 if (ename)
                 {
@@ -392,7 +393,7 @@ void register_extern_symbol(ParserContext *ctx, const char *name)
 {
     for (int i = 0; i < ctx->extern_symbol_count; i++)
     {
-        if (strcmp(ctx->extern_symbols[i], name) == 0)
+        if ((ctx->extern_symbols[i][0] == name[0] && strcmp(ctx->extern_symbols[i], name) == 0))
         {
             return;
         }
@@ -415,7 +416,7 @@ int is_extern_symbol(ParserContext *ctx, const char *name)
 {
     for (int i = 0; i < ctx->extern_symbol_count; i++)
     {
-        if (strcmp(ctx->extern_symbols[i], name) == 0)
+        if ((ctx->extern_symbols[i][0] == name[0] && strcmp(ctx->extern_symbols[i], name) == 0))
         {
             return 1;
         }
@@ -494,7 +495,7 @@ char *find_method_owner_type(ParserContext *ctx, const char *method_name)
             {
                 continue;
             }
-            if (strcmp(last_sep + 2, method_name) == 0)
+            if (((last_sep + 2)[0] == method_name[0] && strcmp(last_sep + 2, method_name) == 0))
             {
                 size_t prefix_len = (size_t)(last_sep - sym->name);
                 char *type_name = xmalloc(prefix_len + 1);
@@ -516,7 +517,7 @@ char *find_method_owner_type(ParserContext *ctx, const char *method_name)
         {
             continue;
         }
-        if (strcmp(last_sep + 2, method_name) == 0)
+        if (((last_sep + 2)[0] == method_name[0] && strcmp(last_sep + 2, method_name) == 0))
         {
             size_t prefix_len = (size_t)(last_sep - f->name);
             char *type_name = xmalloc(prefix_len + 1);
@@ -568,7 +569,8 @@ char *find_method_owner_type_scoped(ParserContext *ctx, const char *struct_name,
 
         if (ctx->cg.expected_init_type)
         {
-            if (strcmp(concrete_type, ctx->cg.expected_init_type) == 0)
+            if ((concrete_type[0] == ctx->cg.expected_init_type[0] &&
+                 strcmp(concrete_type, ctx->cg.expected_init_type) == 0))
             {
                 return concrete_type;
             }
