@@ -450,12 +450,15 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
         ASTNode *s = ctx->cg.global_user_structs;
         while (s)
         {
-            if ((s->type == NODE_STRUCT || s->type == NODE_ENUM) &&
-                strcmp((s->type == NODE_STRUCT ? s->strct.name : s->enm.name), name) == 0)
+            if ((s->type == NODE_STRUCT || s->type == NODE_ENUM))
             {
-                if (!(s->type == NODE_STRUCT && s->strct.is_incomplete))
+                const char *sname = (s->type == NODE_STRUCT ? s->strct.name : s->enm.name);
+                if (sname && sname[0] == name[0] && strcmp(sname, name) == 0)
                 {
-                    CACHE_RESULT(s);
+                    if (!(s->type == NODE_STRUCT && s->strct.is_incomplete))
+                    {
+                        CACHE_RESULT(s);
+                    }
                 }
             }
             s = s->next;
@@ -779,7 +782,7 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
     FuncSig *c = ctx->func_registry;
     while (c)
     {
-        if (strcmp(c->name, name) == 0)
+        if (c->name[0] == name[0] && strcmp(c->name, name) == 0)
         {
             return c;
         }
@@ -791,7 +794,8 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
         ASTNode *n = ctx->current_impl_methods;
         while (n)
         {
-            if (n->type == NODE_FUNCTION && strcmp(n->func.name, name) == 0)
+            if (n->type == NODE_FUNCTION && n->func.name[0] == name[0] &&
+                strcmp(n->func.name, name) == 0)
             {
                 FuncSig *sig = xmalloc(sizeof(FuncSig));
                 sig->name = n->func.name;
