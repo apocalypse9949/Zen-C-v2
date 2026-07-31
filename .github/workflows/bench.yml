@@ -44,7 +44,6 @@ jobs:
         # Only push on main branch
         auto-push: ${{ github.ref == 'refs/heads/main' }}
         skip-fetch-gh-pages: true
-        gh-pages-branch: 'gh-pages'
         # Show alert if performance regresses by 20%
         alert-threshold: '120%'
         comment-on-alert: true

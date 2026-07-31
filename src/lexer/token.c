@@ -28,11 +28,13 @@ static const unsigned char ident_char_map[256] = {
 
 static inline int is_ident_start(char c)
 {
+    if (c == 0) return 0;
     return ident_start_map[(unsigned char)c];
 }
 
 static inline int is_ident_char(char c)
 {
+    if (c == 0) return 0;
     return ident_char_map[(unsigned char)c];
 }
 
