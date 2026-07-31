@@ -235,7 +235,7 @@ Token lexer_next(Lexer *l)
     if (is_ident_start(*s))
     {
         int len = 0;
-        while (is_ident_char(s[len]))
+        while (s[len] && is_ident_char(s[len]))
         {
             len++;
         }
@@ -475,7 +475,7 @@ Token lexer_next(Lexer *l)
             {
                 if (is_ident_start(s[len]))
                 {
-                    while (is_ident_char(s[len]))
+                    while (s[len] && is_ident_char(s[len]))
                     {
                         len++;
                     }
@@ -488,7 +488,7 @@ Token lexer_next(Lexer *l)
 
         if (is_ident_start(s[len]))
         {
-            while (is_ident_char(s[len]))
+            while (s[len] && is_ident_char(s[len]))
             {
                 len++;
             }

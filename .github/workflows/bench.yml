@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      env:
+        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
     - name: Install Dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev
@@ -43,6 +45,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         # Only push on main branch
         auto-push: ${{ github.ref == 'refs/heads/main' }}
+        skip-fetch-gh-pages: true
         # Show alert if performance regresses by 20%
         alert-threshold: '120%'
         comment-on-alert: true

@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      env:
+        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev ccache
