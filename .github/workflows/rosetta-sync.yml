@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout Zen-C Repository
         uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
         with:
           path: 'zen-c'
           token: ${{ secrets.WEBSITE_REPO_TOKEN }}
@@ -25,8 +23,6 @@ jobs:
 
       - name: Checkout Docs Repository
         uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
         with:
           repository: 'zenc-lang/docs'
           token: ${{ secrets.WEBSITE_REPO_TOKEN }}

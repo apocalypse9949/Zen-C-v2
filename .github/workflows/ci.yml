@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install and Run clang-format
       run: |
         sudo apt-get update && sudo apt-get install -y clang-format
@@ -31,8 +29,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
@@ -53,8 +49,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
@@ -80,8 +74,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install Dependencies
       run: |
         sudo apt-get update
@@ -105,8 +97,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install Dependencies
       run: sudo apt-get update && sudo apt-get install -y cppcheck libtcc-dev gcc-14
     - name: Build Compiler
@@ -153,8 +143,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
     - name: Setup Zig
       if: matrix.setup_zig
@@ -231,8 +219,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install Dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev g++ gcc-14
     - name: Build
@@ -255,8 +241,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install Dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev g++ gcc-14
     - name: Build
@@ -295,8 +279,6 @@ jobs:
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install Dependencies
       run: brew install libtcc 2>/dev/null || true
     - name: Build
@@ -327,8 +309,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install libtcc-dev
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev gcc-14
     - name: Build with Sanitizers
@@ -353,8 +333,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install libtcc-dev
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev gcc-14
     - name: Build with C11 Standard
@@ -378,8 +356,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install libtcc-dev
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev gcc-14
     - name: Build with LeakSanitizer
@@ -390,8 +366,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install libtcc-dev
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev gcc-14
     - name: Build with ThreadSanitizer
@@ -402,8 +376,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install libtcc-dev
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev
     - name: Build with MemorySanitizer
@@ -414,8 +386,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install libtcc-dev
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev gcc-14
     - name: Build with Static Analyzer
@@ -426,8 +396,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install Dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev lcov gcc-14
     - name: Build and Test with Coverage
@@ -445,8 +413,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y patchelf wget xz-utils
     - name: Download and extract Fil-C
@@ -474,8 +440,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install libtcc-dev
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev gcc-14
     - name: Build and Run LSP Tests
@@ -487,8 +451,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y libtcc-dev sbcl gcc-14
     - name: Build
@@ -508,8 +470,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     - name: Install sbcl and libtcc
       run: sudo apt-get update && sudo apt-get install -y sbcl libtcc-dev gcc-14
     - name: Build
@@ -533,8 +493,6 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     
     - name: APE dependencies
       run: |

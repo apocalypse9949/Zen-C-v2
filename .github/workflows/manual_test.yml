@@ -40,8 +40,6 @@ jobs:
     runs-on: ${{ inputs.os }}
     steps:
       - uses: actions/checkout@v4
-      env:
-        ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Setup Compiler Environment
         shell: bash
