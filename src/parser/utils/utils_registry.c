@@ -27,7 +27,8 @@ void struct_hash_insert(ParserContext *ctx, const char *name, ASTNode *node)
     {
         unsigned int slot =
             ((unsigned)(idx) + (unsigned)(i) + STRUCT_HASH_SIZE) & (STRUCT_HASH_SIZE - 1U);
-        if (!ctx->struct_hash[slot].name[0] || strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if (!ctx->struct_hash[slot].name[0] || (ctx->struct_hash[slot].name[0] == name[0] &&
+                                                strcmp(ctx->struct_hash[slot].name, name) == 0))
         {
             strncpy(ctx->struct_hash[slot].name, name, sizeof(ctx->struct_hash[slot].name) - 1);
             ctx->struct_hash[slot].name[sizeof(ctx->struct_hash[slot].name) - 1] = '\0';
@@ -48,7 +49,8 @@ static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
         {
             return NULL;
         }
-        if (strcmp(ctx->struct_hash[slot].name, name) == 0)
+        if ((ctx->struct_hash[slot].name[0] == name[0] &&
+             strcmp(ctx->struct_hash[slot].name, name) == 0))
         {
             return ctx->struct_hash[slot].node;
         }
@@ -230,7 +232,7 @@ void register_slice(ParserContext *ctx, const char *type)
     SliceType *c = ctx->used_slices;
     while (c)
     {
-        if (strcmp(c->name, type) == 0)
+        if ((c->name[0] == type[0] && strcmp(c->name, type) == 0))
         {
             return;
         }
@@ -332,7 +334,7 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
         StructDef *curr = ctx->struct_defs;
         while (curr)
         {
-            if (strcmp(curr->name, name) == 0)
+            if ((curr->name[0] == name[0] && strcmp(curr->name, name) == 0))
             {
                 existing = curr;
                 break;
@@ -351,7 +353,7 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
         StructDef *curr = ctx->struct_defs;
         while (curr)
         {
-            if (strcmp(curr->name, name) == 0)
+            if ((curr->name[0] == name[0] && strcmp(curr->name, name) == 0))
             {
                 d = curr;
                 break;
@@ -779,7 +781,7 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
     FuncSig *c = ctx->func_registry;
     while (c)
     {
-        if (strcmp(c->name, name) == 0)
+        if ((c->name[0] == name[0] && strcmp(c->name, name) == 0))
         {
             return c;
         }
