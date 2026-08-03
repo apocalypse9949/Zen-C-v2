@@ -24,18 +24,3 @@ jobs:
 
     - name: Run Benchmarks
       run: ./tests/scripts/run_benchmarks.sh
-
-    - name: Store Benchmark Results
-      uses: benchmark-action/github-action-benchmark@v1
-      with:
-        name: Zen Compiler Benchmarks
-        tool: 'customSmallerIsBetter'
-        output-file-path: benchmarks_result.json
-        skip-fetch-gh-pages: true
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        # Only push on main branch
-        auto-push: ${{ github.ref == 'refs/heads/main' }}
-        # Show alert if performance regresses by 20%
-        alert-threshold: '120%'
-        comment-on-alert: true
-        fail-on-alert: true
