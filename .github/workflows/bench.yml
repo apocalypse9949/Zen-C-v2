@@ -25,13 +25,6 @@ jobs:
     - name: Run Benchmarks
       run: ./tests/scripts/run_benchmarks.sh
 
-    - name: Ensure benchmark branch exists
-      if: github.ref == 'refs/heads/main'
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        # Try to fetch gh-pages; if it doesn't exist on remote, create it locally as an orphan
-        git checkout main
 
     - name: Store Benchmark Results
       uses: benchmark-action/github-action-benchmark@v1
