@@ -227,7 +227,7 @@ Token lexer_next(Lexer *l)
     if (is_ident_start((unsigned char)*s))
     {
         int len = 0;
-        while (is_ident_char((unsigned char)s[len]))
+        while (s[len] != '\0' && is_ident_char((unsigned char)s[len]))
         {
             len++;
         }
@@ -443,7 +443,7 @@ Token lexer_next(Lexer *l)
             {
                 if (is_ident_start((unsigned char)s[len]))
                 {
-                    while (is_ident_char((unsigned char)s[len]))
+                    while (s[len] != '\0' && is_ident_char((unsigned char)s[len]))
                     {
                         len++;
                     }
@@ -456,7 +456,7 @@ Token lexer_next(Lexer *l)
 
         if (is_ident_start((unsigned char)s[len]))
         {
-            while (is_ident_char((unsigned char)s[len]))
+            while (s[len] != '\0' && is_ident_char((unsigned char)s[len]))
             {
                 len++;
             }

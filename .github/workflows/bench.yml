@@ -31,7 +31,6 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         # Try to fetch gh-pages; if it doesn't exist on remote, create it locally as an orphan
-        git fetch origin gh-pages || git checkout --orphan gh-pages
         git checkout main
 
     - name: Store Benchmark Results
@@ -40,6 +39,7 @@ jobs:
         name: Zen Compiler Benchmarks
         tool: 'customSmallerIsBetter'
         output-file-path: benchmarks_result.json
+        skip-fetch-gh-pages: true
         github-token: ${{ secrets.GITHUB_TOKEN }}
         # Only push on main branch
         auto-push: ${{ github.ref == 'refs/heads/main' }}
