@@ -995,7 +995,9 @@ void codegen_c_program(ParserContext *ctx, ASTNode *node)
                     while (check)
                     {
                         if ((check->type == NODE_VAR_DECL || check->type == NODE_CONST) &&
-                            check->var_decl.name && (check->var_decl.name[0] == var_name[0] && strcmp(check->var_decl.name, var_name) == 0))
+                            check->var_decl.name &&
+                            (check->var_decl.name[0] == var_name[0] &&
+                             strcmp(check->var_decl.name, var_name) == 0))
                         {
                             is_duplicate = 1;
                             break;

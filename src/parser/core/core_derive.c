@@ -298,7 +298,8 @@ ASTNode *generate_derive_impls(ParserContext *ctx, ASTNode *strct, char **traits
                     int is_vec_field = 0;
                     for (int vi = 0; vi < vec_field_count; vi++)
                     {
-                        if ((vec_fields[vi][0] == f->field.name[0] && strcmp(vec_fields[vi], f->field.name) == 0))
+                        if ((vec_fields[vi][0] == f->field.name[0] &&
+                             strcmp(vec_fields[vi], f->field.name) == 0))
                         {
                             is_vec_field = 1;
                             break;

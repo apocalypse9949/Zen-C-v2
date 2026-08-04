@@ -402,7 +402,8 @@ void codegen_node_single(ParserContext *ctx, ASTNode *node)
                     // Check outputs first
                     for (int i = 0; i < node->asm_stmt.num_outputs; i++)
                     {
-                        if ((node->asm_stmt.outputs[i][0] == var_name[0] && strcmp(node->asm_stmt.outputs[i], var_name) == 0))
+                        if ((node->asm_stmt.outputs[i][0] == var_name[0] &&
+                             strcmp(node->asm_stmt.outputs[i], var_name) == 0))
                         {
                             idx = i;
                             break;
@@ -414,7 +415,8 @@ void codegen_node_single(ParserContext *ctx, ASTNode *node)
                     {
                         for (int i = 0; i < node->asm_stmt.num_inputs; i++)
                         {
-                            if ((node->asm_stmt.inputs[i][0] == var_name[0] && strcmp(node->asm_stmt.inputs[i], var_name) == 0))
+                            if ((node->asm_stmt.inputs[i][0] == var_name[0] &&
+                                 strcmp(node->asm_stmt.inputs[i], var_name) == 0))
                             {
                                 idx = node->asm_stmt.num_outputs + i;
                                 break;
@@ -947,7 +949,9 @@ void codegen_node_single(ParserContext *ctx, ASTNode *node)
                     {
                         for (int i = 0; i < ctx->cg.current_lambda->lambda.num_captures; i++)
                         {
-                            if ((name[0] == ctx->cg.current_lambda->lambda.captured_vars[i][0] && strcmp(name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0))
+                            if ((name[0] == ctx->cg.current_lambda->lambda.captured_vars[i][0] &&
+                                 strcmp(name, ctx->cg.current_lambda->lambda.captured_vars[i]) ==
+                                     0))
                             {
                                 captured = i;
                                 break;

@@ -1147,7 +1147,8 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
             ASTNode *prev = node->struct_init.fields;
             while (prev != field_init)
             {
-                if ((prev->var_decl.name[0] == field_init->var_decl.name[0] && strcmp(prev->var_decl.name, field_init->var_decl.name) == 0))
+                if ((prev->var_decl.name[0] == field_init->var_decl.name[0] &&
+                     strcmp(prev->var_decl.name, field_init->var_decl.name) == 0))
                 {
                     misra_check_double_initialization(tc->pctx, field_init->var_decl.name,
                                                       field_init->token);
@@ -1165,7 +1166,8 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
         while (def_field)
         {
             if (def_field->type == NODE_FIELD &&
-                (def_field->field.name[0] == field_init->var_decl.name[0] && strcmp(def_field->field.name, field_init->var_decl.name) == 0))
+                (def_field->field.name[0] == field_init->var_decl.name[0] &&
+                 strcmp(def_field->field.name, field_init->var_decl.name) == 0))
             {
                 found = 1;
                 expected_type = def_field->type_info;
@@ -1224,7 +1226,8 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
             ASTNode *fi = node->struct_init.fields;
             while (fi)
             {
-                if (fi->var_decl.name && (fi->var_decl.name[0] == def_field->field.name[0] && strcmp(fi->var_decl.name, def_field->field.name) == 0))
+                if (fi->var_decl.name && (fi->var_decl.name[0] == def_field->field.name[0] &&
+                                          strcmp(fi->var_decl.name, def_field->field.name) == 0))
                 {
                     provided = 1;
                     break;

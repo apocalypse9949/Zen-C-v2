@@ -511,7 +511,9 @@ ASTNode *parse_var_decl(ParserContext *ctx, Lexer *l, int is_export)
 
                 ASTNode *def = find_struct_def(ctx, source_struct);
 
-                if (def && def->strct.parent && (def->strct.parent[0] == target_struct[0] && strcmp(def->strct.parent, target_struct) == 0))
+                if (def && def->strct.parent &&
+                    (def->strct.parent[0] == target_struct[0] &&
+                     strcmp(def->strct.parent, target_struct) == 0))
                 {
                     // Create Cast Node
                     ASTNode *cast = ast_create(NODE_EXPR_CAST);

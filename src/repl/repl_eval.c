@@ -273,7 +273,8 @@ const ReplDoc *repl_find_doc(ReplState *state, const char *name)
     }
     for (int i = 0; i < state->doc_count; i++)
     {
-        if (state->docs[i].name && (name[0] == state->docs[i].name[0] && strcmp(name, state->docs[i].name) == 0))
+        if (state->docs[i].name &&
+            (name[0] == state->docs[i].name[0] && strcmp(name, state->docs[i].name) == 0))
         {
             return &state->docs[i];
         }

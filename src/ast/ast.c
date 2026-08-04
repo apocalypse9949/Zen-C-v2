@@ -1269,7 +1269,8 @@ char *infer_type(ParserContext *ctx, ASTNode *node)
                 while (er)
                 {
                     if (er->node && er->node->type == NODE_ENUM &&
-                        (er->node->enm.name[0] == search_name[0] && strcmp(er->node->enm.name, search_name) == 0))
+                        (er->node->enm.name[0] == search_name[0] &&
+                         strcmp(er->node->enm.name, search_name) == 0))
                     {
                         def = er->node;
                         break;

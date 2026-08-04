@@ -380,7 +380,10 @@ int emit_move_invalidation(ParserContext *ctx, ASTNode *node)
             {
                 for (int i = 0; i < ctx->cg.current_lambda->lambda.num_captures; i++)
                 {
-                    if ((node->var_ref.name[0] == ctx->cg.current_lambda->lambda.captured_vars[i][0] && strcmp(node->var_ref.name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0))
+                    if ((node->var_ref.name[0] ==
+                             ctx->cg.current_lambda->lambda.captured_vars[i][0] &&
+                         strcmp(node->var_ref.name,
+                                ctx->cg.current_lambda->lambda.captured_vars[i]) == 0))
                     {
                         if (ctx->cg.current_lambda->lambda.capture_modes &&
                             ctx->cg.current_lambda->lambda.capture_modes[i] == 0)

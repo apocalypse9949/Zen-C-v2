@@ -302,7 +302,8 @@ void register_impl_template(ParserContext *ctx, const char *sname, const char *p
     Instantiation *inst = ctx->instantiations;
     while (inst)
     {
-        if (inst->template_name && (inst->template_name[0] == sname[0] && strcmp(inst->template_name, sname) == 0))
+        if (inst->template_name &&
+            (inst->template_name[0] == sname[0] && strcmp(inst->template_name, sname) == 0))
         {
             instantiate_methods(ctx, t, inst->name, inst->concrete_arg, inst->unmangled_arg);
         }
@@ -568,7 +569,8 @@ char *find_method_owner_type_scoped(ParserContext *ctx, const char *struct_name,
 
         if (ctx->cg.expected_init_type)
         {
-            if ((concrete_type[0] == ctx->cg.expected_init_type[0] && strcmp(concrete_type, ctx->cg.expected_init_type) == 0))
+            if ((concrete_type[0] == ctx->cg.expected_init_type[0] &&
+                 strcmp(concrete_type, ctx->cg.expected_init_type) == 0))
             {
                 return concrete_type;
             }

@@ -13,20 +13,17 @@ void lexer_init(Lexer *l, const char *src, CompilerConfig *cfg, const char *file
     l->filename = filename;
 }
 
-static const unsigned char ident_start_map[256] = {
-    ['A' ... 'Z'] = 1, ['a' ... 'z'] = 1, ['_'] = 1
-};
+static const unsigned char ident_start_map[256] = {['A' ... 'Z'] = 1, ['a' ... 'z'] = 1, ['_'] = 1};
 
-static __attribute__((unused)) inline int is_ident_start(char c)
+static __attribute__((unused)) inline int is_ident_start(unsigned char c)
 {
     return ident_start_map[(unsigned char)c];
 }
 
 static const unsigned char ident_char_map[256] = {
-    ['A' ... 'Z'] = 1, ['a' ... 'z'] = 1, ['0' ... '9'] = 1, ['_'] = 1
-};
+    ['A' ... 'Z'] = 1, ['a' ... 'z'] = 1, ['0' ... '9'] = 1, ['_'] = 1};
 
-static __attribute__((unused)) inline int is_ident_char(char c)
+static __attribute__((unused)) inline int is_ident_char(unsigned char c)
 {
     return ident_char_map[(unsigned char)c];
 }
@@ -227,10 +224,10 @@ Token lexer_next(Lexer *l)
     }
 
     // Identifiers.
-    if (is_ident_start(*s))
+    if (is_ident_start((unsigned char)*s))
     {
         int len = 0;
-        while (is_ident_char(s[len]))
+        while (is_ident_char((unsigned char)s[len]))
         {
             len++;
         }
@@ -444,9 +441,9 @@ Token lexer_next(Lexer *l)
 
             if (is_float)
             {
-                if (is_ident_start(s[len]))
+                if (is_ident_start((unsigned char)s[len]))
                 {
-                    while (is_ident_char(s[len]))
+                    while (is_ident_char((unsigned char)s[len]))
                     {
                         len++;
                     }
@@ -457,9 +454,9 @@ Token lexer_next(Lexer *l)
             }
         }
 
-        if (is_ident_start(s[len]))
+        if (is_ident_start((unsigned char)s[len]))
         {
-            while (is_ident_char(s[len]))
+            while (is_ident_char((unsigned char)s[len]))
             {
                 len++;
             }

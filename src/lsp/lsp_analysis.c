@@ -624,7 +624,8 @@ static ASTNode *find_local_in_func(ASTNode *func, const char *name)
     {
         for (int i = 0; i < func->func.arg_count; i++)
         {
-            if ((func->func.param_names[i][0] == name[0] && strcmp(func->func.param_names[i], name) == 0))
+            if ((func->func.param_names[i][0] == name[0] &&
+                 strcmp(func->func.param_names[i], name) == 0))
             {
                 return NULL; // Args handled by the caller's symbol resolution path
             }
@@ -661,7 +662,8 @@ static Type *resolve_local_type(ASTNode *func, const char *name)
     {
         for (int i = 0; i < func->func.arg_count; i++)
         {
-            if ((func->func.param_names[i][0] == name[0] && strcmp(func->func.param_names[i], name) == 0))
+            if ((func->func.param_names[i][0] == name[0] &&
+                 strcmp(func->func.param_names[i], name) == 0))
             {
                 return func->func.arg_types[i];
             }
@@ -913,7 +915,8 @@ void lsp_completion(const char *uri, int line, int col, int id)
                         EnumVariantReg *ev = g_project->ctx->enum_variants;
                         while (ev)
                         {
-                            if ((ev->enum_name[0] == parts[0][0] && strcmp(ev->enum_name, parts[0]) == 0))
+                            if ((ev->enum_name[0] == parts[0][0] &&
+                                 strcmp(ev->enum_name, parts[0]) == 0))
                             {
                                 cJSON *item = cJSON_CreateObject();
                                 cJSON_AddStringToObject(item, "label", ev->variant_name);
@@ -983,7 +986,8 @@ void lsp_completion(const char *uri, int line, int col, int id)
                                 ASTNode *field = struct_node->strct.fields;
                                 while (field)
                                 {
-                                    if ((field->field.name[0] == parts[p][0] && strcmp(field->field.name, parts[p]) == 0))
+                                    if ((field->field.name[0] == parts[p][0] &&
+                                         strcmp(field->field.name, parts[p]) == 0))
                                     {
                                         zfree(type_name);
                                         type_name =

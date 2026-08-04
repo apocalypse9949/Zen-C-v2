@@ -144,7 +144,8 @@ ZenSymbol *symbol_lookup_kind(Scope *s, const char *name, SymbolKind kind)
         ZenSymbol *sym = curr_scope->symbols;
         while (sym)
         {
-            if (sym->kind == kind && sym->name && (sym->name[0] == name[0] && strcmp(sym->name, name) == 0))
+            if (sym->kind == kind && sym->name &&
+                (sym->name[0] == name[0] && strcmp(sym->name, name) == 0))
             {
                 return sym;
             }

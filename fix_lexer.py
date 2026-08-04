@@ -3,32 +3,21 @@ import re
 with open('src/lexer/token.c', 'r') as f:
     content = f.read()
 
-# We need to replace the long chain of `if (len == ... && strncmp(...) == 0)` with a switch.
+# Replace the switch in `lexer_next` with proper length bounds check
+# Actually, the problem is `while (is_ident_char(s[len]))` in lexer_next
+# `is_ident_char` takes a `char` but it should take `unsigned char`
+# Also need to check if `len < something` or if `s[len]` is safe.
+# In C, `s[len]` is safe if it's null-terminated, but `unsigned char` cast is missing here:
+#   `while (is_ident_char(s[len]))` -> `while (is_ident_char((unsigned char)s[len]))`
+#   `if (is_ident_start(s[len]))` -> `if (is_ident_start((unsigned char)s[len]))`
 
-match_block = re.search(r'if \(len == 4 && strncmp\(s, "test", 4\) == 0\)(.*?)if \(len == 1 && s\[0\] == \'f\' && s\[1\] == \'"\'\)', content, re.DOTALL)
+content = re.sub(r'is_ident_char\(s\[len\]\)', r'is_ident_char((unsigned char)s[len])', content)
+content = re.sub(r'is_ident_start\(s\[len\]\)', r'is_ident_start((unsigned char)s[len])', content)
+content = re.sub(r'is_ident_start\(\*s\)', r'is_ident_start((unsigned char)*s)', content)
 
-if match_block:
-    old_code = match_block.group(0)
-
-    # We want to keep everything before and after the matched block.
-    # We will generate a switch statement for lengths.
-
-    keywords = re.findall(r'if \(len == (\d+) && strncmp\(s, "([^"]+)", \d+\) == 0\)\n\s+{\n\s+return \(Token\){([^,]+)', old_code)
-
-    switch_code = "switch (len) {\n"
-    by_len = {}
-    for length, word, tok in keywords:
-        by_len.setdefault(int(length), []).append((word, tok))
-
-    for l in sorted(by_len.keys()):
-        switch_code += f"        case {l}:\n"
-        for word, tok in by_len[l]:
-            switch_code += f'            if (s[0] == \'{word[0]}\' && strncmp(s, "{word}", {l}) == 0) return (Token){{{tok}, s, {l}, start_line, start_col, l->filename}};\n'
-        switch_code += "            break;\n"
-
-    switch_code += "        default: break;\n        }\n\n        // F-Strings\n        if (len == 1 && s[0] == 'f' && s[1] == '\"')"
-
-    content = content.replace(old_code, switch_code)
+# But wait, earlier `inline int is_ident_start(char c)` was replaced. Let's make sure it's unsigned char:
+content = re.sub(r'inline int is_ident_start\(char c\)', r'inline int is_ident_start(unsigned char c)', content)
+content = re.sub(r'inline int is_ident_char\(char c\)', r'inline int is_ident_char(unsigned char c)', content)
 
 with open('src/lexer/token.c', 'w') as f:
     f.write(content)

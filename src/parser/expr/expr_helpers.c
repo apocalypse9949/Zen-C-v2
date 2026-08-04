@@ -45,7 +45,8 @@ int check_opaque_alias_compat(ParserContext *ctx, Type *a, Type *b)
     if (a_is_opaque)
     {
         if (a->alias.alias_defined_in_file && ctx->current_filename &&
-            (a->alias.alias_defined_in_file[0] == ctx->current_filename[0] && strcmp(a->alias.alias_defined_in_file, ctx->current_filename) == 0))
+            (a->alias.alias_defined_in_file[0] == ctx->current_filename[0] &&
+             strcmp(a->alias.alias_defined_in_file, ctx->current_filename) == 0))
         {
             int res = check_opaque_alias_compat(ctx, a->inner, b);
             RECURSION_EXIT(ctx);
@@ -58,7 +59,8 @@ int check_opaque_alias_compat(ParserContext *ctx, Type *a, Type *b)
     if (b_is_opaque)
     {
         if (b->alias.alias_defined_in_file && ctx->current_filename &&
-            (b->alias.alias_defined_in_file[0] == ctx->current_filename[0] && strcmp(b->alias.alias_defined_in_file, ctx->current_filename) == 0))
+            (b->alias.alias_defined_in_file[0] == ctx->current_filename[0] &&
+             strcmp(b->alias.alias_defined_in_file, ctx->current_filename) == 0))
         {
             int res = check_opaque_alias_compat(ctx, a, b->inner);
             RECURSION_EXIT(ctx);
@@ -125,7 +127,8 @@ ASTNode *find_function_definition(ParserContext *ctx, const char *name)
     StructRef *curr = ctx->parsed_funcs_list;
     while (curr)
     {
-        if (curr->node && curr->node->func.name && (curr->node->func.name[0] == name[0] && strcmp(curr->node->func.name, name) == 0))
+        if (curr->node && curr->node->func.name &&
+            (curr->node->func.name[0] == name[0] && strcmp(curr->node->func.name, name) == 0))
         {
             return curr->node;
         }

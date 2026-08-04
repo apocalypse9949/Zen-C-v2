@@ -29,7 +29,8 @@ void check_expr_call(TypeChecker *tc, ASTNode *node, int depth)
 
         if (tc->pctx->config->misra_mode && tc->current_func)
         {
-            if ((func_name[0] == tc->current_func->func.name[0] && strcmp(func_name, tc->current_func->func.name) == 0))
+            if ((func_name[0] == tc->current_func->func.name[0] &&
+                 strcmp(func_name, tc->current_func->func.name) == 0))
             {
                 Token t = node->call.callee->token;
                 if (t.line == 0)
@@ -94,7 +95,8 @@ void check_expr_call(TypeChecker *tc, ASTNode *node, int depth)
                     ASTNode *method = trait_def->trait.methods;
                     while (method)
                     {
-                        if ((method->func.name[0] == node->call.callee->member.field[0] && strcmp(method->func.name, node->call.callee->member.field) == 0))
+                        if ((method->func.name[0] == node->call.callee->member.field[0] &&
+                             strcmp(method->func.name, node->call.callee->member.field) == 0))
                         {
                             // Correctly resolve return type for trait method
                             node->type_info = method->func.ret_type_info;

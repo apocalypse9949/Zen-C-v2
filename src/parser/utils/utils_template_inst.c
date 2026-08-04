@@ -632,7 +632,8 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
                     if (concrete)
                     {
                         char *clean_concrete = sanitize_mangled_name(concrete);
-                        if ((concrete_arg[0] == clean_concrete[0] && strcmp(concrete_arg, clean_concrete) == 0))
+                        if ((concrete_arg[0] == clean_concrete[0] &&
+                             strcmp(concrete_arg, clean_concrete) == 0))
                         {
                             zfree(unmangled);
                             unmangled = xstrdup(concrete);
@@ -684,7 +685,8 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
                 if (concrete)
                 {
                     char *clean_concrete = sanitize_mangled_name(concrete);
-                    if ((concrete_arg[0] == clean_concrete[0] && strcmp(concrete_arg, clean_concrete) == 0))
+                    if ((concrete_arg[0] == clean_concrete[0] &&
+                         strcmp(concrete_arg, clean_concrete) == 0))
                     {
                         zfree(unmangled);
                         unmangled = xstrdup(concrete);
@@ -737,7 +739,9 @@ void instantiate_methods(ParserContext *ctx, GenericImplTemplate *it,
             memmove(double_underscore, double_underscore + 1, strlen(double_underscore + 1) + 1);
         }
 
-        if ((old_sanitized[0] == it->struct_name[0] && strcmp(old_sanitized, it->struct_name) != 0) && (old_sanitized[0] == sanitized[0] && strcmp(old_sanitized, sanitized) != 0))
+        if ((old_sanitized[0] == it->struct_name[0] &&
+             strcmp(old_sanitized, it->struct_name) != 0) &&
+            (old_sanitized[0] == sanitized[0] && strcmp(old_sanitized, sanitized) != 0))
         {
             ASTNode *tmp =
                 copy_ast_replacing(new_impl, NULL, NULL, old_sanitized, mangled_struct_name);

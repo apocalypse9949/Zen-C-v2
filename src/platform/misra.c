@@ -657,7 +657,8 @@ void misra_check_param_modified(ASTNode *current_func, ASTNode *left, Token toke
     const char *name = left->var_ref.name;
     for (int i = 0; i < current_func->func.arg_count; i++)
     {
-        if ((current_func->func.param_names[i][0] == name[0] && strcmp(current_func->func.param_names[i], name) == 0))
+        if ((current_func->func.param_names[i][0] == name[0] &&
+             strcmp(current_func->func.param_names[i], name) == 0))
         {
             zerror_at(token, "MISRA Rule 17.8");
             return;
@@ -1113,7 +1114,8 @@ void misra_audit_identifier_uniqueness(ParserContext *ctx)
                 }
                 // Check @link_name collision specifically
                 else if (s1->link_name && s2->link_name &&
-                         (s1->link_name[0] == s2->link_name[0] && strcmp(s1->link_name, s2->link_name) == 0))
+                         (s1->link_name[0] == s2->link_name[0] &&
+                          strcmp(s1->link_name, s2->link_name) == 0))
                 {
                     zerror_at(s2->decl_token, "MISRA Rule 5.8");
                 }
@@ -1219,7 +1221,8 @@ void misra_check_preprocessor_expression_parser(struct ParserContext *ctx, Token
         // 1. Check CLI defines
         for (size_t i = 0; i < ctx->config->cfg_defines.length; i++)
         {
-            if ((ctx->config->cfg_defines.data[i][0] == name[0] && strcmp(ctx->config->cfg_defines.data[i], name) == 0))
+            if ((ctx->config->cfg_defines.data[i][0] == name[0] &&
+                 strcmp(ctx->config->cfg_defines.data[i], name) == 0))
             {
                 is_defined = 1;
                 break;

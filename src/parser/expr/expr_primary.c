@@ -557,7 +557,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                             }
                             while (v)
                             {
-                                if ((v->variant.name[0] == sbuf[0] && strcmp(v->variant.name, sbuf) == 0))
+                                if ((v->variant.name[0] == sbuf[0] &&
+                                     strcmp(v->variant.name, sbuf) == 0))
                                 {
                                     break;
                                 }
@@ -684,7 +685,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                                 ASTNode *v = def->enm.variants;
                                 while (v)
                                 {
-                                    if ((v->variant.name[0] == method_name[0] && strcmp(v->variant.name, method_name) == 0))
+                                    if ((v->variant.name[0] == method_name[0] &&
+                                         strcmp(v->variant.name, method_name) == 0))
                                     {
                                         is_variant = 1;
                                         break;
@@ -772,7 +774,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                                     while (ref)
                                     {
                                         if (ref->node && ref->node->type == NODE_IMPL_TRAIT &&
-                                            (ref->node->impl_trait.target_type[0] == acc[0] && strcmp(ref->node->impl_trait.target_type, acc) == 0))
+                                            (ref->node->impl_trait.target_type[0] == acc[0] &&
+                                             strcmp(ref->node->impl_trait.target_type, acc) == 0))
                                         {
                                             const char *tname = ref->node->impl_trait.trait_name;
                                             const char *sep = (strcmp(tname, "Drop") == 0 ||
@@ -832,7 +835,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                                             ASTNode *v = tpl_def->enm.variants;
                                             while (v)
                                             {
-                                                if ((v->variant.name[0] == method_name[0] && strcmp(v->variant.name, method_name) == 0))
+                                                if ((v->variant.name[0] == method_name[0] &&
+                                                     strcmp(v->variant.name, method_name) == 0))
                                                 {
                                                     is_v = 1;
                                                     break;
@@ -883,7 +887,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                                                 }
                                                 while (v)
                                                 {
-                                                    if ((v->variant.name[0] == sbuf[0] && strcmp(v->variant.name, sbuf) == 0))
+                                                    if ((v->variant.name[0] == sbuf[0] &&
+                                                         strcmp(v->variant.name, sbuf) == 0))
                                                     {
                                                         is_variant = 1;
                                                         break;
@@ -1360,7 +1365,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                 {
                     if (!def->strct.defined_in_file ||
                         (ctx->current_filename &&
-                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
+                         (def->strct.defined_in_file[0] == ctx->current_filename[0] &&
+                          strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
                     {
                         zpanic_at(lexer_peek(l),
                                   "Cannot initialize opaque struct '%s' outside its module",
@@ -1474,7 +1480,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                 GenericTemplate *gtpl = ctx->templates;
                 while (gtpl)
                 {
-                    if ((gtpl->name[0] == acc[0] && strcmp(gtpl->name, acc) == 0) || (gtpl->name[0] == struct_name[0] && strcmp(gtpl->name, struct_name) == 0))
+                    if ((gtpl->name[0] == acc[0] && strcmp(gtpl->name, acc) == 0) ||
+                        (gtpl->name[0] == struct_name[0] && strcmp(gtpl->name, struct_name) == 0))
                     {
                         break;
                     }
@@ -1496,7 +1503,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                             while (tpl_field)
                             {
                                 if (tpl_field->type == NODE_FIELD && tpl_field->field.name &&
-                                    (tpl_field->field.name[0] == init_field->var_decl.name[0] && strcmp(tpl_field->field.name, init_field->var_decl.name) == 0))
+                                    (tpl_field->field.name[0] == init_field->var_decl.name[0] &&
+                                     strcmp(tpl_field->field.name, init_field->var_decl.name) == 0))
                                 {
                                     break;
                                 }
@@ -1508,7 +1516,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                                 const char *ft = tpl_field->field.type;
                                 Type *val_type = init_field->var_decl.init_expr->type_info;
 
-                                if ((ft[0] == gen_param[0] && strcmp(ft, gen_param) == 0) && val_type)
+                                if ((ft[0] == gen_param[0] && strcmp(ft, gen_param) == 0) &&
+                                    val_type)
                                 {
                                     inferred = type_to_string(val_type);
                                 }
@@ -1531,7 +1540,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                                         {
                                             memcpy(inner_name, ft + 1, (size_t)(inner_len));
                                             inner_name[inner_len] = '\0';
-                                            if ((inner_name[0] == gen_param[0] && strcmp(inner_name, gen_param) == 0) &&
+                                            if ((inner_name[0] == gen_param[0] &&
+                                                 strcmp(inner_name, gen_param) == 0) &&
                                                 val_type->kind == TYPE_ARRAY && val_type->inner)
                                             {
                                                 inferred = type_to_string(val_type->inner);
@@ -1550,7 +1560,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                                         {
                                             memcpy(base_name, ft, (size_t)(base_len));
                                             base_name[base_len] = '\0';
-                                            if ((base_name[0] == gen_param[0] && strcmp(base_name, gen_param) == 0) &&
+                                            if ((base_name[0] == gen_param[0] &&
+                                                 strcmp(base_name, gen_param) == 0) &&
                                                 val_type->kind == TYPE_POINTER && val_type->inner)
                                             {
                                                 inferred = type_to_string(val_type->inner);
@@ -1893,7 +1904,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
                         }
 
                         if (formal->kind == TYPE_STRUCT && formal->name &&
-                            (formal->name[0] == gen_param[0] && strcmp(formal->name, gen_param) == 0))
+                            (formal->name[0] == gen_param[0] &&
+                             strcmp(formal->name, gen_param) == 0))
                         {
                             inferred_type = type_to_string(actual_type);
                             break;
@@ -1901,7 +1913,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
 
                         if (formal->kind == TYPE_ARRAY && formal->inner &&
                             formal->inner->kind == TYPE_STRUCT && formal->inner->name &&
-                            (formal->inner->name[0] == gen_param[0] && strcmp(formal->inner->name, gen_param) == 0))
+                            (formal->inner->name[0] == gen_param[0] &&
+                             strcmp(formal->inner->name, gen_param) == 0))
                         {
                             if (actual_type->kind == TYPE_ARRAY && actual_type->inner)
                             {
@@ -1912,7 +1925,8 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
 
                         if (formal->kind == TYPE_POINTER && formal->inner &&
                             formal->inner->kind == TYPE_STRUCT && formal->inner->name &&
-                            (formal->inner->name[0] == gen_param[0] && strcmp(formal->inner->name, gen_param) == 0))
+                            (formal->inner->name[0] == gen_param[0] &&
+                             strcmp(formal->inner->name, gen_param) == 0))
                         {
                             if (actual_type->kind == TYPE_POINTER && actual_type->inner)
                             {
