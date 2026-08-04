@@ -226,7 +226,7 @@ char *rewrite_expr_methods(ParserContext *ctx, char *raw)
                 ASTNode *f = def->strct.fields;
                 while (f)
                 {
-                    if (strcmp(f->field.name, method) == 0)
+                    if ((f->field.name[0] == method[0] && strcmp(f->field.name, method) == 0))
                     {
                         is_field = 1;
                         break;
@@ -400,7 +400,7 @@ char *rewrite_expr_methods(ParserContext *ctx, char *raw)
                     ASTNode *v = sdef->enm.variants;
                     while (v)
                     {
-                        if (strcmp(v->variant.name, field) == 0)
+                        if ((v->variant.name[0] == field[0] && strcmp(v->variant.name, field) == 0))
                         {
                             is_variant = 1;
                             break;

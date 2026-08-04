@@ -460,7 +460,7 @@ void check_node(TypeChecker *tc, ASTNode *node, int depth)
                     while (field)
                     {
                         if (field->type == NODE_FIELD && field->field.name &&
-                            strcmp(field->field.name, node->member.field) == 0)
+                            (field->field.name[0] == node->member.field[0] && strcmp(field->field.name, node->member.field) == 0))
                         {
                             // Propagate lifetime from struct container to the member access result
                             node->type_info = type_clone(field->type_info);

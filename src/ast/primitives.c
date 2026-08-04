@@ -80,7 +80,7 @@ const ZenPrimitive *find_primitive_by_name(const char *name)
     int count = sizeof(primitives) / sizeof(primitives[0]);
     for (int i = 0; i < count; i++)
     {
-        if (strcmp(primitives[i].zen_name, name) == 0)
+        if ((primitives[i].zen_name[0] == name[0] && strcmp(primitives[i].zen_name, name) == 0))
         {
             return &primitives[i];
         }
@@ -93,7 +93,7 @@ const ZenPrimitive *find_primitive_by_c_name(const char *c_name)
     int count = sizeof(primitives) / sizeof(primitives[0]);
     for (int i = 0; i < count; i++)
     {
-        if (strcmp(primitives[i].c_name, c_name) == 0)
+        if ((primitives[i].c_name[0] == c_name[0] && strcmp(primitives[i].c_name, c_name) == 0))
         {
             return &primitives[i];
         }

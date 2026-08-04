@@ -99,7 +99,7 @@ static void mark_moved_in_state(MoveState *state, const char *path, Token t)
     MoveEntry *e = state->entries;
     while (e)
     {
-        if (strcmp(e->symbol_name, path) == 0)
+        if ((e->symbol_name[0] == path[0] && strcmp(e->symbol_name, path) == 0))
         {
             e->status = MOVE_STATE_MOVED;
             e->moved_at = t;
@@ -128,7 +128,7 @@ MoveStatus get_move_status(MoveState *state, const char *path)
         MoveEntry *e = s->entries;
         while (e)
         {
-            if (strcmp(e->symbol_name, path) == 0)
+            if ((e->symbol_name[0] == path[0] && strcmp(e->symbol_name, path) == 0))
             {
                 return e->status;
             }
@@ -405,7 +405,7 @@ static void mark_valid_in_state(MoveState *state, const char *path, Token t)
     MoveEntry *e = state->entries;
     while (e)
     {
-        if (strcmp(e->symbol_name, path) == 0)
+        if ((e->symbol_name[0] == path[0] && strcmp(e->symbol_name, path) == 0))
         {
             e->status = MOVE_STATE_VALID;
             e->moved_at = t;

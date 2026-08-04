@@ -29,7 +29,7 @@ void handle_expr_struct_init(ParserContext *ctx, ASTNode *node)
     while (sr)
     {
         if (sr->node && sr->node->type == NODE_STRUCT &&
-            strcmp(sr->node->strct.name, struct_name) == 0)
+            (sr->node->strct.name[0] == struct_name[0] && strcmp(sr->node->strct.name, struct_name) == 0))
         {
             is_zen_struct = 1;
             if (sr->node->strct.is_union)
@@ -54,7 +54,7 @@ void handle_expr_struct_init(ParserContext *ctx, ASTNode *node)
         while (v_chk)
         {
             if (v_chk->node && v_chk->node->type == NODE_STRUCT &&
-                strcmp(v_chk->node->strct.name, struct_name) == 0)
+                (v_chk->node->strct.name[0] == struct_name[0] && strcmp(v_chk->node->strct.name, struct_name) == 0))
             {
                 if (v_chk->node->type_info)
                 {
@@ -888,7 +888,7 @@ void handle_expr_call(ParserContext *ctx, ASTNode *node)
                     TypeAlias *ta = ctx->type_aliases;
                     while (ta)
                     {
-                        if (strcmp(ta->original_type, call_base) == 0)
+                        if ((ta->original_type[0] == call_base[0] && strcmp(ta->original_type, call_base) == 0))
                         {
                             char alias_func_base[MAX_ERROR_MSG_LEN];
                             snprintf(alias_func_base, sizeof(alias_func_base), "%s__%s", ta->alias,
@@ -907,7 +907,7 @@ void handle_expr_call(ParserContext *ctx, ASTNode *node)
                     while (ref)
                     {
                         if (ref->node && ref->node->type == NODE_IMPL_TRAIT &&
-                            strcmp(ref->node->impl_trait.target_type, base) == 0)
+                            (ref->node->impl_trait.target_type[0] == base[0] && strcmp(ref->node->impl_trait.target_type, base) == 0))
                         {
                             char trait_base[MAX_MANGLED_NAME_LEN];
                             snprintf(trait_base, sizeof(trait_base), "%s__%s__%s", base,
@@ -1183,7 +1183,7 @@ skip_callee_gen:
                     char **w = ctx->config->c_function_whitelist;
                     while (*w)
                     {
-                        if (strcmp(*w, name) == 0)
+                        if ((*w[0] == name[0] && strcmp(*w, name) == 0))
                         {
                             is_whitelisted = 1;
                             break;

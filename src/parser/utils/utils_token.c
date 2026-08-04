@@ -324,7 +324,7 @@ int is_c_reserved_word(const char *name)
 {
     for (int i = 0; C_RESERVED_WORDS[i] != NULL; i++)
     {
-        if (strcmp(name, C_RESERVED_WORDS[i]) == 0)
+        if ((name[0] == C_RESERVED_WORDS[i][0] && strcmp(name, C_RESERVED_WORDS[i]) == 0))
         {
             return 1;
         }

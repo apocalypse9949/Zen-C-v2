@@ -296,7 +296,7 @@ ASTNode *parse_match(ParserContext *ctx, Lexer *l)
                         size_t size = strlen(vreg->enum_name) + strlen(v->variant.name) + 2;
                         char *v_full = xmalloc(size + 1);
                         snprintf(v_full, size + 1, "%s__%s", vreg->enum_name, v->variant.name);
-                        if (strcmp(v_full, pattern) == 0 && v->variant.payload)
+                        if ((v_full[0] == pattern[0] && strcmp(v_full, pattern) == 0) && v->variant.payload)
                         {
                             payload_type = v->variant.payload;
                             if (payload_type && payload_type->kind == TYPE_STRUCT &&

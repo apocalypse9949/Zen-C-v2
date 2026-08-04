@@ -365,7 +365,7 @@ int driver_compile(ZenCompiler *compiler)
     if (backend && !backend->needs_cc)
     {
         if (compiler->config.output_file &&
-            strcmp(temp_source_buf, compiler->config.output_file) != 0)
+            (temp_source_buf[0] == compiler->config.output_file[0] && strcmp(temp_source_buf, compiler->config.output_file) != 0))
         {
             rename(temp_source_buf, compiler->config.output_file);
         }

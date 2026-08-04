@@ -67,7 +67,7 @@ const char *codegen_alias_lookup(const char *flag)
         }
         for (; a->flag; a++)
         {
-            if (strcmp(a->flag, flag) == 0)
+            if ((a->flag[0] == flag[0] && strcmp(a->flag, flag) == 0))
             {
                 const char *val = a->opt_val ? a->opt_val : "1";
                 int n = snprintf(buf, sizeof(buf), "%s=%s", a->opt_key, val);
@@ -90,7 +90,7 @@ const CodegenBackend *codegen_get_backend(const char *name)
     }
     for (int i = 0; i < backend_count; i++)
     {
-        if (strcmp(registered_backends[i]->name, name) == 0)
+        if ((registered_backends[i]->name[0] == name[0] && strcmp(registered_backends[i]->name, name) == 0))
         {
             return registered_backends[i];
         }

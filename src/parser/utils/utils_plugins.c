@@ -95,7 +95,7 @@ const char *resolve_plugin(ParserContext *ctx, const char *name_or_alias)
     ImportedPlugin *p;
     while (zmap_iter_next(&it, &key, &p))
     {
-        if (strcmp(p->name, name_or_alias) == 0)
+        if ((p->name[0] == name_or_alias[0] && strcmp(p->name, name_or_alias) == 0))
         {
             return p->name;
         }

@@ -93,7 +93,7 @@ static CValue *scope_find(CScope *head, const char *name)
 {
     for (CScope *e = head; e; e = e->next)
     {
-        if (strcmp(e->name, name) == 0)
+        if ((e->name[0] == name[0] && strcmp(e->name, name) == 0))
         {
             return &e->value;
         }
@@ -497,7 +497,7 @@ static CValue eval_call(CInterp *ci, ASTNode *node)
     for (StructRef *r = ci->pctx->parsed_funcs_list; r; r = r->next)
     {
         if (r->node && r->node->type == NODE_FUNCTION && r->node->func.is_comptime &&
-            strcmp(r->node->func.name, name) == 0)
+            (r->node->func.name[0] == name[0] && strcmp(r->node->func.name, name) == 0))
         {
             return call_comptime_fn(ci, r->node, node->call.args);
         }

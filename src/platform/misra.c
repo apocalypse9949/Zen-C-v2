@@ -657,7 +657,7 @@ void misra_check_param_modified(ASTNode *current_func, ASTNode *left, Token toke
     const char *name = left->var_ref.name;
     for (int i = 0; i < current_func->func.arg_count; i++)
     {
-        if (strcmp(current_func->func.param_names[i], name) == 0)
+        if ((current_func->func.param_names[i][0] == name[0] && strcmp(current_func->func.param_names[i], name) == 0))
         {
             zerror_at(token, "MISRA Rule 17.8");
             return;
@@ -1107,13 +1107,13 @@ void misra_audit_identifier_uniqueness(ParserContext *ctx)
             if (linkage1 == 1 && linkage2 == 1)
             {
                 // Check exact name collision
-                if (strcmp(s1->name, s2->name) == 0)
+                if ((s1->name[0] == s2->name[0] && strcmp(s1->name, s2->name) == 0))
                 {
                     zerror_at(s2->decl_token, "MISRA Rule 5.8");
                 }
                 // Check @link_name collision specifically
                 else if (s1->link_name && s2->link_name &&
-                         strcmp(s1->link_name, s2->link_name) == 0)
+                         (s1->link_name[0] == s2->link_name[0] && strcmp(s1->link_name, s2->link_name) == 0))
                 {
                     zerror_at(s2->decl_token, "MISRA Rule 5.8");
                 }
@@ -1121,7 +1121,7 @@ void misra_audit_identifier_uniqueness(ParserContext *ctx)
             // Rule 5.9: Internal identifiers should be unique (Advisory)
             else if (linkage1 == 2 && linkage2 == 2)
             {
-                if (strcmp(s1->name, s2->name) == 0)
+                if ((s1->name[0] == s2->name[0] && strcmp(s1->name, s2->name) == 0))
                 {
                     zerror_at(s2->decl_token, "MISRA Rule 5.9");
                 }
@@ -1219,7 +1219,7 @@ void misra_check_preprocessor_expression_parser(struct ParserContext *ctx, Token
         // 1. Check CLI defines
         for (size_t i = 0; i < ctx->config->cfg_defines.length; i++)
         {
-            if (strcmp(ctx->config->cfg_defines.data[i], name) == 0)
+            if ((ctx->config->cfg_defines.data[i][0] == name[0] && strcmp(ctx->config->cfg_defines.data[i], name) == 0))
             {
                 is_defined = 1;
                 break;
@@ -1448,7 +1448,7 @@ void misra_check_standard_macro_name(Token tok, const char *name)
 
     for (int i = 0; STANDARD_MACRO_NAMES[i] != NULL; i++)
     {
-        if (strcmp(name, STANDARD_MACRO_NAMES[i]) == 0)
+        if ((name[0] == STANDARD_MACRO_NAMES[i][0] && strcmp(name, STANDARD_MACRO_NAMES[i]) == 0))
         {
             char msg[256];
             snprintf(msg, sizeof(msg),
@@ -1512,7 +1512,7 @@ void misra_check_banned_function(struct ParserContext *ctx, const char *name, To
 
     for (int i = 0; banned_funcs[i].name != NULL; i++)
     {
-        if (strcmp(name, banned_funcs[i].name) == 0)
+        if ((name[0] == banned_funcs[i].name[0] && strcmp(name, banned_funcs[i].name) == 0))
         {
             char msg[128];
             snprintf(msg, sizeof(msg), "MISRA %s: Use of banned standard library function '%s'",
@@ -1599,12 +1599,12 @@ void misra_check_typographic_ambiguity(struct ParserContext *ctx, const char *ne
         while (sym)
         {
             // Do not compare against itself (though initially it shouldn't be listed yet)
-            if (sym->name && strcmp(sym->name, new_name) != 0)
+            if (sym->name && (sym->name[0] == new_name[0] && strcmp(sym->name, new_name) != 0))
             {
                 char exist_canon[256];
                 canonicalize_ambiguous_chars(sym->name, exist_canon, sizeof(exist_canon));
 
-                if (strcmp(new_canon, exist_canon) == 0)
+                if ((new_canon[0] == exist_canon[0] && strcmp(new_canon, exist_canon) == 0))
                 {
                     char msg[512];
                     snprintf(
@@ -1640,7 +1640,7 @@ void misra_check_tuple_size(struct ParserContext *ctx, struct Type *t, Token tok
         char expected[1024];
         snprintf(expected, sizeof(expected), "Tuple__%s", clean_sig);
         zfree(clean_sig);
-        if (strcmp(t->name, expected) == 0)
+        if ((t->name[0] == expected[0] && strcmp(t->name, expected) == 0))
         {
             if (tup->count >= 3)
             {

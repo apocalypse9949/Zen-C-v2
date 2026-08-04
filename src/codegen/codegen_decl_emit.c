@@ -189,7 +189,7 @@ static void emit_protos_internal(ParserContext *ctx, ASTNode *node, VisitedModul
                 int skip_fn = 0;
                 for (int si = 0; skip_cstdlib[si]; si++)
                 {
-                    if (strcmp(f->func.name, skip_cstdlib[si]) == 0)
+                    if ((f->func.name[0] == skip_cstdlib[si][0] && strcmp(f->func.name, skip_cstdlib[si]) == 0))
                     {
                         skip_fn = 1;
                         break;
@@ -274,9 +274,9 @@ static void emit_protos_internal(ParserContext *ctx, ASTNode *node, VisitedModul
                 int already_emitted = 0;
                 for (EmittedProto *ep = *emitted; ep; ep = ep->next)
                 {
-                    if (strcmp(ep->name, f->func.name) == 0 &&
+                    if ((ep->name[0] == f->func.name[0] && strcmp(ep->name, f->func.name) == 0) &&
                         ((ep->cfg == NULL && f->cfg_condition == NULL) ||
-                         (ep->cfg && f->cfg_condition && strcmp(ep->cfg, f->cfg_condition) == 0)))
+                         (ep->cfg && f->cfg_condition && (ep->cfg[0] == f->cfg_condition[0] && strcmp(ep->cfg, f->cfg_condition) == 0))))
                     {
                         already_emitted = 1;
                         break;
@@ -536,7 +536,7 @@ void emit_impl_vtables(ParserContext *ctx)
             while (search)
             {
                 if (search->node && search->node->type == NODE_TRAIT &&
-                    strcmp(search->node->trait.name, trait) == 0)
+                    (search->node->trait.name[0] == trait[0] && strcmp(search->node->trait.name, trait) == 0))
                 {
                     if (search->node->trait.generic_param_count > 0)
                     {
@@ -596,7 +596,7 @@ void emit_impl_vtables(ParserContext *ctx)
             int dup = 0;
             for (int i = 0; i < count; i++)
             {
-                if (strcmp(emitted[i].trait, trait) == 0 && strcmp(emitted[i].strct, strct) == 0)
+                if ((emitted[i].trait[0] == trait[0] && strcmp(emitted[i].trait, trait) == 0) && (emitted[i].strct[0] == strct[0] && strcmp(emitted[i].strct, strct) == 0))
                 {
                     dup = 1;
                     break;
@@ -745,7 +745,7 @@ static void emit_mangled_pointer_typedefs(ParserContext *ctx)
             int found = 0;
             for (int i = 0; i < count; i++)
             {
-                if (strcmp(emitted[i], inst->concrete_arg) == 0)
+                if ((emitted[i][0] == inst->concrete_arg[0] && strcmp(emitted[i], inst->concrete_arg) == 0))
                 {
                     found = 1;
                     break;

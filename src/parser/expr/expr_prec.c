@@ -800,7 +800,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                 {
                     if (!def->strct.defined_in_file ||
                         (ctx->current_filename &&
-                         strcmp(def->strct.defined_in_file, ctx->current_filename) != 0))
+                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
                     {
                         zpanic_at(field, "Cannot access private field '%s' of opaque struct '%s'",
                                   node->member.field, sname);
@@ -861,7 +861,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                 {
                     if (!def->strct.defined_in_file ||
                         (ctx->current_filename &&
-                         strcmp(def->strct.defined_in_file, ctx->current_filename) != 0))
+                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
                     {
                         zpanic_at(field, "Cannot access private field '%s' of opaque struct '%s'",
                                   node->member.field, sname);
@@ -1015,7 +1015,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                             if (ref->node && ref->node->type == NODE_IMPL_TRAIT)
                             {
                                 if (ref->node->impl_trait.target_type &&
-                                    strcmp(ref->node->impl_trait.target_type, struct_name) == 0)
+                                    (ref->node->impl_trait.target_type[0] == struct_name[0] && strcmp(ref->node->impl_trait.target_type, struct_name) == 0))
                                 {
                                     char buf_trait[MAX_ERROR_MSG_LEN];
                                     snprintf(buf_trait, sizeof(buf_trait), "%s__%s__%s",
@@ -1069,7 +1069,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                                     inner_name = first_param->inner->name;
                                 }
 
-                                if (!inner_name || strcmp(inner_name, struct_name) != 0)
+                                if (!inner_name || (inner_name[0] == struct_name[0] && strcmp(inner_name, struct_name) != 0))
                                 {
                                     is_static_method = 1;
                                 }
@@ -1494,7 +1494,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                         GenericImplTemplate *it = ctx->impl_templates;
                         while (it)
                         {
-                            if (strcmp(it->struct_name, base) == 0)
+                            if ((it->struct_name[0] == base[0] && strcmp(it->struct_name, base) == 0))
                             {
                                 ASTNode *m = it->impl_node->impl.methods;
 
@@ -1509,9 +1509,9 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                                 while (m)
                                 {
                                     int found_idx =
-                                        m->func.name && strcmp(m->func.name, mangled_idx) == 0;
+                                        m->func.name && (m->func.name[0] == mangled_idx[0] && strcmp(m->func.name, mangled_idx) == 0);
                                     int found_get =
-                                        m->func.name && strcmp(m->func.name, mangled_g) == 0;
+                                        m->func.name && (m->func.name[0] == mangled_g[0] && strcmp(m->func.name, mangled_g) == 0);
 
                                     if (found_idx || found_get)
                                     {
@@ -1695,7 +1695,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                 {
                     if (!def->strct.defined_in_file ||
                         (ctx->current_filename &&
-                         strcmp(def->strct.defined_in_file, ctx->current_filename) != 0))
+                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
                     {
                         zpanic_at(field, "Cannot access private field '%s' of opaque struct '%s'",
                                   node->member.field, sname);
@@ -1800,7 +1800,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                             if (ref->node && ref->node->type == NODE_IMPL_TRAIT)
                             {
                                 const char *t_struct = ref->node->impl_trait.target_type;
-                                if (t_struct && strcmp(t_struct, struct_name) == 0)
+                                if (t_struct && (t_struct[0] == struct_name[0] && strcmp(t_struct, struct_name) == 0))
                                 {
                                     char buf_trait[MAX_ERROR_MSG_LEN];
                                     snprintf(buf_trait, sizeof(buf_trait), "%s__%s__%s",
@@ -2159,7 +2159,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
             // Check for identical operands (x == x)
             if (lhs->type == NODE_EXPR_VAR && rhs->type == NODE_EXPR_VAR)
             {
-                if (strcmp(lhs->var_ref.name, rhs->var_ref.name) == 0)
+                if ((lhs->var_ref.name[0] == rhs->var_ref.name[0] && strcmp(lhs->var_ref.name, rhs->var_ref.name) == 0))
                 {
                     if (strcmp(bin->binary.op, "==") == 0 || strcmp(bin->binary.op, ">=") == 0 ||
                         strcmp(bin->binary.op, "<=") == 0)
@@ -2482,7 +2482,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                         if (ref->node && ref->node->type == NODE_IMPL_TRAIT)
                         {
                             const char *t_struct = ref->node->impl_trait.target_type;
-                            if (t_struct && strcmp(t_struct, struct_name) == 0)
+                            if (t_struct && (t_struct[0] == struct_name[0] && strcmp(t_struct, struct_name) == 0))
                             {
                                 char buf_t[MAX_ERROR_MSG_LEN];
                                 snprintf(buf_t, sizeof(buf_t), "%s__%s__%s", struct_name,
@@ -2752,7 +2752,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
                     char *sr = resolve_struct_name_from_type(ctx, rhs->type_info, &pr, &ar);
 
                     int alias_match = 0;
-                    if (sl && sr && strcmp(sl, sr) == 0 && pl == pr)
+                    if (sl && sr && (sl[0] == sr[0] && strcmp(sl, sr) == 0) && pl == pr)
                     {
                         alias_match = 1;
                         bin->type_info = lhs->type_info;

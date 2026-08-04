@@ -195,7 +195,7 @@ ZPlugin *zptr_find_plugin(const char *name)
     PluginNode *curr = head;
     while (curr)
     {
-        if (strcmp(curr->plugin->name, name) == 0)
+        if ((curr->plugin->name[0] == name[0] && strcmp(curr->plugin->name, name) == 0))
         {
             return curr->plugin;
         }
@@ -237,7 +237,7 @@ int zptr_unload_plugin(const char *name)
 
     while (curr)
     {
-        if (strcmp(curr->plugin->name, name) == 0)
+        if ((curr->plugin->name[0] == name[0] && strcmp(curr->plugin->name, name) == 0))
         {
             if (prev)
             {

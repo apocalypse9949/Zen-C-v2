@@ -2011,7 +2011,7 @@ static cJSON *get_object_item(const cJSON *const object, const char *const name,
     if (case_sensitive)
     {
         while ((current_element != NULL) && (current_element->string != NULL) &&
-               (strcmp(name, current_element->string) != 0))
+               ((name[0] == current_element->string[0] && strcmp(name, current_element->string) != 0)))
         {
             current_element = current_element->next;
         }
@@ -3209,7 +3209,7 @@ cJSON_Compare(const cJSON *const a, const cJSON *const b, const cJSON_bool case_
         {
             return false;
         }
-        if (strcmp(a->valuestring, b->valuestring) == 0)
+        if ((a->valuestring[0] == b->valuestring[0] && strcmp(a->valuestring, b->valuestring) == 0))
         {
             return true;
         }

@@ -13,14 +13,22 @@ void lexer_init(Lexer *l, const char *src, CompilerConfig *cfg, const char *file
     l->filename = filename;
 }
 
-static __attribute__((unused)) int is_ident_start(char c)
+static const unsigned char ident_start_map[256] = {
+    ['A' ... 'Z'] = 1, ['a' ... 'z'] = 1, ['_'] = 1
+};
+
+static __attribute__((unused)) inline int is_ident_start(char c)
 {
-    return isalpha(c) || c == '_';
+    return ident_start_map[(unsigned char)c];
 }
 
-static __attribute__((unused)) int is_ident_char(char c)
+static const unsigned char ident_char_map[256] = {
+    ['A' ... 'Z'] = 1, ['a' ... 'z'] = 1, ['0' ... '9'] = 1, ['_'] = 1
+};
+
+static __attribute__((unused)) inline int is_ident_char(char c)
 {
-    return isalnum(c) || c == '_';
+    return ident_char_map[(unsigned char)c];
 }
 
 static __attribute__((unused)) int lexer_scan_string_internal(Lexer *l, const char *s, char quote,

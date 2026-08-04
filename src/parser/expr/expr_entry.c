@@ -492,7 +492,7 @@ void analyze_lambda_captures(ParserContext *ctx, ASTNode *lambda)
         int found = 0;
         for (int j = 0; j < num_captures; j++)
         {
-            if (strcmp(var_name, captures[j]) == 0)
+            if ((var_name[0] == captures[j][0] && strcmp(var_name, captures[j]) == 0))
             {
                 found = 1;
                 break;

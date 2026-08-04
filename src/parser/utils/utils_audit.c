@@ -133,7 +133,7 @@ void audit_section_5(ParserContext *ctx, Scope *scope, const char *name, const c
         ZenSymbol *sh = p->symbols;
         while (sh)
         {
-            if (p != scope && strcmp(sh->name, name) == 0 && !ctx->silent_warnings)
+            if (p != scope && (sh->name[0] == name[0] && strcmp(sh->name, name) == 0) && !ctx->silent_warnings)
             {
                 if (ctx->config->misra_mode)
                 {
@@ -150,7 +150,7 @@ void audit_section_5(ParserContext *ctx, Scope *scope, const char *name, const c
                 const char *actual_name = link_name ? link_name : name;
                 const char *sh_actual_name = sh->link_name ? sh->link_name : sh->name;
 
-                if (strcmp(sh_actual_name, actual_name) != 0)
+                if ((sh_actual_name[0] == actual_name[0] && strcmp(sh_actual_name, actual_name) != 0))
                 {
                     if (ctx->hook_check_identifier_collision)
                     {

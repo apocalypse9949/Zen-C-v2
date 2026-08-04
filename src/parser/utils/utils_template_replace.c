@@ -278,7 +278,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
     }
 
     // 1. Exact match (base case)
-    if (strcmp(src, param) == 0)
+    if ((src[0] == param[0] && strcmp(src, param) == 0))
     {
         return xstrdup(concrete);
     }
@@ -596,7 +596,7 @@ Type *replace_type_formal(Type *t, const char *p, const char *c, const char *os,
                 }
             }
         }
-        else if (p && strcmp(t->name, p) == 0)
+        else if (p && (t->name[0] == p[0] && strcmp(t->name, p) == 0))
         {
             return type_from_string_helper(c);
         }
@@ -607,7 +607,7 @@ Type *replace_type_formal(Type *t, const char *p, const char *c, const char *os,
 
     if (t->name)
     {
-        if (os && ns && strcmp(t->name, os) == 0)
+        if (os && ns && (t->name[0] == os[0] && strcmp(t->name, os) == 0))
         {
             n->name = xstrdup(ns);
             n->kind = TYPE_STRUCT;

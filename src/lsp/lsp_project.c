@@ -179,7 +179,7 @@ ProjectFile *lsp_project_get_file(const char *uri)
     ProjectFile *curr = g_project->files;
     while (curr)
     {
-        if (strcmp(curr->uri, uri) == 0)
+        if ((curr->uri[0] == uri[0] && strcmp(curr->uri, uri) == 0))
         {
             return curr;
         }
@@ -327,7 +327,7 @@ DefinitionResult lsp_project_find_definition(const char *name)
                         found_name = r->node->type_alias.alias;
                     }
 
-                    if (found_name && strcmp(found_name, name) == 0)
+                    if (found_name && (found_name[0] == name[0] && strcmp(found_name, name) == 0))
                     {
                         res.uri = pf->uri;
                         res.range = r;
@@ -411,7 +411,7 @@ ReferenceResult *lsp_project_find_references(const char *name)
                     }
                 }
 
-                if (scan_name && strcmp(scan_name, name) == 0)
+                if (scan_name && (scan_name[0] == name[0] && strcmp(scan_name, name) == 0))
                 {
                     ReferenceResult *new_res = calloc(1, sizeof(ReferenceResult));
                     new_res->uri = pf->uri;

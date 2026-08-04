@@ -149,7 +149,7 @@ static int is_module_visited(VisitedModules *visited, const char *path)
 {
     while (visited)
     {
-        if (strcmp(visited->path, path) == 0)
+        if ((visited->path[0] == path[0] && strcmp(visited->path, path) == 0))
         {
             return 1;
         }
@@ -395,7 +395,7 @@ static int is_content_emitted(EmittedContent *list, const char *content)
 {
     while (list)
     {
-        if (strcmp(list->content, content) == 0)
+        if ((list->content[0] == content[0] && strcmp(list->content, content) == 0))
         {
             return 1;
         }
@@ -915,7 +915,7 @@ void codegen_c_program(ParserContext *ctx, ASTNode *node)
                         const char *n1 = (k->type == NODE_STRUCT) ? k->strct.name : k->enm.name;
                         const char *n2 =
                             (chk->type == NODE_STRUCT) ? chk->strct.name : chk->enm.name;
-                        if (n1 && n2 && strcmp(n1, n2) == 0)
+                        if (n1 && n2 && (n1[0] == n2[0] && strcmp(n1, n2) == 0))
                         {
                             found = 1;
                             break;
@@ -995,7 +995,7 @@ void codegen_c_program(ParserContext *ctx, ASTNode *node)
                     while (check)
                     {
                         if ((check->type == NODE_VAR_DECL || check->type == NODE_CONST) &&
-                            check->var_decl.name && strcmp(check->var_decl.name, var_name) == 0)
+                            check->var_decl.name && (check->var_decl.name[0] == var_name[0] && strcmp(check->var_decl.name, var_name) == 0))
                         {
                             is_duplicate = 1;
                             break;

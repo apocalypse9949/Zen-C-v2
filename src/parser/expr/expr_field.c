@@ -67,7 +67,7 @@ Type *get_field_type(ParserContext *ctx, Type *struct_type, const char *field_na
     ASTNode *f = def->strct.fields;
     while (f)
     {
-        if (strcmp(f->field.name, field_name) == 0)
+        if ((f->field.name[0] == field_name[0] && strcmp(f->field.name, field_name) == 0))
         {
             if (alloc_name)
             {

@@ -53,7 +53,7 @@ static void trigger_type_instantiation(ParserContext *ctx, Type *t)
             int found = 0;
             while (gt)
             {
-                if (strcmp(gt->name, template_name) == 0)
+                if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
                 {
                     found = 1;
                     break;
@@ -135,7 +135,7 @@ static void trigger_instantiations(ParserContext *ctx, ASTNode *node)
                 int found = 0;
                 while (gt)
                 {
-                    if (strcmp(gt->name, template_name) == 0)
+                    if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
                     {
                         found = 1;
                         break;
@@ -199,7 +199,7 @@ static void trigger_instantiations(ParserContext *ctx, ASTNode *node)
                 int found = 0;
                 while (gt)
                 {
-                    if (strcmp(gt->name, template_name) == 0)
+                    if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
                     {
                         found = 1;
                         break;
@@ -444,7 +444,7 @@ char *instantiate_function_template(ParserContext *ctx, const char *name, const 
 
             // Check if it's a known generic template
             GenericTemplate *gt = ctx->templates;
-            while (gt && strcmp(gt->name, struct_base) != 0)
+            while (gt && (gt->name[0] == struct_base[0] && strcmp(gt->name, struct_base) != 0))
             {
                 gt = gt->next;
             }
@@ -618,7 +618,7 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
                 int found = 0;
                 while (gt)
                 {
-                    if (strcmp(gt->name, template_name) == 0)
+                    if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
                     {
                         found = 1;
                         break;
@@ -632,7 +632,7 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
                     if (concrete)
                     {
                         char *clean_concrete = sanitize_mangled_name(concrete);
-                        if (strcmp(concrete_arg, clean_concrete) == 0)
+                        if ((concrete_arg[0] == clean_concrete[0] && strcmp(concrete_arg, clean_concrete) == 0))
                         {
                             zfree(unmangled);
                             unmangled = xstrdup(concrete);
@@ -684,7 +684,7 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
                 if (concrete)
                 {
                     char *clean_concrete = sanitize_mangled_name(concrete);
-                    if (strcmp(concrete_arg, clean_concrete) == 0)
+                    if ((concrete_arg[0] == clean_concrete[0] && strcmp(concrete_arg, clean_concrete) == 0))
                     {
                         zfree(unmangled);
                         unmangled = xstrdup(concrete);
@@ -724,7 +724,7 @@ void instantiate_methods(ParserContext *ctx, GenericImplTemplate *it,
     if (strchr(it->struct_name, '<'))
     {
         char *sanitized = sanitize_mangled_name(it->struct_name);
-        if (strcmp(sanitized, it->struct_name) != 0)
+        if ((sanitized[0] == it->struct_name[0] && strcmp(sanitized, it->struct_name) != 0))
         {
             ASTNode *tmp = copy_ast_replacing(new_impl, NULL, NULL, sanitized, mangled_struct_name);
             new_impl = tmp;
@@ -737,7 +737,7 @@ void instantiate_methods(ParserContext *ctx, GenericImplTemplate *it,
             memmove(double_underscore, double_underscore + 1, strlen(double_underscore + 1) + 1);
         }
 
-        if (strcmp(old_sanitized, it->struct_name) != 0 && strcmp(old_sanitized, sanitized) != 0)
+        if ((old_sanitized[0] == it->struct_name[0] && strcmp(old_sanitized, it->struct_name) != 0) && (old_sanitized[0] == sanitized[0] && strcmp(old_sanitized, sanitized) != 0))
         {
             ASTNode *tmp =
                 copy_ast_replacing(new_impl, NULL, NULL, old_sanitized, mangled_struct_name);
@@ -919,7 +919,7 @@ void instantiate_generic(ParserContext *ctx, const char *tpl, const char *arg,
     Instantiation *c = ctx->instantiations;
     while (c)
     {
-        if (strcmp(c->name, m) == 0)
+        if ((c->name[0] == m[0] && strcmp(c->name, m) == 0))
         {
             zfree(m);
             return; // Already instantiated, DO NOTHING.
@@ -930,7 +930,7 @@ void instantiate_generic(ParserContext *ctx, const char *tpl, const char *arg,
     GenericTemplate *t = ctx->templates;
     while (t)
     {
-        if (strcmp(t->name, tpl) == 0)
+        if ((t->name[0] == tpl[0] && strcmp(t->name, tpl) == 0))
         {
             break;
         }
@@ -1060,7 +1060,7 @@ void instantiate_generic(ParserContext *ctx, const char *tpl, const char *arg,
     GenericImplTemplate *it = ctx->impl_templates;
     while (it)
     {
-        if (strcmp(it->struct_name, tpl) == 0)
+        if ((it->struct_name[0] == tpl[0] && strcmp(it->struct_name, tpl) == 0))
         {
             instantiate_methods(ctx, it, m, arg, unmangled_arg);
         }
@@ -1117,7 +1117,7 @@ void instantiate_generic_multi(ParserContext *ctx, const char *tpl, char **args,
     Instantiation *c = ctx->instantiations;
     while (c)
     {
-        if (strcmp(c->name, m) == 0)
+        if ((c->name[0] == m[0] && strcmp(c->name, m) == 0))
         {
             zfree(m);
             return; // Already done
@@ -1129,7 +1129,7 @@ void instantiate_generic_multi(ParserContext *ctx, const char *tpl, char **args,
     GenericTemplate *t = ctx->templates;
     while (t)
     {
-        if (strcmp(t->name, tpl) == 0)
+        if ((t->name[0] == tpl[0] && strcmp(t->name, tpl) == 0))
         {
             break;
         }

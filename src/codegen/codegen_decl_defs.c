@@ -18,7 +18,7 @@ int is_module_visited(VisitedModules *visited, const char *path)
 {
     while (visited)
     {
-        if (strcmp(visited->path, path) == 0)
+        if ((visited->path[0] == path[0] && strcmp(visited->path, path) == 0))
         {
             return 1;
         }

@@ -136,7 +136,7 @@ void handle_try_expr(ParserContext *ctx, ASTNode *node)
     StructRef *er = ctx->parsed_enums_list;
     while (er)
     {
-        if (er->node && er->node->type == NODE_ENUM && strcmp(er->node->enm.name, search_name) == 0)
+        if (er->node && er->node->type == NODE_ENUM && (er->node->enm.name[0] == search_name[0] && strcmp(er->node->enm.name, search_name) == 0))
         {
             is_enum = 1;
             break;
@@ -148,7 +148,7 @@ void handle_try_expr(ParserContext *ctx, ASTNode *node)
         ASTNode *ins = ctx->instantiated_structs;
         while (ins)
         {
-            if (ins->type == NODE_ENUM && strcmp(ins->enm.name, search_name) == 0)
+            if (ins->type == NODE_ENUM && (ins->enm.name[0] == search_name[0] && strcmp(ins->enm.name, search_name) == 0))
             {
                 is_enum = 1;
                 break;

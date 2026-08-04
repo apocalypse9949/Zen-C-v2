@@ -335,7 +335,7 @@ static int is_valid_int_suffix(const char *s)
                            "i8",  "i16", "i32", "i64", "isize", NULL};
     for (int i = 0; valid[i]; i++)
     {
-        if (strcmp(s, valid[i]) == 0)
+        if ((s[0] == valid[i][0] && strcmp(s, valid[i]) == 0))
         {
             return 1;
         }
@@ -352,7 +352,7 @@ static int is_valid_float_suffix(const char *s)
     const char *valid[] = {"f", "F", "d", "D", NULL};
     for (int i = 0; valid[i]; i++)
     {
-        if (strcmp(s, valid[i]) == 0)
+        if ((s[0] == valid[i][0] && strcmp(s, valid[i]) == 0))
         {
             return 1;
         }

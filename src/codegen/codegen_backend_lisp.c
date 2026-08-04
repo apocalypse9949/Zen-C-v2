@@ -171,13 +171,13 @@ static void lisp_get_struct_field_info(ParserContext *ctx, const char *type_str,
     while (sr)
     {
         if (sr->node && sr->node->type == NODE_STRUCT && sr->node->strct.name &&
-            strcmp(sr->node->strct.name, sname) == 0)
+            (sr->node->strct.name[0] == sname[0] && strcmp(sr->node->strct.name, sname) == 0))
         {
             int idx = 0;
             for (ASTNode *fd = sr->node->strct.fields; fd; fd = fd->next)
             {
                 if (fd->type == NODE_FIELD && fd->var_decl.name &&
-                    strcmp(fd->var_decl.name, field_name) == 0)
+                    (fd->var_decl.name[0] == field_name[0] && strcmp(fd->var_decl.name, field_name) == 0))
                 {
                     *out_idx = idx;
                     return;
@@ -191,13 +191,13 @@ static void lisp_get_struct_field_info(ParserContext *ctx, const char *type_str,
     // Also search instantiated structs
     for (ASTNode *s = ctx->instantiated_structs; s; s = s->next)
     {
-        if (s->type == NODE_STRUCT && s->strct.name && strcmp(s->strct.name, sname) == 0)
+        if (s->type == NODE_STRUCT && s->strct.name && (s->strct.name[0] == sname[0] && strcmp(s->strct.name, sname) == 0))
         {
             int idx = 0;
             for (ASTNode *fd = s->strct.fields; fd; fd = fd->next)
             {
                 if (fd->type == NODE_FIELD && fd->var_decl.name &&
-                    strcmp(fd->var_decl.name, field_name) == 0)
+                    (fd->var_decl.name[0] == field_name[0] && strcmp(fd->var_decl.name, field_name) == 0))
                 {
                     *out_idx = idx;
                     return;
@@ -460,7 +460,7 @@ static void lemit_expr(ParserContext *ctx, ASTNode *node, int depth)
                                                  "export", "string", "list",     "vector", NULL};
                 for (int ci = 0; cl_clash[ci]; ci++)
                 {
-                    if (strcmp(fname, cl_clash[ci]) == 0)
+                    if ((fname[0] == cl_clash[ci][0] && strcmp(fname, cl_clash[ci]) == 0))
                     {
                         static char zbuf[64];
                         zbuf[0] = '_';
@@ -1191,7 +1191,7 @@ static void lemit_func(ParserContext *ctx, ASTNode *node, int depth, int *first)
                                          "export", "string", "list",     "vector", NULL};
         for (int ci = 0; cl_clash[ci]; ci++)
         {
-            if (strcmp(fname, cl_clash[ci]) == 0)
+            if ((fname[0] == cl_clash[ci][0] && strcmp(fname, cl_clash[ci]) == 0))
             {
                 static char zbuf[64];
                 zbuf[0] = '_';
@@ -1215,7 +1215,7 @@ static void lemit_func(ParserContext *ctx, ASTNode *node, int depth, int *first)
             "_z_some",     "_z_None",          "_z_Some",     NULL};
         for (int ni = 0; native_names[ni]; ni++)
         {
-            if (strcmp(fname, native_names[ni]) == 0)
+            if ((fname[0] == native_names[ni][0] && strcmp(fname, native_names[ni]) == 0))
             {
                 emitter_printf(&ctx->cg.emitter, "; native module: %s\n", raw_n);
                 return;
@@ -1262,7 +1262,7 @@ static void lemit_func(ParserContext *ctx, ASTNode *node, int depth, int *first)
                         int found = 0;
                         for (int i = 0; i < vcnt; i++)
                         {
-                            if (strcmp(vnames[i], cur->var_decl.name) == 0)
+                            if ((vnames[i][0] == cur->var_decl.name[0] && strcmp(vnames[i], cur->var_decl.name) == 0))
                             {
                                 found = 1;
                                 break;
@@ -1398,7 +1398,7 @@ static int lisp_func_emitted(ParserContext *ctx, const char *name, const char **
     (void)ctx;
     for (int i = 0; i < ecount; i++)
     {
-        if (strcmp(emitted[i], name) == 0)
+        if ((emitted[i][0] == name[0] && strcmp(emitted[i], name) == 0))
         {
             return 1;
         }

@@ -293,7 +293,7 @@ void repl_highlight(const char *buf, int cursor_pos)
                 int is_keyword = 0;
                 for (int i = 0; REPL_KEYWORDS[i]; i++)
                 {
-                    if (strcmp(word, REPL_KEYWORDS[i]) == 0)
+                    if ((word[0] == REPL_KEYWORDS[i][0] && strcmp(word, REPL_KEYWORDS[i]) == 0))
                     {
                         is_keyword = 1;
                         break;
@@ -305,7 +305,7 @@ void repl_highlight(const char *buf, int cursor_pos)
                 {
                     for (int i = 0; REPL_TYPES[i]; i++)
                     {
-                        if (strcmp(word, REPL_TYPES[i]) == 0)
+                        if ((word[0] == REPL_TYPES[i][0] && strcmp(word, REPL_TYPES[i]) == 0))
                         {
                             is_type = 1;
                             break;

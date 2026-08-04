@@ -46,7 +46,7 @@ int validate_types(ParserContext *ctx)
                             char **ptr = ctx->config->c_type_whitelist;
                             while (*ptr)
                             {
-                                if (strcmp(u->name, *ptr) == 0)
+                                if ((u->name[0] == *ptr[0] && strcmp(u->name, *ptr) == 0))
                                 {
                                     whitelisted = 1;
                                     break;

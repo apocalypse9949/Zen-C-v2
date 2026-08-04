@@ -739,7 +739,7 @@ int is_struct_base_match(Type *base, Type *instantiated)
     {
         return 0;
     }
-    if (strcmp(base->name, instantiated->name) == 0)
+    if ((base->name[0] == instantiated->name[0] && strcmp(base->name, instantiated->name) == 0))
     {
         return 1;
     }
@@ -749,7 +749,7 @@ int is_struct_base_match(Type *base, Type *instantiated)
     extract_base_name(base->name, base_str, sizeof(base_str));
     extract_base_name(instantiated->name, inst_str, sizeof(inst_str));
 
-    if (base_str[0] != '\0' && strcmp(base_str, inst_str) == 0)
+    if (base_str[0] != '\0' && (base_str[0] == inst_str[0] && strcmp(base_str, inst_str) == 0))
     {
         return 1;
     }
@@ -907,7 +907,7 @@ int check_type_compatibility(TypeChecker *tc, Type *target, Type *value, Token t
         if (alias)
         {
             // Check if resolved names match
-            if (value->name && strcmp(alias, value->name) == 0)
+            if (value->name && (alias[0] == value->name[0] && strcmp(alias, value->name) == 0))
             {
                 return 1;
             }
@@ -918,7 +918,7 @@ int check_type_compatibility(TypeChecker *tc, Type *target, Type *value, Token t
         const char *alias = find_type_alias(tc->pctx, value->name);
         if (alias)
         {
-            if (target->name && strcmp(alias, target->name) == 0)
+            if (target->name && (alias[0] == target->name[0] && strcmp(alias, target->name) == 0))
             {
                 return 1;
             }
@@ -1147,7 +1147,7 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
             ASTNode *prev = node->struct_init.fields;
             while (prev != field_init)
             {
-                if (strcmp(prev->var_decl.name, field_init->var_decl.name) == 0)
+                if ((prev->var_decl.name[0] == field_init->var_decl.name[0] && strcmp(prev->var_decl.name, field_init->var_decl.name) == 0))
                 {
                     misra_check_double_initialization(tc->pctx, field_init->var_decl.name,
                                                       field_init->token);
@@ -1165,7 +1165,7 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
         while (def_field)
         {
             if (def_field->type == NODE_FIELD &&
-                strcmp(def_field->field.name, field_init->var_decl.name) == 0)
+                (def_field->field.name[0] == field_init->var_decl.name[0] && strcmp(def_field->field.name, field_init->var_decl.name) == 0))
             {
                 found = 1;
                 expected_type = def_field->type_info;
@@ -1224,7 +1224,7 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
             ASTNode *fi = node->struct_init.fields;
             while (fi)
             {
-                if (fi->var_decl.name && strcmp(fi->var_decl.name, def_field->field.name) == 0)
+                if (fi->var_decl.name && (fi->var_decl.name[0] == def_field->field.name[0] && strcmp(fi->var_decl.name, def_field->field.name) == 0))
                 {
                     provided = 1;
                     break;

@@ -156,7 +156,7 @@ static void codegen_var_expr(ParserContext *ctx, ASTNode *node)
     {
         for (int i = 0; i < ctx->cg.current_lambda->lambda.num_captures; i++)
         {
-            if (strcmp(node->var_ref.name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0)
+            if ((node->var_ref.name[0] == ctx->cg.current_lambda->lambda.captured_vars[i][0] && strcmp(node->var_ref.name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0))
             {
                 if (ctx->cg.current_lambda->lambda.capture_modes &&
                     ctx->cg.current_lambda->lambda.capture_modes[i] == 1)
@@ -242,7 +242,7 @@ static void codegen_var_expr(ParserContext *ctx, ASTNode *node)
                     clean_mangled += 7;
                 }
 
-                if (strcmp(clean_ev, clean_mangled) == 0)
+                if ((clean_ev[0] == clean_mangled[0] && strcmp(clean_ev, clean_mangled) == 0))
                 {
                     EMIT(ctx, "()");
                 }
@@ -332,8 +332,7 @@ static void codegen_lambda_expr(ParserContext *ctx, ASTNode *node)
                 {
                     for (int k = 0; k < ctx->cg.current_lambda->lambda.num_captures; k++)
                     {
-                        if (strcmp(node->lambda.captured_vars[i],
-                                   ctx->cg.current_lambda->lambda.captured_vars[k]) == 0)
+                        if ((node->lambda.captured_vars[i][0] == ctx->cg.current_lambda->lambda.captured_vars[k][0] && strcmp(node->lambda.captured_vars[i], ctx->cg.current_lambda->lambda.captured_vars[k]) == 0))
                         {
                             if (ctx->cg.current_lambda->lambda.capture_modes &&
                                 ctx->cg.current_lambda->lambda.capture_modes[k] == 1)

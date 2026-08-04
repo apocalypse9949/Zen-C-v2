@@ -1,0 +1,1798 @@
+diff --git a/src/analysis/comptime_interpreter.c b/src/analysis/comptime_interpreter.c
+index 138d32e..075928e 100644
+--- a/src/analysis/comptime_interpreter.c
++++ b/src/analysis/comptime_interpreter.c
+@@ -93,7 +93,7 @@ static CValue *scope_find(CScope *head, const char *name)
+ {
+     for (CScope *e = head; e; e = e->next)
+     {
+-        if (strcmp(e->name, name) == 0)
++        if ((e->name[0] == name[0] && strcmp(e->name, name) == 0))
+         {
+             return &e->value;
+         }
+@@ -497,7 +497,7 @@ static CValue eval_call(CInterp *ci, ASTNode *node)
+     for (StructRef *r = ci->pctx->parsed_funcs_list; r; r = r->next)
+     {
+         if (r->node && r->node->type == NODE_FUNCTION && r->node->func.is_comptime &&
+-            strcmp(r->node->func.name, name) == 0)
++            (r->node->func.name[0] == name[0] && strcmp(r->node->func.name, name) == 0))
+         {
+             return call_comptime_fn(ci, r->node, node->call.args);
+         }
+diff --git a/src/analysis/move_check.c b/src/analysis/move_check.c
+index bb93272..edb38e8 100644
+--- a/src/analysis/move_check.c
++++ b/src/analysis/move_check.c
+@@ -99,7 +99,7 @@ static void mark_moved_in_state(MoveState *state, const char *path, Token t)
+     MoveEntry *e = state->entries;
+     while (e)
+     {
+-        if (strcmp(e->symbol_name, path) == 0)
++        if ((e->symbol_name[0] == path[0] && strcmp(e->symbol_name, path) == 0))
+         {
+             e->status = MOVE_STATE_MOVED;
+             e->moved_at = t;
+@@ -128,7 +128,7 @@ MoveStatus get_move_status(MoveState *state, const char *path)
+         MoveEntry *e = s->entries;
+         while (e)
+         {
+-            if (strcmp(e->symbol_name, path) == 0)
++            if ((e->symbol_name[0] == path[0] && strcmp(e->symbol_name, path) == 0))
+             {
+                 return e->status;
+             }
+@@ -405,7 +405,7 @@ static void mark_valid_in_state(MoveState *state, const char *path, Token t)
+     MoveEntry *e = state->entries;
+     while (e)
+     {
+-        if (strcmp(e->symbol_name, path) == 0)
++        if ((e->symbol_name[0] == path[0] && strcmp(e->symbol_name, path) == 0))
+         {
+             e->status = MOVE_STATE_VALID;
+             e->moved_at = t;
+diff --git a/src/analysis/typecheck.c b/src/analysis/typecheck.c
+index 14f02bb..9a5d541 100644
+--- a/src/analysis/typecheck.c
++++ b/src/analysis/typecheck.c
+@@ -460,7 +460,7 @@ void check_node(TypeChecker *tc, ASTNode *node, int depth)
+                     while (field)
+                     {
+                         if (field->type == NODE_FIELD && field->field.name &&
+-                            strcmp(field->field.name, node->member.field) == 0)
++                            (field->field.name[0] == node->member.field[0] && strcmp(field->field.name, node->member.field) == 0))
+                         {
+                             // Propagate lifetime from struct container to the member access result
+                             node->type_info = type_clone(field->type_info);
+diff --git a/src/analysis/typecheck_call.c b/src/analysis/typecheck_call.c
+index 38c9410..7c8136f 100644
+--- a/src/analysis/typecheck_call.c
++++ b/src/analysis/typecheck_call.c
+@@ -29,7 +29,7 @@ void check_expr_call(TypeChecker *tc, ASTNode *node, int depth)
+
+         if (tc->pctx->config->misra_mode && tc->current_func)
+         {
+-            if (strcmp(func_name, tc->current_func->func.name) == 0)
++            if ((func_name[0] == tc->current_func->func.name[0] && strcmp(func_name, tc->current_func->func.name) == 0))
+             {
+                 Token t = node->call.callee->token;
+                 if (t.line == 0)
+@@ -94,7 +94,7 @@ void check_expr_call(TypeChecker *tc, ASTNode *node, int depth)
+                     ASTNode *method = trait_def->trait.methods;
+                     while (method)
+                     {
+-                        if (strcmp(method->func.name, node->call.callee->member.field) == 0)
++                        if ((method->func.name[0] == node->call.callee->member.field[0] && strcmp(method->func.name, node->call.callee->member.field) == 0))
+                         {
+                             // Correctly resolve return type for trait method
+                             node->type_info = method->func.ret_type_info;
+diff --git a/src/analysis/typecheck_expr.c b/src/analysis/typecheck_expr.c
+index 3c78cad..1ce1614 100644
+--- a/src/analysis/typecheck_expr.c
++++ b/src/analysis/typecheck_expr.c
+@@ -739,7 +739,7 @@ int is_struct_base_match(Type *base, Type *instantiated)
+     {
+         return 0;
+     }
+-    if (strcmp(base->name, instantiated->name) == 0)
++    if ((base->name[0] == instantiated->name[0] && strcmp(base->name, instantiated->name) == 0))
+     {
+         return 1;
+     }
+@@ -749,7 +749,7 @@ int is_struct_base_match(Type *base, Type *instantiated)
+     extract_base_name(base->name, base_str, sizeof(base_str));
+     extract_base_name(instantiated->name, inst_str, sizeof(inst_str));
+
+-    if (base_str[0] != '\0' && strcmp(base_str, inst_str) == 0)
++    if (base_str[0] != '\0' && (base_str[0] == inst_str[0] && strcmp(base_str, inst_str) == 0))
+     {
+         return 1;
+     }
+@@ -907,7 +907,7 @@ int check_type_compatibility(TypeChecker *tc, Type *target, Type *value, Token t
+         if (alias)
+         {
+             // Check if resolved names match
+-            if (value->name && strcmp(alias, value->name) == 0)
++            if (value->name && (alias[0] == value->name[0] && strcmp(alias, value->name) == 0))
+             {
+                 return 1;
+             }
+@@ -918,7 +918,7 @@ int check_type_compatibility(TypeChecker *tc, Type *target, Type *value, Token t
+         const char *alias = find_type_alias(tc->pctx, value->name);
+         if (alias)
+         {
+-            if (target->name && strcmp(alias, target->name) == 0)
++            if (target->name && (alias[0] == target->name[0] && strcmp(alias, target->name) == 0))
+             {
+                 return 1;
+             }
+@@ -1147,7 +1147,7 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
+             ASTNode *prev = node->struct_init.fields;
+             while (prev != field_init)
+             {
+-                if (strcmp(prev->var_decl.name, field_init->var_decl.name) == 0)
++                if ((prev->var_decl.name[0] == field_init->var_decl.name[0] && strcmp(prev->var_decl.name, field_init->var_decl.name) == 0))
+                 {
+                     misra_check_double_initialization(tc->pctx, field_init->var_decl.name,
+                                                       field_init->token);
+@@ -1165,7 +1165,7 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
+         while (def_field)
+         {
+             if (def_field->type == NODE_FIELD &&
+-                strcmp(def_field->field.name, field_init->var_decl.name) == 0)
++                (def_field->field.name[0] == field_init->var_decl.name[0] && strcmp(def_field->field.name, field_init->var_decl.name) == 0))
+             {
+                 found = 1;
+                 expected_type = def_field->type_info;
+@@ -1224,7 +1224,7 @@ void check_struct_init(TypeChecker *tc, ASTNode *node, int depth)
+             ASTNode *fi = node->struct_init.fields;
+             while (fi)
+             {
+-                if (fi->var_decl.name && strcmp(fi->var_decl.name, def_field->field.name) == 0)
++                if (fi->var_decl.name && (fi->var_decl.name[0] == def_field->field.name[0] && strcmp(fi->var_decl.name, def_field->field.name) == 0))
+                 {
+                     provided = 1;
+                     break;
+diff --git a/src/ast/ast.c b/src/ast/ast.c
+index c3e094e..dbb7810 100644
+--- a/src/ast/ast.c
++++ b/src/ast/ast.c
+@@ -1269,7 +1269,7 @@ char *infer_type(ParserContext *ctx, ASTNode *node)
+                 while (er)
+                 {
+                     if (er->node && er->node->type == NODE_ENUM &&
+-                        strcmp(er->node->enm.name, search_name) == 0)
++                        (er->node->enm.name[0] == search_name[0] && strcmp(er->node->enm.name, search_name) == 0))
+                     {
+                         def = er->node;
+                         break;
+@@ -1567,7 +1567,7 @@ char *get_field_type_str(ParserContext *ctx, const char *struct_name, const char
+     ASTNode *f = def->strct.fields;
+     while (f)
+     {
+-        if (strcmp(f->field.name, field_name) == 0)
++        if ((f->field.name[0] == field_name[0] && strcmp(f->field.name, field_name) == 0))
+         {
+             return f->field.type;
+         }
+diff --git a/src/ast/primitives.c b/src/ast/primitives.c
+index 9b8540e..08e9d9b 100644
+--- a/src/ast/primitives.c
++++ b/src/ast/primitives.c
+@@ -80,7 +80,7 @@ const ZenPrimitive *find_primitive_by_name(const char *name)
+     int count = sizeof(primitives) / sizeof(primitives[0]);
+     for (int i = 0; i < count; i++)
+     {
+-        if (strcmp(primitives[i].zen_name, name) == 0)
++        if ((primitives[i].zen_name[0] == name[0] && strcmp(primitives[i].zen_name, name) == 0))
+         {
+             return &primitives[i];
+         }
+@@ -93,7 +93,7 @@ const ZenPrimitive *find_primitive_by_c_name(const char *c_name)
+     int count = sizeof(primitives) / sizeof(primitives[0]);
+     for (int i = 0; i < count; i++)
+     {
+-        if (strcmp(primitives[i].c_name, c_name) == 0)
++        if ((primitives[i].c_name[0] == c_name[0] && strcmp(primitives[i].c_name, c_name) == 0))
+         {
+             return &primitives[i];
+         }
+diff --git a/src/ast/symbols.c b/src/ast/symbols.c
+index c3272d0..4d9e763 100644
+--- a/src/ast/symbols.c
++++ b/src/ast/symbols.c
+@@ -102,7 +102,7 @@ ZenSymbol *symbol_lookup_local(Scope *s, const char *name)
+     ZenSymbol *curr = s->symbols;
+     while (curr)
+     {
+-        if (curr->name && strcmp(curr->name, name) == 0)
++        if (curr->name && (curr->name[0] == name[0] && strcmp(curr->name, name) == 0))
+         {
+             return curr;
+         }
+@@ -144,7 +144,7 @@ ZenSymbol *symbol_lookup_kind(Scope *s, const char *name, SymbolKind kind)
+         ZenSymbol *sym = curr_scope->symbols;
+         while (sym)
+         {
+-            if (sym->kind == kind && sym->name && strcmp(sym->name, name) == 0)
++            if (sym->kind == kind && sym->name && (sym->name[0] == name[0] && strcmp(sym->name, name) == 0))
+             {
+                 return sym;
+             }
+diff --git a/src/codegen/codegen_backend_c.c b/src/codegen/codegen_backend_c.c
+index 2da6d25..4defaad 100644
+--- a/src/codegen/codegen_backend_c.c
++++ b/src/codegen/codegen_backend_c.c
+@@ -67,7 +67,7 @@ const char *codegen_alias_lookup(const char *flag)
+         }
+         for (; a->flag; a++)
+         {
+-            if (strcmp(a->flag, flag) == 0)
++            if ((a->flag[0] == flag[0] && strcmp(a->flag, flag) == 0))
+             {
+                 const char *val = a->opt_val ? a->opt_val : "1";
+                 int n = snprintf(buf, sizeof(buf), "%s=%s", a->opt_key, val);
+@@ -90,7 +90,7 @@ const CodegenBackend *codegen_get_backend(const char *name)
+     }
+     for (int i = 0; i < backend_count; i++)
+     {
+-        if (strcmp(registered_backends[i]->name, name) == 0)
++        if ((registered_backends[i]->name[0] == name[0] && strcmp(registered_backends[i]->name, name) == 0))
+         {
+             return registered_backends[i];
+         }
+diff --git a/src/codegen/codegen_backend_lisp.c b/src/codegen/codegen_backend_lisp.c
+index eed71f2..ce7f841 100644
+--- a/src/codegen/codegen_backend_lisp.c
++++ b/src/codegen/codegen_backend_lisp.c
+@@ -171,13 +171,13 @@ static void lisp_get_struct_field_info(ParserContext *ctx, const char *type_str,
+     while (sr)
+     {
+         if (sr->node && sr->node->type == NODE_STRUCT && sr->node->strct.name &&
+-            strcmp(sr->node->strct.name, sname) == 0)
++            (sr->node->strct.name[0] == sname[0] && strcmp(sr->node->strct.name, sname) == 0))
+         {
+             int idx = 0;
+             for (ASTNode *fd = sr->node->strct.fields; fd; fd = fd->next)
+             {
+                 if (fd->type == NODE_FIELD && fd->var_decl.name &&
+-                    strcmp(fd->var_decl.name, field_name) == 0)
++                    (fd->var_decl.name[0] == field_name[0] && strcmp(fd->var_decl.name, field_name) == 0))
+                 {
+                     *out_idx = idx;
+                     return;
+@@ -191,13 +191,13 @@ static void lisp_get_struct_field_info(ParserContext *ctx, const char *type_str,
+     // Also search instantiated structs
+     for (ASTNode *s = ctx->instantiated_structs; s; s = s->next)
+     {
+-        if (s->type == NODE_STRUCT && s->strct.name && strcmp(s->strct.name, sname) == 0)
++        if (s->type == NODE_STRUCT && s->strct.name && (s->strct.name[0] == sname[0] && strcmp(s->strct.name, sname) == 0))
+         {
+             int idx = 0;
+             for (ASTNode *fd = s->strct.fields; fd; fd = fd->next)
+             {
+                 if (fd->type == NODE_FIELD && fd->var_decl.name &&
+-                    strcmp(fd->var_decl.name, field_name) == 0)
++                    (fd->var_decl.name[0] == field_name[0] && strcmp(fd->var_decl.name, field_name) == 0))
+                 {
+                     *out_idx = idx;
+                     return;
+@@ -460,7 +460,7 @@ static void lemit_expr(ParserContext *ctx, ASTNode *node, int depth)
+                                                  "export", "string", "list",     "vector", NULL};
+                 for (int ci = 0; cl_clash[ci]; ci++)
+                 {
+-                    if (strcmp(fname, cl_clash[ci]) == 0)
++                    if ((fname[0] == cl_clash[ci][0] && strcmp(fname, cl_clash[ci]) == 0))
+                     {
+                         static char zbuf[64];
+                         zbuf[0] = '_';
+@@ -1191,7 +1191,7 @@ static void lemit_func(ParserContext *ctx, ASTNode *node, int depth, int *first)
+                                          "export", "string", "list",     "vector", NULL};
+         for (int ci = 0; cl_clash[ci]; ci++)
+         {
+-            if (strcmp(fname, cl_clash[ci]) == 0)
++            if ((fname[0] == cl_clash[ci][0] && strcmp(fname, cl_clash[ci]) == 0))
+             {
+                 static char zbuf[64];
+                 zbuf[0] = '_';
+@@ -1215,7 +1215,7 @@ static void lemit_func(ParserContext *ctx, ASTNode *node, int depth, int *first)
+             "_z_some",     "_z_None",          "_z_Some",     NULL};
+         for (int ni = 0; native_names[ni]; ni++)
+         {
+-            if (strcmp(fname, native_names[ni]) == 0)
++            if ((fname[0] == native_names[ni][0] && strcmp(fname, native_names[ni]) == 0))
+             {
+                 emitter_printf(&ctx->cg.emitter, "; native module: %s\n", raw_n);
+                 return;
+@@ -1262,7 +1262,7 @@ static void lemit_func(ParserContext *ctx, ASTNode *node, int depth, int *first)
+                         int found = 0;
+                         for (int i = 0; i < vcnt; i++)
+                         {
+-                            if (strcmp(vnames[i], cur->var_decl.name) == 0)
++                            if ((vnames[i][0] == cur->var_decl.name[0] && strcmp(vnames[i], cur->var_decl.name) == 0))
+                             {
+                                 found = 1;
+                                 break;
+@@ -1398,7 +1398,7 @@ static int lisp_func_emitted(ParserContext *ctx, const char *name, const char **
+     (void)ctx;
+     for (int i = 0; i < ecount; i++)
+     {
+-        if (strcmp(emitted[i], name) == 0)
++        if ((emitted[i][0] == name[0] && strcmp(emitted[i], name) == 0))
+         {
+             return 1;
+         }
+diff --git a/src/codegen/codegen_decl_defs.c b/src/codegen/codegen_decl_defs.c
+index cb283d6..2bfd664 100644
+--- a/src/codegen/codegen_decl_defs.c
++++ b/src/codegen/codegen_decl_defs.c
+@@ -18,7 +18,7 @@ int is_module_visited(VisitedModules *visited, const char *path)
+ {
+     while (visited)
+     {
+-        if (strcmp(visited->path, path) == 0)
++        if ((visited->path[0] == path[0] && strcmp(visited->path, path) == 0))
+         {
+             return 1;
+         }
+diff --git a/src/codegen/codegen_decl_emit.c b/src/codegen/codegen_decl_emit.c
+index 193703a..d802539 100644
+--- a/src/codegen/codegen_decl_emit.c
++++ b/src/codegen/codegen_decl_emit.c
+@@ -189,7 +189,7 @@ static void emit_protos_internal(ParserContext *ctx, ASTNode *node, VisitedModul
+                 int skip_fn = 0;
+                 for (int si = 0; skip_cstdlib[si]; si++)
+                 {
+-                    if (strcmp(f->func.name, skip_cstdlib[si]) == 0)
++                    if ((f->func.name[0] == skip_cstdlib[si][0] && strcmp(f->func.name, skip_cstdlib[si]) == 0))
+                     {
+                         skip_fn = 1;
+                         break;
+@@ -274,9 +274,9 @@ static void emit_protos_internal(ParserContext *ctx, ASTNode *node, VisitedModul
+                 int already_emitted = 0;
+                 for (EmittedProto *ep = *emitted; ep; ep = ep->next)
+                 {
+-                    if (strcmp(ep->name, f->func.name) == 0 &&
++                    if ((ep->name[0] == f->func.name[0] && strcmp(ep->name, f->func.name) == 0) &&
+                         ((ep->cfg == NULL && f->cfg_condition == NULL) ||
+-                         (ep->cfg && f->cfg_condition && strcmp(ep->cfg, f->cfg_condition) == 0)))
++                         (ep->cfg && f->cfg_condition && (ep->cfg[0] == f->cfg_condition[0] && strcmp(ep->cfg, f->cfg_condition) == 0))))
+                     {
+                         already_emitted = 1;
+                         break;
+@@ -536,7 +536,7 @@ void emit_impl_vtables(ParserContext *ctx)
+             while (search)
+             {
+                 if (search->node && search->node->type == NODE_TRAIT &&
+-                    strcmp(search->node->trait.name, trait) == 0)
++                    (search->node->trait.name[0] == trait[0] && strcmp(search->node->trait.name, trait) == 0))
+                 {
+                     if (search->node->trait.generic_param_count > 0)
+                     {
+@@ -596,7 +596,7 @@ void emit_impl_vtables(ParserContext *ctx)
+             int dup = 0;
+             for (int i = 0; i < count; i++)
+             {
+-                if (strcmp(emitted[i].trait, trait) == 0 && strcmp(emitted[i].strct, strct) == 0)
++                if ((emitted[i].trait[0] == trait[0] && strcmp(emitted[i].trait, trait) == 0) && (emitted[i].strct[0] == strct[0] && strcmp(emitted[i].strct, strct) == 0))
+                 {
+                     dup = 1;
+                     break;
+@@ -745,7 +745,7 @@ static void emit_mangled_pointer_typedefs(ParserContext *ctx)
+             int found = 0;
+             for (int i = 0; i < count; i++)
+             {
+-                if (strcmp(emitted[i], inst->concrete_arg) == 0)
++                if ((emitted[i][0] == inst->concrete_arg[0] && strcmp(emitted[i], inst->concrete_arg) == 0))
+                 {
+                     found = 1;
+                     break;
+diff --git a/src/codegen/codegen_expr_control.c b/src/codegen/codegen_expr_control.c
+index a17774e..c4ed1bc 100644
+--- a/src/codegen/codegen_expr_control.c
++++ b/src/codegen/codegen_expr_control.c
+@@ -136,7 +136,7 @@ void handle_try_expr(ParserContext *ctx, ASTNode *node)
+     StructRef *er = ctx->parsed_enums_list;
+     while (er)
+     {
+-        if (er->node && er->node->type == NODE_ENUM && strcmp(er->node->enm.name, search_name) == 0)
++        if (er->node && er->node->type == NODE_ENUM && (er->node->enm.name[0] == search_name[0] && strcmp(er->node->enm.name, search_name) == 0))
+         {
+             is_enum = 1;
+             break;
+@@ -148,7 +148,7 @@ void handle_try_expr(ParserContext *ctx, ASTNode *node)
+         ASTNode *ins = ctx->instantiated_structs;
+         while (ins)
+         {
+-            if (ins->type == NODE_ENUM && strcmp(ins->enm.name, search_name) == 0)
++            if (ins->type == NODE_ENUM && (ins->enm.name[0] == search_name[0] && strcmp(ins->enm.name, search_name) == 0))
+             {
+                 is_enum = 1;
+                 break;
+diff --git a/src/codegen/codegen_expr_core.c b/src/codegen/codegen_expr_core.c
+index 544ccc0..71a959e 100644
+--- a/src/codegen/codegen_expr_core.c
++++ b/src/codegen/codegen_expr_core.c
+@@ -156,7 +156,7 @@ static void codegen_var_expr(ParserContext *ctx, ASTNode *node)
+     {
+         for (int i = 0; i < ctx->cg.current_lambda->lambda.num_captures; i++)
+         {
+-            if (strcmp(node->var_ref.name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0)
++            if ((node->var_ref.name[0] == ctx->cg.current_lambda->lambda.captured_vars[i][0] && strcmp(node->var_ref.name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0))
+             {
+                 if (ctx->cg.current_lambda->lambda.capture_modes &&
+                     ctx->cg.current_lambda->lambda.capture_modes[i] == 1)
+@@ -242,7 +242,7 @@ static void codegen_var_expr(ParserContext *ctx, ASTNode *node)
+                     clean_mangled += 7;
+                 }
+
+-                if (strcmp(clean_ev, clean_mangled) == 0)
++                if ((clean_ev[0] == clean_mangled[0] && strcmp(clean_ev, clean_mangled) == 0))
+                 {
+                     EMIT(ctx, "()");
+                 }
+@@ -332,8 +332,7 @@ static void codegen_lambda_expr(ParserContext *ctx, ASTNode *node)
+                 {
+                     for (int k = 0; k < ctx->cg.current_lambda->lambda.num_captures; k++)
+                     {
+-                        if (strcmp(node->lambda.captured_vars[i],
+-                                   ctx->cg.current_lambda->lambda.captured_vars[k]) == 0)
++                        if ((node->lambda.captured_vars[i][0] == ctx->cg.current_lambda->lambda.captured_vars[k][0] && strcmp(node->lambda.captured_vars[i], ctx->cg.current_lambda->lambda.captured_vars[k]) == 0))
+                         {
+                             if (ctx->cg.current_lambda->lambda.capture_modes &&
+                                 ctx->cg.current_lambda->lambda.capture_modes[k] == 1)
+diff --git a/src/codegen/codegen_expr_handlers.c b/src/codegen/codegen_expr_handlers.c
+index 077fabe..3cce708 100644
+--- a/src/codegen/codegen_expr_handlers.c
++++ b/src/codegen/codegen_expr_handlers.c
+@@ -29,7 +29,7 @@ void handle_expr_struct_init(ParserContext *ctx, ASTNode *node)
+     while (sr)
+     {
+         if (sr->node && sr->node->type == NODE_STRUCT &&
+-            strcmp(sr->node->strct.name, struct_name) == 0)
++            (sr->node->strct.name[0] == struct_name[0] && strcmp(sr->node->strct.name, struct_name) == 0))
+         {
+             is_zen_struct = 1;
+             if (sr->node->strct.is_union)
+@@ -54,7 +54,7 @@ void handle_expr_struct_init(ParserContext *ctx, ASTNode *node)
+         while (v_chk)
+         {
+             if (v_chk->node && v_chk->node->type == NODE_STRUCT &&
+-                strcmp(v_chk->node->strct.name, struct_name) == 0)
++                (v_chk->node->strct.name[0] == struct_name[0] && strcmp(v_chk->node->strct.name, struct_name) == 0))
+             {
+                 if (v_chk->node->type_info)
+                 {
+@@ -888,7 +888,7 @@ void handle_expr_call(ParserContext *ctx, ASTNode *node)
+                     TypeAlias *ta = ctx->type_aliases;
+                     while (ta)
+                     {
+-                        if (strcmp(ta->original_type, call_base) == 0)
++                        if ((ta->original_type[0] == call_base[0] && strcmp(ta->original_type, call_base) == 0))
+                         {
+                             char alias_func_base[MAX_ERROR_MSG_LEN];
+                             snprintf(alias_func_base, sizeof(alias_func_base), "%s__%s", ta->alias,
+@@ -907,7 +907,7 @@ void handle_expr_call(ParserContext *ctx, ASTNode *node)
+                     while (ref)
+                     {
+                         if (ref->node && ref->node->type == NODE_IMPL_TRAIT &&
+-                            strcmp(ref->node->impl_trait.target_type, base) == 0)
++                            (ref->node->impl_trait.target_type[0] == base[0] && strcmp(ref->node->impl_trait.target_type, base) == 0))
+                         {
+                             char trait_base[MAX_MANGLED_NAME_LEN];
+                             snprintf(trait_base, sizeof(trait_base), "%s__%s__%s", base,
+@@ -1183,7 +1183,7 @@ skip_callee_gen:
+                     char **w = ctx->config->c_function_whitelist;
+                     while (*w)
+                     {
+-                        if (strcmp(*w, name) == 0)
++                        if ((*w[0] == name[0] && strcmp(*w, name) == 0))
+                         {
+                             is_whitelisted = 1;
+                             break;
+diff --git a/src/codegen/codegen_main.c b/src/codegen/codegen_main.c
+index 5f15b3e..97f0377 100644
+--- a/src/codegen/codegen_main.c
++++ b/src/codegen/codegen_main.c
+@@ -149,7 +149,7 @@ static int is_module_visited(VisitedModules *visited, const char *path)
+ {
+     while (visited)
+     {
+-        if (strcmp(visited->path, path) == 0)
++        if ((visited->path[0] == path[0] && strcmp(visited->path, path) == 0))
+         {
+             return 1;
+         }
+@@ -395,7 +395,7 @@ static int is_content_emitted(EmittedContent *list, const char *content)
+ {
+     while (list)
+     {
+-        if (strcmp(list->content, content) == 0)
++        if ((list->content[0] == content[0] && strcmp(list->content, content) == 0))
+         {
+             return 1;
+         }
+@@ -915,7 +915,7 @@ void codegen_c_program(ParserContext *ctx, ASTNode *node)
+                         const char *n1 = (k->type == NODE_STRUCT) ? k->strct.name : k->enm.name;
+                         const char *n2 =
+                             (chk->type == NODE_STRUCT) ? chk->strct.name : chk->enm.name;
+-                        if (n1 && n2 && strcmp(n1, n2) == 0)
++                        if (n1 && n2 && (n1[0] == n2[0] && strcmp(n1, n2) == 0))
+                         {
+                             found = 1;
+                             break;
+@@ -995,7 +995,7 @@ void codegen_c_program(ParserContext *ctx, ASTNode *node)
+                     while (check)
+                     {
+                         if ((check->type == NODE_VAR_DECL || check->type == NODE_CONST) &&
+-                            check->var_decl.name && strcmp(check->var_decl.name, var_name) == 0)
++                            check->var_decl.name && (check->var_decl.name[0] == var_name[0] && strcmp(check->var_decl.name, var_name) == 0))
+                         {
+                             is_duplicate = 1;
+                             break;
+diff --git a/src/codegen/codegen_stmt.c b/src/codegen/codegen_stmt.c
+index 17812eb..8538a0e 100644
+--- a/src/codegen/codegen_stmt.c
++++ b/src/codegen/codegen_stmt.c
+@@ -402,7 +402,7 @@ void codegen_node_single(ParserContext *ctx, ASTNode *node)
+                     // Check outputs first
+                     for (int i = 0; i < node->asm_stmt.num_outputs; i++)
+                     {
+-                        if (strcmp(node->asm_stmt.outputs[i], var_name) == 0)
++                        if ((node->asm_stmt.outputs[i][0] == var_name[0] && strcmp(node->asm_stmt.outputs[i], var_name) == 0))
+                         {
+                             idx = i;
+                             break;
+@@ -414,7 +414,7 @@ void codegen_node_single(ParserContext *ctx, ASTNode *node)
+                     {
+                         for (int i = 0; i < node->asm_stmt.num_inputs; i++)
+                         {
+-                            if (strcmp(node->asm_stmt.inputs[i], var_name) == 0)
++                            if ((node->asm_stmt.inputs[i][0] == var_name[0] && strcmp(node->asm_stmt.inputs[i], var_name) == 0))
+                             {
+                                 idx = node->asm_stmt.num_outputs + i;
+                                 break;
+@@ -947,7 +947,7 @@ void codegen_node_single(ParserContext *ctx, ASTNode *node)
+                     {
+                         for (int i = 0; i < ctx->cg.current_lambda->lambda.num_captures; i++)
+                         {
+-                            if (strcmp(name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0)
++                            if ((name[0] == ctx->cg.current_lambda->lambda.captured_vars[i][0] && strcmp(name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0))
+                             {
+                                 captured = i;
+                                 break;
+diff --git a/src/codegen/codegen_utils.c b/src/codegen/codegen_utils.c
+index 13878b7..e37f2a3 100644
+--- a/src/codegen/codegen_utils.c
++++ b/src/codegen/codegen_utils.c
+@@ -380,8 +380,7 @@ int emit_move_invalidation(ParserContext *ctx, ASTNode *node)
+             {
+                 for (int i = 0; i < ctx->cg.current_lambda->lambda.num_captures; i++)
+                 {
+-                    if (strcmp(node->var_ref.name,
+-                               ctx->cg.current_lambda->lambda.captured_vars[i]) == 0)
++                    if ((node->var_ref.name[0] == ctx->cg.current_lambda->lambda.captured_vars[i][0] && strcmp(node->var_ref.name, ctx->cg.current_lambda->lambda.captured_vars[i]) == 0))
+                     {
+                         if (ctx->cg.current_lambda->lambda.capture_modes &&
+                             ctx->cg.current_lambda->lambda.capture_modes[i] == 0)
+diff --git a/src/driver/driver.c b/src/driver/driver.c
+index 63aab4b..988277d 100644
+--- a/src/driver/driver.c
++++ b/src/driver/driver.c
+@@ -365,7 +365,7 @@ int driver_compile(ZenCompiler *compiler)
+     if (backend && !backend->needs_cc)
+     {
+         if (compiler->config.output_file &&
+-            strcmp(temp_source_buf, compiler->config.output_file) != 0)
++            (temp_source_buf[0] == compiler->config.output_file[0] && strcmp(temp_source_buf, compiler->config.output_file) != 0))
+         {
+             rename(temp_source_buf, compiler->config.output_file);
+         }
+diff --git a/src/lsp/cJSON.c b/src/lsp/cJSON.c
+index 2b7e81e..4ccf29f 100644
+--- a/src/lsp/cJSON.c
++++ b/src/lsp/cJSON.c
+@@ -2011,7 +2011,7 @@ static cJSON *get_object_item(const cJSON *const object, const char *const name,
+     if (case_sensitive)
+     {
+         while ((current_element != NULL) && (current_element->string != NULL) &&
+-               (strcmp(name, current_element->string) != 0))
++               ((name[0] == current_element->string[0] && strcmp(name, current_element->string) != 0)))
+         {
+             current_element = current_element->next;
+         }
+@@ -3209,7 +3209,7 @@ cJSON_Compare(const cJSON *const a, const cJSON *const b, const cJSON_bool case_
+         {
+             return false;
+         }
+-        if (strcmp(a->valuestring, b->valuestring) == 0)
++        if ((a->valuestring[0] == b->valuestring[0] && strcmp(a->valuestring, b->valuestring) == 0))
+         {
+             return true;
+         }
+diff --git a/src/lsp/lsp_analysis.c b/src/lsp/lsp_analysis.c
+index 4ad8410..aa0576a 100644
+--- a/src/lsp/lsp_analysis.c
++++ b/src/lsp/lsp_analysis.c
+@@ -624,7 +624,7 @@ static ASTNode *find_local_in_func(ASTNode *func, const char *name)
+     {
+         for (int i = 0; i < func->func.arg_count; i++)
+         {
+-            if (strcmp(func->func.param_names[i], name) == 0)
++            if ((func->func.param_names[i][0] == name[0] && strcmp(func->func.param_names[i], name) == 0))
+             {
+                 return NULL; // Args handled by the caller's symbol resolution path
+             }
+@@ -636,7 +636,7 @@ static ASTNode *find_local_in_func(ASTNode *func, const char *name)
+         ASTNode *curr = queue[q_head++];
+         if (curr->type == NODE_VAR_DECL)
+         {
+-            if (strcmp(curr->var_decl.name, name) == 0)
++            if ((curr->var_decl.name[0] == name[0] && strcmp(curr->var_decl.name, name) == 0))
+             {
+                 return curr;
+             }
+@@ -661,7 +661,7 @@ static Type *resolve_local_type(ASTNode *func, const char *name)
+     {
+         for (int i = 0; i < func->func.arg_count; i++)
+         {
+-            if (strcmp(func->func.param_names[i], name) == 0)
++            if ((func->func.param_names[i][0] == name[0] && strcmp(func->func.param_names[i], name) == 0))
+             {
+                 return func->func.arg_types[i];
+             }
+@@ -913,7 +913,7 @@ void lsp_completion(const char *uri, int line, int col, int id)
+                         EnumVariantReg *ev = g_project->ctx->enum_variants;
+                         while (ev)
+                         {
+-                            if (strcmp(ev->enum_name, parts[0]) == 0)
++                            if ((ev->enum_name[0] == parts[0][0] && strcmp(ev->enum_name, parts[0]) == 0))
+                             {
+                                 cJSON *item = cJSON_CreateObject();
+                                 cJSON_AddStringToObject(item, "label", ev->variant_name);
+@@ -983,7 +983,7 @@ void lsp_completion(const char *uri, int line, int col, int id)
+                                 ASTNode *field = struct_node->strct.fields;
+                                 while (field)
+                                 {
+-                                    if (strcmp(field->field.name, parts[p]) == 0)
++                                    if ((field->field.name[0] == parts[p][0] && strcmp(field->field.name, parts[p]) == 0))
+                                     {
+                                         zfree(type_name);
+                                         type_name =
+@@ -1635,7 +1635,7 @@ void lsp_signature_help(const char *uri, int line, int col, int id)
+                 FuncSig *fn = g_project->ctx->func_registry;
+                 while (fn)
+                 {
+-                    if (strcmp(fn->name, func_name) == 0)
++                    if ((fn->name[0] == func_name[0] && strcmp(fn->name, func_name) == 0))
+                     {
+                         // Found it
+                         cJSON *result = cJSON_CreateObject();
+diff --git a/src/lsp/lsp_project.c b/src/lsp/lsp_project.c
+index f6365a7..4960db7 100644
+--- a/src/lsp/lsp_project.c
++++ b/src/lsp/lsp_project.c
+@@ -179,7 +179,7 @@ ProjectFile *lsp_project_get_file(const char *uri)
+     ProjectFile *curr = g_project->files;
+     while (curr)
+     {
+-        if (strcmp(curr->uri, uri) == 0)
++        if ((curr->uri[0] == uri[0] && strcmp(curr->uri, uri) == 0))
+         {
+             return curr;
+         }
+@@ -327,7 +327,7 @@ DefinitionResult lsp_project_find_definition(const char *name)
+                         found_name = r->node->type_alias.alias;
+                     }
+
+-                    if (found_name && strcmp(found_name, name) == 0)
++                    if (found_name && (found_name[0] == name[0] && strcmp(found_name, name) == 0))
+                     {
+                         res.uri = pf->uri;
+                         res.range = r;
+@@ -411,7 +411,7 @@ ReferenceResult *lsp_project_find_references(const char *name)
+                     }
+                 }
+
+-                if (scan_name && strcmp(scan_name, name) == 0)
++                if (scan_name && (scan_name[0] == name[0] && strcmp(scan_name, name) == 0))
+                 {
+                     ReferenceResult *new_res = calloc(1, sizeof(ReferenceResult));
+                     new_res->uri = pf->uri;
+diff --git a/src/parser/core/core_derive.c b/src/parser/core/core_derive.c
+index aea1c70..782528e 100644
+--- a/src/parser/core/core_derive.c
++++ b/src/parser/core/core_derive.c
+@@ -298,7 +298,7 @@ ASTNode *generate_derive_impls(ParserContext *ctx, ASTNode *strct, char **traits
+                     int is_vec_field = 0;
+                     for (int vi = 0; vi < vec_field_count; vi++)
+                     {
+-                        if (strcmp(vec_fields[vi], f->field.name) == 0)
++                        if ((vec_fields[vi][0] == f->field.name[0] && strcmp(vec_fields[vi], f->field.name) == 0))
+                         {
+                             is_vec_field = 1;
+                             break;
+diff --git a/src/parser/decl/decl_var.c b/src/parser/decl/decl_var.c
+index 416da4f..11000e6 100644
+--- a/src/parser/decl/decl_var.c
++++ b/src/parser/decl/decl_var.c
+@@ -511,7 +511,7 @@ ASTNode *parse_var_decl(ParserContext *ctx, Lexer *l, int is_export)
+
+                 ASTNode *def = find_struct_def(ctx, source_struct);
+
+-                if (def && def->strct.parent && strcmp(def->strct.parent, target_struct) == 0)
++                if (def && def->strct.parent && (def->strct.parent[0] == target_struct[0] && strcmp(def->strct.parent, target_struct) == 0))
+                 {
+                     // Create Cast Node
+                     ASTNode *cast = ast_create(NODE_EXPR_CAST);
+diff --git a/src/parser/expr/expr_entry.c b/src/parser/expr/expr_entry.c
+index 28ab961..90e122d 100644
+--- a/src/parser/expr/expr_entry.c
++++ b/src/parser/expr/expr_entry.c
+@@ -492,7 +492,7 @@ void analyze_lambda_captures(ParserContext *ctx, ASTNode *lambda)
+         int found = 0;
+         for (int j = 0; j < num_captures; j++)
+         {
+-            if (strcmp(var_name, captures[j]) == 0)
++            if ((var_name[0] == captures[j][0] && strcmp(var_name, captures[j]) == 0))
+             {
+                 found = 1;
+                 break;
+diff --git a/src/parser/expr/expr_field.c b/src/parser/expr/expr_field.c
+index 66d8318..bf9e14c 100644
+--- a/src/parser/expr/expr_field.c
++++ b/src/parser/expr/expr_field.c
+@@ -67,7 +67,7 @@ Type *get_field_type(ParserContext *ctx, Type *struct_type, const char *field_na
+     ASTNode *f = def->strct.fields;
+     while (f)
+     {
+-        if (strcmp(f->field.name, field_name) == 0)
++        if ((f->field.name[0] == field_name[0] && strcmp(f->field.name, field_name) == 0))
+         {
+             if (alloc_name)
+             {
+diff --git a/src/parser/expr/expr_helpers.c b/src/parser/expr/expr_helpers.c
+index eea1087..64615d2 100644
+--- a/src/parser/expr/expr_helpers.c
++++ b/src/parser/expr/expr_helpers.c
+@@ -45,7 +45,7 @@ int check_opaque_alias_compat(ParserContext *ctx, Type *a, Type *b)
+     if (a_is_opaque)
+     {
+         if (a->alias.alias_defined_in_file && ctx->current_filename &&
+-            strcmp(a->alias.alias_defined_in_file, ctx->current_filename) == 0)
++            (a->alias.alias_defined_in_file[0] == ctx->current_filename[0] && strcmp(a->alias.alias_defined_in_file, ctx->current_filename) == 0))
+         {
+             int res = check_opaque_alias_compat(ctx, a->inner, b);
+             RECURSION_EXIT(ctx);
+@@ -58,7 +58,7 @@ int check_opaque_alias_compat(ParserContext *ctx, Type *a, Type *b)
+     if (b_is_opaque)
+     {
+         if (b->alias.alias_defined_in_file && ctx->current_filename &&
+-            strcmp(b->alias.alias_defined_in_file, ctx->current_filename) == 0)
++            (b->alias.alias_defined_in_file[0] == ctx->current_filename[0] && strcmp(b->alias.alias_defined_in_file, ctx->current_filename) == 0))
+         {
+             int res = check_opaque_alias_compat(ctx, a, b->inner);
+             RECURSION_EXIT(ctx);
+@@ -125,7 +125,7 @@ ASTNode *find_function_definition(ParserContext *ctx, const char *name)
+     StructRef *curr = ctx->parsed_funcs_list;
+     while (curr)
+     {
+-        if (curr->node && curr->node->func.name && strcmp(curr->node->func.name, name) == 0)
++        if (curr->node && curr->node->func.name && (curr->node->func.name[0] == name[0] && strcmp(curr->node->func.name, name) == 0))
+         {
+             return curr->node;
+         }
+@@ -401,7 +401,7 @@ void validate_named_arguments(Token call_token, const char *func_name, char **ar
+             continue;
+         }
+
+-        if (strcmp(arg_names[i], expected_name) != 0)
++        if ((arg_names[i][0] == expected_name[0] && strcmp(arg_names[i], expected_name) != 0))
+         {
+             char msg[MAX_SHORT_MSG_LEN];
+             snprintf(
+diff --git a/src/parser/expr/expr_literal.c b/src/parser/expr/expr_literal.c
+index 1669225..8eb6977 100644
+--- a/src/parser/expr/expr_literal.c
++++ b/src/parser/expr/expr_literal.c
+@@ -335,7 +335,7 @@ static int is_valid_int_suffix(const char *s)
+                            "i8",  "i16", "i32", "i64", "isize", NULL};
+     for (int i = 0; valid[i]; i++)
+     {
+-        if (strcmp(s, valid[i]) == 0)
++        if ((s[0] == valid[i][0] && strcmp(s, valid[i]) == 0))
+         {
+             return 1;
+         }
+@@ -352,7 +352,7 @@ static int is_valid_float_suffix(const char *s)
+     const char *valid[] = {"f", "F", "d", "D", NULL};
+     for (int i = 0; valid[i]; i++)
+     {
+-        if (strcmp(s, valid[i]) == 0)
++        if ((s[0] == valid[i][0] && strcmp(s, valid[i]) == 0))
+         {
+             return 1;
+         }
+diff --git a/src/parser/expr/expr_prec.c b/src/parser/expr/expr_prec.c
+index bbb9c0c..413f8ae 100644
+--- a/src/parser/expr/expr_prec.c
++++ b/src/parser/expr/expr_prec.c
+@@ -800,7 +800,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                 {
+                     if (!def->strct.defined_in_file ||
+                         (ctx->current_filename &&
+-                         strcmp(def->strct.defined_in_file, ctx->current_filename) != 0))
++                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
+                     {
+                         zpanic_at(field, "Cannot access private field '%s' of opaque struct '%s'",
+                                   node->member.field, sname);
+@@ -861,7 +861,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                 {
+                     if (!def->strct.defined_in_file ||
+                         (ctx->current_filename &&
+-                         strcmp(def->strct.defined_in_file, ctx->current_filename) != 0))
++                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
+                     {
+                         zpanic_at(field, "Cannot access private field '%s' of opaque struct '%s'",
+                                   node->member.field, sname);
+@@ -1015,7 +1015,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                             if (ref->node && ref->node->type == NODE_IMPL_TRAIT)
+                             {
+                                 if (ref->node->impl_trait.target_type &&
+-                                    strcmp(ref->node->impl_trait.target_type, struct_name) == 0)
++                                    (ref->node->impl_trait.target_type[0] == struct_name[0] && strcmp(ref->node->impl_trait.target_type, struct_name) == 0))
+                                 {
+                                     char buf_trait[MAX_ERROR_MSG_LEN];
+                                     snprintf(buf_trait, sizeof(buf_trait), "%s__%s__%s",
+@@ -1069,7 +1069,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                                     inner_name = first_param->inner->name;
+                                 }
+
+-                                if (!inner_name || strcmp(inner_name, struct_name) != 0)
++                                if (!inner_name || (inner_name[0] == struct_name[0] && strcmp(inner_name, struct_name) != 0))
+                                 {
+                                     is_static_method = 1;
+                                 }
+@@ -1494,7 +1494,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                         GenericImplTemplate *it = ctx->impl_templates;
+                         while (it)
+                         {
+-                            if (strcmp(it->struct_name, base) == 0)
++                            if ((it->struct_name[0] == base[0] && strcmp(it->struct_name, base) == 0))
+                             {
+                                 ASTNode *m = it->impl_node->impl.methods;
+
+@@ -1509,9 +1509,9 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                                 while (m)
+                                 {
+                                     int found_idx =
+-                                        m->func.name && strcmp(m->func.name, mangled_idx) == 0;
++                                        m->func.name && (m->func.name[0] == mangled_idx[0] && strcmp(m->func.name, mangled_idx) == 0);
+                                     int found_get =
+-                                        m->func.name && strcmp(m->func.name, mangled_g) == 0;
++                                        m->func.name && (m->func.name[0] == mangled_g[0] && strcmp(m->func.name, mangled_g) == 0);
+
+                                     if (found_idx || found_get)
+                                     {
+@@ -1695,7 +1695,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                 {
+                     if (!def->strct.defined_in_file ||
+                         (ctx->current_filename &&
+-                         strcmp(def->strct.defined_in_file, ctx->current_filename) != 0))
++                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
+                     {
+                         zpanic_at(field, "Cannot access private field '%s' of opaque struct '%s'",
+                                   node->member.field, sname);
+@@ -1800,7 +1800,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                             if (ref->node && ref->node->type == NODE_IMPL_TRAIT)
+                             {
+                                 const char *t_struct = ref->node->impl_trait.target_type;
+-                                if (t_struct && strcmp(t_struct, struct_name) == 0)
++                                if (t_struct && (t_struct[0] == struct_name[0] && strcmp(t_struct, struct_name) == 0))
+                                 {
+                                     char buf_trait[MAX_ERROR_MSG_LEN];
+                                     snprintf(buf_trait, sizeof(buf_trait), "%s__%s__%s",
+@@ -2159,7 +2159,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+             // Check for identical operands (x == x)
+             if (lhs->type == NODE_EXPR_VAR && rhs->type == NODE_EXPR_VAR)
+             {
+-                if (strcmp(lhs->var_ref.name, rhs->var_ref.name) == 0)
++                if ((lhs->var_ref.name[0] == rhs->var_ref.name[0] && strcmp(lhs->var_ref.name, rhs->var_ref.name) == 0))
+                 {
+                     if (strcmp(bin->binary.op, "==") == 0 || strcmp(bin->binary.op, ">=") == 0 ||
+                         strcmp(bin->binary.op, "<=") == 0)
+@@ -2482,7 +2482,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                         if (ref->node && ref->node->type == NODE_IMPL_TRAIT)
+                         {
+                             const char *t_struct = ref->node->impl_trait.target_type;
+-                            if (t_struct && strcmp(t_struct, struct_name) == 0)
++                            if (t_struct && (t_struct[0] == struct_name[0] && strcmp(t_struct, struct_name) == 0))
+                             {
+                                 char buf_t[MAX_ERROR_MSG_LEN];
+                                 snprintf(buf_t, sizeof(buf_t), "%s__%s__%s", struct_name,
+@@ -2752,7 +2752,7 @@ static ASTNode *parse_expr_prec_impl(ParserContext *ctx, Lexer *l, Precedence mi
+                     char *sr = resolve_struct_name_from_type(ctx, rhs->type_info, &pr, &ar);
+
+                     int alias_match = 0;
+-                    if (sl && sr && strcmp(sl, sr) == 0 && pl == pr)
++                    if (sl && sr && (sl[0] == sr[0] && strcmp(sl, sr) == 0) && pl == pr)
+                     {
+                         alias_match = 1;
+                         bin->type_info = lhs->type_info;
+diff --git a/src/parser/expr/expr_primary.c b/src/parser/expr/expr_primary.c
+index 01bd4b0..1e534e3 100644
+--- a/src/parser/expr/expr_primary.c
++++ b/src/parser/expr/expr_primary.c
+@@ -557,7 +557,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                             }
+                             while (v)
+                             {
+-                                if (strcmp(v->variant.name, sbuf) == 0)
++                                if ((v->variant.name[0] == sbuf[0] && strcmp(v->variant.name, sbuf) == 0))
+                                 {
+                                     break;
+                                 }
+@@ -684,7 +684,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                 ASTNode *v = def->enm.variants;
+                                 while (v)
+                                 {
+-                                    if (strcmp(v->variant.name, method_name) == 0)
++                                    if ((v->variant.name[0] == method_name[0] && strcmp(v->variant.name, method_name) == 0))
+                                     {
+                                         is_variant = 1;
+                                         break;
+@@ -772,7 +772,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                     while (ref)
+                                     {
+                                         if (ref->node && ref->node->type == NODE_IMPL_TRAIT &&
+-                                            strcmp(ref->node->impl_trait.target_type, acc) == 0)
++                                            (ref->node->impl_trait.target_type[0] == acc[0] && strcmp(ref->node->impl_trait.target_type, acc) == 0))
+                                         {
+                                             const char *tname = ref->node->impl_trait.trait_name;
+                                             const char *sep = (strcmp(tname, "Drop") == 0 ||
+@@ -832,7 +832,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                             ASTNode *v = tpl_def->enm.variants;
+                                             while (v)
+                                             {
+-                                                if (strcmp(v->variant.name, method_name) == 0)
++                                                if ((v->variant.name[0] == method_name[0] && strcmp(v->variant.name, method_name) == 0))
+                                                 {
+                                                     is_v = 1;
+                                                     break;
+@@ -862,7 +862,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                     size_t glen = strlen(gname);
+                                     if ((strncmp(acc, gname, (size_t)(glen)) == 0 &&
+                                          acc[glen] == '_' && acc[glen + 1] == '_') ||
+-                                        strcmp(acc, gname) == 0)
++                                        (acc[0] == gname[0] && strcmp(acc, gname) == 0))
+                                     {
+                                         ASTNode *tpl_def = gt->struct_node;
+                                         if (tpl_def)
+@@ -883,7 +883,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                                 }
+                                                 while (v)
+                                                 {
+-                                                    if (strcmp(v->variant.name, sbuf) == 0)
++                                                    if ((v->variant.name[0] == sbuf[0] && strcmp(v->variant.name, sbuf) == 0))
+                                                     {
+                                                         is_variant = 1;
+                                                         break;
+@@ -1067,7 +1067,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                     GenericTemplate *st = ctx->templates;
+                     while (st)
+                     {
+-                        if (strcmp(st->name, acc) == 0)
++                        if ((st->name[0] == acc[0] && strcmp(st->name, acc) == 0))
+                         {
+                             is_struct = 1;
+                             break;
+@@ -1360,7 +1360,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                 {
+                     if (!def->strct.defined_in_file ||
+                         (ctx->current_filename &&
+-                         strcmp(def->strct.defined_in_file, ctx->current_filename) != 0))
++                         (def->strct.defined_in_file[0] == ctx->current_filename[0] && strcmp(def->strct.defined_in_file, ctx->current_filename) != 0)))
+                     {
+                         zpanic_at(lexer_peek(l),
+                                   "Cannot initialize opaque struct '%s' outside its module",
+@@ -1474,7 +1474,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                 GenericTemplate *gtpl = ctx->templates;
+                 while (gtpl)
+                 {
+-                    if (strcmp(gtpl->name, acc) == 0 || strcmp(gtpl->name, struct_name) == 0)
++                    if ((gtpl->name[0] == acc[0] && strcmp(gtpl->name, acc) == 0) || (gtpl->name[0] == struct_name[0] && strcmp(gtpl->name, struct_name) == 0))
+                     {
+                         break;
+                     }
+@@ -1496,7 +1496,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                             while (tpl_field)
+                             {
+                                 if (tpl_field->type == NODE_FIELD && tpl_field->field.name &&
+-                                    strcmp(tpl_field->field.name, init_field->var_decl.name) == 0)
++                                    (tpl_field->field.name[0] == init_field->var_decl.name[0] && strcmp(tpl_field->field.name, init_field->var_decl.name) == 0))
+                                 {
+                                     break;
+                                 }
+@@ -1508,7 +1508,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                 const char *ft = tpl_field->field.type;
+                                 Type *val_type = init_field->var_decl.init_expr->type_info;
+
+-                                if (strcmp(ft, gen_param) == 0 && val_type)
++                                if ((ft[0] == gen_param[0] && strcmp(ft, gen_param) == 0) && val_type)
+                                 {
+                                     inferred = type_to_string(val_type);
+                                 }
+@@ -1531,7 +1531,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                         {
+                                             memcpy(inner_name, ft + 1, (size_t)(inner_len));
+                                             inner_name[inner_len] = '\0';
+-                                            if (strcmp(inner_name, gen_param) == 0 &&
++                                            if ((inner_name[0] == gen_param[0] && strcmp(inner_name, gen_param) == 0) &&
+                                                 val_type->kind == TYPE_ARRAY && val_type->inner)
+                                             {
+                                                 inferred = type_to_string(val_type->inner);
+@@ -1550,7 +1550,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                                         {
+                                             memcpy(base_name, ft, (size_t)(base_len));
+                                             base_name[base_len] = '\0';
+-                                            if (strcmp(base_name, gen_param) == 0 &&
++                                            if ((base_name[0] == gen_param[0] && strcmp(base_name, gen_param) == 0) &&
+                                                 val_type->kind == TYPE_POINTER && val_type->inner)
+                                             {
+                                                 inferred = type_to_string(val_type->inner);
+@@ -1893,7 +1893,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+                         }
+
+                         if (formal->kind == TYPE_STRUCT && formal->name &&
+-                            strcmp(formal->name, gen_param) == 0)
++                            (formal->name[0] == gen_param[0] && strcmp(formal->name, gen_param) == 0))
+                         {
+                             inferred_type = type_to_string(actual_type);
+                             break;
+@@ -1901,7 +1901,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+
+                         if (formal->kind == TYPE_ARRAY && formal->inner &&
+                             formal->inner->kind == TYPE_STRUCT && formal->inner->name &&
+-                            strcmp(formal->inner->name, gen_param) == 0)
++                            (formal->inner->name[0] == gen_param[0] && strcmp(formal->inner->name, gen_param) == 0))
+                         {
+                             if (actual_type->kind == TYPE_ARRAY && actual_type->inner)
+                             {
+@@ -1912,7 +1912,7 @@ ASTNode *parse_primary_impl(ParserContext *ctx, Lexer *l)
+
+                         if (formal->kind == TYPE_POINTER && formal->inner &&
+                             formal->inner->kind == TYPE_STRUCT && formal->inner->name &&
+-                            strcmp(formal->inner->name, gen_param) == 0)
++                            (formal->inner->name[0] == gen_param[0] && strcmp(formal->inner->name, gen_param) == 0))
+                         {
+                             if (actual_type->kind == TYPE_POINTER && actual_type->inner)
+                             {
+diff --git a/src/parser/stmt/stmt_match.c b/src/parser/stmt/stmt_match.c
+index 2a37fc4..fa59a38 100644
+--- a/src/parser/stmt/stmt_match.c
++++ b/src/parser/stmt/stmt_match.c
+@@ -296,7 +296,7 @@ ASTNode *parse_match(ParserContext *ctx, Lexer *l)
+                         size_t size = strlen(vreg->enum_name) + strlen(v->variant.name) + 2;
+                         char *v_full = xmalloc(size + 1);
+                         snprintf(v_full, size + 1, "%s__%s", vreg->enum_name, v->variant.name);
+-                        if (strcmp(v_full, pattern) == 0 && v->variant.payload)
++                        if ((v_full[0] == pattern[0] && strcmp(v_full, pattern) == 0) && v->variant.payload)
+                         {
+                             payload_type = v->variant.payload;
+                             if (payload_type && payload_type->kind == TYPE_STRUCT &&
+diff --git a/src/parser/utils/utils_audit.c b/src/parser/utils/utils_audit.c
+index 6845d7f..6b00503 100644
+--- a/src/parser/utils/utils_audit.c
++++ b/src/parser/utils/utils_audit.c
+@@ -133,7 +133,7 @@ void audit_section_5(ParserContext *ctx, Scope *scope, const char *name, const c
+         ZenSymbol *sh = p->symbols;
+         while (sh)
+         {
+-            if (p != scope && strcmp(sh->name, name) == 0 && !ctx->silent_warnings)
++            if (p != scope && (sh->name[0] == name[0] && strcmp(sh->name, name) == 0) && !ctx->silent_warnings)
+             {
+                 if (ctx->config->misra_mode)
+                 {
+@@ -150,7 +150,7 @@ void audit_section_5(ParserContext *ctx, Scope *scope, const char *name, const c
+                 const char *actual_name = link_name ? link_name : name;
+                 const char *sh_actual_name = sh->link_name ? sh->link_name : sh->name;
+
+-                if (strcmp(sh_actual_name, actual_name) != 0)
++                if ((sh_actual_name[0] == actual_name[0] && strcmp(sh_actual_name, actual_name) != 0))
+                 {
+                     if (ctx->hook_check_identifier_collision)
+                     {
+diff --git a/src/parser/utils/utils_plugins.c b/src/parser/utils/utils_plugins.c
+index 9164a12..334d1cd 100644
+--- a/src/parser/utils/utils_plugins.c
++++ b/src/parser/utils/utils_plugins.c
+@@ -95,7 +95,7 @@ const char *resolve_plugin(ParserContext *ctx, const char *name_or_alias)
+     ImportedPlugin *p;
+     while (zmap_iter_next(&it, &key, &p))
+     {
+-        if (strcmp(p->name, name_or_alias) == 0)
++        if ((p->name[0] == name_or_alias[0] && strcmp(p->name, name_or_alias) == 0))
+         {
+             return p->name;
+         }
+diff --git a/src/parser/utils/utils_registry.c b/src/parser/utils/utils_registry.c
+index 073feac..aff969b 100644
+--- a/src/parser/utils/utils_registry.c
++++ b/src/parser/utils/utils_registry.c
+@@ -27,7 +27,7 @@ void struct_hash_insert(ParserContext *ctx, const char *name, ASTNode *node)
+     {
+         unsigned int slot =
+             ((unsigned)(idx) + (unsigned)(i) + STRUCT_HASH_SIZE) & (STRUCT_HASH_SIZE - 1U);
+-        if (!ctx->struct_hash[slot].name[0] || strcmp(ctx->struct_hash[slot].name, name) == 0)
++        if (!ctx->struct_hash[slot].name[0] || (ctx->struct_hash[slot].name[0] == name[0] && strcmp(ctx->struct_hash[slot].name, name) == 0))
+         {
+             strncpy(ctx->struct_hash[slot].name, name, sizeof(ctx->struct_hash[slot].name) - 1);
+             ctx->struct_hash[slot].name[sizeof(ctx->struct_hash[slot].name) - 1] = '\0';
+@@ -48,7 +48,7 @@ static ASTNode *struct_hash_lookup(ParserContext *ctx, const char *name)
+         {
+             return NULL;
+         }
+-        if (strcmp(ctx->struct_hash[slot].name, name) == 0)
++        if ((ctx->struct_hash[slot].name[0] == name[0] && strcmp(ctx->struct_hash[slot].name, name) == 0))
+         {
+             return ctx->struct_hash[slot].node;
+         }
+@@ -152,7 +152,7 @@ TypeAlias *find_type_alias_node(ParserContext *ctx, const char *alias)
+     TypeAlias *ta = ctx->type_aliases;
+     while (ta)
+     {
+-        if (strcmp(ta->alias, alias) == 0)
++        if ((ta->alias[0] == alias[0] && strcmp(ta->alias, alias) == 0))
+         {
+             return ta;
+         }
+@@ -230,7 +230,7 @@ void register_slice(ParserContext *ctx, const char *type)
+     SliceType *c = ctx->used_slices;
+     while (c)
+     {
+-        if (strcmp(c->name, type) == 0)
++        if ((c->name[0] == type[0] && strcmp(c->name, type) == 0))
+         {
+             return;
+         }
+@@ -267,7 +267,7 @@ void register_slice(ParserContext *ctx, const char *type)
+
+     char legacy_name[MAX_VAR_NAME_LEN];
+     snprintf(legacy_name, sizeof(legacy_name), "Slice_%s", type);
+-    if (strcmp(slice_name, legacy_name) != 0)
++    if ((slice_name[0] == legacy_name[0] && strcmp(slice_name, legacy_name) != 0))
+     {
+         register_type_alias(ctx, legacy_name, slice_name, NULL, 0, NULL, TOKEN_UNKNOWN, 0);
+     }
+@@ -278,7 +278,7 @@ void register_tuple_with_types(ParserContext *ctx, const char *sig, const char *
+     TupleType *c = ctx->used_tuples;
+     while (c)
+     {
+-        if (strcmp(c->sig, sig) == 0)
++        if ((c->sig[0] == sig[0] && strcmp(c->sig, sig) == 0))
+         {
+             return;
+         }
+@@ -332,7 +332,7 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
+         StructDef *curr = ctx->struct_defs;
+         while (curr)
+         {
+-            if (strcmp(curr->name, name) == 0)
++            if ((curr->name[0] == name[0] && strcmp(curr->name, name) == 0))
+             {
+                 existing = curr;
+                 break;
+@@ -351,7 +351,7 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
+         StructDef *curr = ctx->struct_defs;
+         while (curr)
+         {
+-            if (strcmp(curr->name, name) == 0)
++            if ((curr->name[0] == name[0] && strcmp(curr->name, name) == 0))
+             {
+                 d = curr;
+                 break;
+@@ -376,7 +376,7 @@ void register_struct_def(ParserContext *ctx, const char *name, ASTNode *node)
+         ZenSymbol *all = ctx->all_symbols;
+         while (all)
+         {
+-            if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && strcmp(all->name, name) == 0)
++            if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && (all->name[0] == name[0] && strcmp(all->name, name) == 0))
+             {
+                 zerror_at(node ? node->token : TOKEN_UNKNOWN, "MISRA Rule 5.7");
+                 break;
+@@ -465,7 +465,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
+     Instantiation *i = ctx->instantiations;
+     while (i)
+     {
+-        if (strcmp(i->name, name) == 0)
++        if ((i->name[0] == name[0] && strcmp(i->name, name) == 0))
+         {
+             CACHE_RESULT(i->struct_node);
+         }
+@@ -486,11 +486,11 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
+     StructRef *r = ctx->parsed_structs_list;
+     while (r)
+     {
+-        if (r->node->type == NODE_STRUCT && strcmp(r->node->strct.name, name) == 0)
++        if (r->node->type == NODE_STRUCT && (r->node->strct.name[0] == name[0] && strcmp(r->node->strct.name, name) == 0))
+         {
+             CACHE_RESULT(r->node);
+         }
+-        if (r->node->type == NODE_ENUM && strcmp(r->node->enm.name, name) == 0)
++        if (r->node->type == NODE_ENUM && (r->node->enm.name[0] == name[0] && strcmp(r->node->enm.name, name) == 0))
+         {
+             CACHE_RESULT(r->node);
+         }
+@@ -500,7 +500,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
+     ZenSymbol *all = ctx->all_symbols;
+     while (all)
+     {
+-        if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && strcmp(all->name, name) == 0 &&
++        if ((all->kind == SYM_STRUCT || all->kind == SYM_ENUM) && (all->name[0] == name[0] && strcmp(all->name, name) == 0) &&
+             all->data.node)
+         {
+             CACHE_RESULT(all->data.node);
+@@ -511,7 +511,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
+     StructDef *d = ctx->struct_defs;
+     while (d)
+     {
+-        if (strcmp(d->name, name) == 0)
++        if ((d->name[0] == name[0] && strcmp(d->name, name) == 0))
+         {
+             CACHE_RESULT(d->node);
+         }
+@@ -521,7 +521,7 @@ ASTNode *find_struct_def(ParserContext *ctx, const char *name)
+     StructRef *e = ctx->parsed_enums_list;
+     while (e)
+     {
+-        if (e->node->type == NODE_ENUM && strcmp(e->node->enm.name, name) == 0)
++        if (e->node->type == NODE_ENUM && (e->node->enm.name[0] == name[0] && strcmp(e->node->enm.name, name) == 0))
+         {
+             CACHE_RESULT(e->node);
+         }
+@@ -543,7 +543,7 @@ ASTNode *find_trait_def(ParserContext *ctx, const char *name)
+     StructRef *r = ctx->parsed_globals_list;
+     while (r)
+     {
+-        if (r->node && r->node->type == NODE_TRAIT && strcmp(r->node->trait.name, name) == 0)
++        if (r->node && r->node->type == NODE_TRAIT && (r->node->trait.name[0] == name[0] && strcmp(r->node->trait.name, name) == 0))
+         {
+             return r->node;
+         }
+@@ -557,7 +557,7 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
+     Instantiation *i = ctx->instantiations;
+     while (i)
+     {
+-        if (strcmp(i->name, name) == 0 && i->struct_node && i->struct_node->type == NODE_STRUCT &&
++        if ((i->name[0] == name[0] && strcmp(i->name, name) == 0) && i->struct_node && i->struct_node->type == NODE_STRUCT &&
+             !i->struct_node->strct.is_template)
+         {
+             return i->struct_node;
+@@ -568,7 +568,7 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
+     ASTNode *s = ctx->instantiated_structs;
+     while (s)
+     {
+-        if (s->type == NODE_STRUCT && !s->strct.is_template && strcmp(s->strct.name, name) == 0)
++        if (s->type == NODE_STRUCT && !s->strct.is_template && (s->strct.name[0] == name[0] && strcmp(s->strct.name, name) == 0))
+         {
+             return s;
+         }
+@@ -579,7 +579,7 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
+     while (r)
+     {
+         if (r->node->type == NODE_STRUCT && !r->node->strct.is_template &&
+-            strcmp(r->node->strct.name, name) == 0)
++            (r->node->strct.name[0] == name[0] && strcmp(r->node->strct.name, name) == 0))
+         {
+             return r->node;
+         }
+@@ -590,7 +590,7 @@ ASTNode *find_concrete_struct_def(ParserContext *ctx, const char *name)
+     while (d)
+     {
+         if (d->node && d->node->type == NODE_STRUCT && !d->node->strct.is_template &&
+-            strcmp(d->name, name) == 0)
++            (d->name[0] == name[0] && strcmp(d->name, name) == 0))
+         {
+             return d->node;
+         }
+@@ -736,7 +736,7 @@ int check_impl(ParserContext *ctx, const char *trait, const char *strct)
+     ImplReg *r = ctx->registered_impls;
+     while (r)
+     {
+-        if (strcmp(r->trait, trait) == 0 && strcmp(r->strct, strct) == 0)
++        if ((r->trait[0] == trait[0] && strcmp(r->trait, trait) == 0) && (r->strct[0] == strct[0] && strcmp(r->strct, strct) == 0))
+         {
+             return 1;
+         }
+@@ -754,7 +754,7 @@ int check_impl(ParserContext *ctx, const char *trait, const char *strct)
+             size_t blen = strlen(base_reg);
+             if (strncmp(strct, base_reg, (size_t)(blen)) == 0 && strct[blen] == '_')
+             {
+-                if (strcmp(r->trait, trait) == 0)
++                if ((r->trait[0] == trait[0] && strcmp(r->trait, trait) == 0))
+                 {
+                     zfree(base_reg);
+                     return 1;
+@@ -779,7 +779,7 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
+     FuncSig *c = ctx->func_registry;
+     while (c)
+     {
+-        if (strcmp(c->name, name) == 0)
++        if ((c->name[0] == name[0] && strcmp(c->name, name) == 0))
+         {
+             return c;
+         }
+@@ -791,7 +791,7 @@ FuncSig *find_func(ParserContext *ctx, const char *name)
+         ASTNode *n = ctx->current_impl_methods;
+         while (n)
+         {
+-            if (n->type == NODE_FUNCTION && strcmp(n->func.name, name) == 0)
++            if (n->type == NODE_FUNCTION && (n->func.name[0] == name[0] && strcmp(n->func.name, name) == 0))
+             {
+                 FuncSig *sig = xmalloc(sizeof(FuncSig));
+                 sig->name = n->func.name;
+diff --git a/src/parser/utils/utils_rewrite.c b/src/parser/utils/utils_rewrite.c
+index ad4d994..ab86a41 100644
+--- a/src/parser/utils/utils_rewrite.c
++++ b/src/parser/utils/utils_rewrite.c
+@@ -226,7 +226,7 @@ char *rewrite_expr_methods(ParserContext *ctx, char *raw)
+                 ASTNode *f = def->strct.fields;
+                 while (f)
+                 {
+-                    if (strcmp(f->field.name, method) == 0)
++                    if ((f->field.name[0] == method[0] && strcmp(f->field.name, method) == 0))
+                     {
+                         is_field = 1;
+                         break;
+@@ -400,7 +400,7 @@ char *rewrite_expr_methods(ParserContext *ctx, char *raw)
+                     ASTNode *v = sdef->enm.variants;
+                     while (v)
+                     {
+-                        if (strcmp(v->variant.name, field) == 0)
++                        if ((v->variant.name[0] == field[0] && strcmp(v->variant.name, field) == 0))
+                         {
+                             is_variant = 1;
+                             break;
+diff --git a/src/parser/utils/utils_scope.c b/src/parser/utils/utils_scope.c
+index 447e29e..536283b 100644
+--- a/src/parser/utils/utils_scope.c
++++ b/src/parser/utils/utils_scope.c
+@@ -46,7 +46,7 @@ void register_symbol_to_lsp(ParserContext *ctx, ZenSymbol *s)
+     {
+         if (curr->kind == s->kind && curr->decl_token.line == s->decl_token.line &&
+             curr->decl_token.col == s->decl_token.col && curr->name && s->name &&
+-            strcmp(curr->name, s->name) == 0)
++            (curr->name[0] == s->name[0] && strcmp(curr->name, s->name) == 0))
+         {
+             return;
+         }
+diff --git a/src/parser/utils/utils_symbol.c b/src/parser/utils/utils_symbol.c
+index 2496545..b59f875 100644
+--- a/src/parser/utils/utils_symbol.c
++++ b/src/parser/utils/utils_symbol.c
+@@ -99,7 +99,7 @@ ZenSymbol *find_symbol_in_all(ParserContext *ctx, const char *n)
+     ZenSymbol *sym = ctx->all_symbols;
+     while (sym)
+     {
+-        if (strcmp(sym->name, n) == 0)
++        if ((sym->name[0] == n[0] && strcmp(sym->name, n) == 0))
+         {
+             return sym;
+         }
+@@ -219,7 +219,7 @@ GenericFuncTemplate *find_func_template(ParserContext *ctx, const char *name)
+     GenericFuncTemplate *t = ctx->func_templates;
+     while (t)
+     {
+-        if (strcmp(t->name, name) == 0)
++        if ((t->name[0] == name[0] && strcmp(t->name, name) == 0))
+         {
+             return t;
+         }
+@@ -232,7 +232,7 @@ void register_generic(ParserContext *ctx, char *name)
+ {
+     for (int i = 0; i < ctx->known_generics_count; i++)
+     {
+-        if (strcmp(ctx->known_generics[i], name) == 0)
++        if ((ctx->known_generics[i][0] == name[0] && strcmp(ctx->known_generics[i], name) == 0))
+         {
+             return;
+         }
+@@ -244,7 +244,7 @@ int is_known_generic(ParserContext *ctx, char *name)
+ {
+     for (int i = 0; i < ctx->known_generics_count; i++)
+     {
+-        if (strcmp(ctx->known_generics[i], name) == 0)
++        if ((ctx->known_generics[i][0] == name[0] && strcmp(ctx->known_generics[i], name) == 0))
+         {
+             return 1;
+         }
+@@ -302,7 +302,7 @@ void register_impl_template(ParserContext *ctx, const char *sname, const char *p
+     Instantiation *inst = ctx->instantiations;
+     while (inst)
+     {
+-        if (inst->template_name && strcmp(inst->template_name, sname) == 0)
++        if (inst->template_name && (inst->template_name[0] == sname[0] && strcmp(inst->template_name, sname) == 0))
+         {
+             instantiate_methods(ctx, t, inst->name, inst->concrete_arg, inst->unmangled_arg);
+         }
+@@ -360,9 +360,9 @@ EnumVariantReg *find_enum_variant(ParserContext *ctx, const char *name)
+     EnumVariantReg *r = ctx->enum_variants;
+     while (r)
+     {
+-        if (strcmp(r->variant_name, vname) == 0)
++        if ((r->variant_name[0] == vname[0] && strcmp(r->variant_name, vname) == 0))
+         {
+-            if (!ename || strcmp(r->enum_name, ename) == 0)
++            if (!ename || (r->enum_name[0] == ename[0] && strcmp(r->enum_name, ename) == 0))
+             {
+                 if (ename)
+                 {
+@@ -392,7 +392,7 @@ void register_extern_symbol(ParserContext *ctx, const char *name)
+ {
+     for (int i = 0; i < ctx->extern_symbol_count; i++)
+     {
+-        if (strcmp(ctx->extern_symbols[i], name) == 0)
++        if ((ctx->extern_symbols[i][0] == name[0] && strcmp(ctx->extern_symbols[i], name) == 0))
+         {
+             return;
+         }
+@@ -415,7 +415,7 @@ int is_extern_symbol(ParserContext *ctx, const char *name)
+ {
+     for (int i = 0; i < ctx->extern_symbol_count; i++)
+     {
+-        if (strcmp(ctx->extern_symbols[i], name) == 0)
++        if ((ctx->extern_symbols[i][0] == name[0] && strcmp(ctx->extern_symbols[i], name) == 0))
+         {
+             return 1;
+         }
+@@ -568,7 +568,7 @@ char *find_method_owner_type_scoped(ParserContext *ctx, const char *struct_name,
+
+         if (ctx->cg.expected_init_type)
+         {
+-            if (strcmp(concrete_type, ctx->cg.expected_init_type) == 0)
++            if ((concrete_type[0] == ctx->cg.expected_init_type[0] && strcmp(concrete_type, ctx->cg.expected_init_type) == 0))
+             {
+                 return concrete_type;
+             }
+diff --git a/src/parser/utils/utils_template_inst.c b/src/parser/utils/utils_template_inst.c
+index f216cfc..e0a28e6 100644
+--- a/src/parser/utils/utils_template_inst.c
++++ b/src/parser/utils/utils_template_inst.c
+@@ -53,7 +53,7 @@ static void trigger_type_instantiation(ParserContext *ctx, Type *t)
+             int found = 0;
+             while (gt)
+             {
+-                if (strcmp(gt->name, template_name) == 0)
++                if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
+                 {
+                     found = 1;
+                     break;
+@@ -135,7 +135,7 @@ static void trigger_instantiations(ParserContext *ctx, ASTNode *node)
+                 int found = 0;
+                 while (gt)
+                 {
+-                    if (strcmp(gt->name, template_name) == 0)
++                    if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
+                     {
+                         found = 1;
+                         break;
+@@ -199,7 +199,7 @@ static void trigger_instantiations(ParserContext *ctx, ASTNode *node)
+                 int found = 0;
+                 while (gt)
+                 {
+-                    if (strcmp(gt->name, template_name) == 0)
++                    if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
+                     {
+                         found = 1;
+                         break;
+@@ -444,7 +444,7 @@ char *instantiate_function_template(ParserContext *ctx, const char *name, const
+
+             // Check if it's a known generic template
+             GenericTemplate *gt = ctx->templates;
+-            while (gt && strcmp(gt->name, struct_base) != 0)
++            while (gt && (gt->name[0] == struct_base[0] && strcmp(gt->name, struct_base) != 0))
+             {
+                 gt = gt->next;
+             }
+@@ -618,7 +618,7 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
+                 int found = 0;
+                 while (gt)
+                 {
+-                    if (strcmp(gt->name, template_name) == 0)
++                    if ((gt->name[0] == template_name[0] && strcmp(gt->name, template_name) == 0))
+                     {
+                         found = 1;
+                         break;
+@@ -632,7 +632,7 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
+                     if (concrete)
+                     {
+                         char *clean_concrete = sanitize_mangled_name(concrete);
+-                        if (strcmp(concrete_arg, clean_concrete) == 0)
++                        if ((concrete_arg[0] == clean_concrete[0] && strcmp(concrete_arg, clean_concrete) == 0))
+                         {
+                             zfree(unmangled);
+                             unmangled = xstrdup(concrete);
+@@ -684,7 +684,7 @@ static ASTNode *copy_fields_replacing(ParserContext *ctx, ASTNode *fields, const
+                 if (concrete)
+                 {
+                     char *clean_concrete = sanitize_mangled_name(concrete);
+-                    if (strcmp(concrete_arg, clean_concrete) == 0)
++                    if ((concrete_arg[0] == clean_concrete[0] && strcmp(concrete_arg, clean_concrete) == 0))
+                     {
+                         zfree(unmangled);
+                         unmangled = xstrdup(concrete);
+@@ -724,7 +724,7 @@ void instantiate_methods(ParserContext *ctx, GenericImplTemplate *it,
+     if (strchr(it->struct_name, '<'))
+     {
+         char *sanitized = sanitize_mangled_name(it->struct_name);
+-        if (strcmp(sanitized, it->struct_name) != 0)
++        if ((sanitized[0] == it->struct_name[0] && strcmp(sanitized, it->struct_name) != 0))
+         {
+             ASTNode *tmp = copy_ast_replacing(new_impl, NULL, NULL, sanitized, mangled_struct_name);
+             new_impl = tmp;
+@@ -737,7 +737,7 @@ void instantiate_methods(ParserContext *ctx, GenericImplTemplate *it,
+             memmove(double_underscore, double_underscore + 1, strlen(double_underscore + 1) + 1);
+         }
+
+-        if (strcmp(old_sanitized, it->struct_name) != 0 && strcmp(old_sanitized, sanitized) != 0)
++        if ((old_sanitized[0] == it->struct_name[0] && strcmp(old_sanitized, it->struct_name) != 0) && (old_sanitized[0] == sanitized[0] && strcmp(old_sanitized, sanitized) != 0))
+         {
+             ASTNode *tmp =
+                 copy_ast_replacing(new_impl, NULL, NULL, old_sanitized, mangled_struct_name);
+@@ -919,7 +919,7 @@ void instantiate_generic(ParserContext *ctx, const char *tpl, const char *arg,
+     Instantiation *c = ctx->instantiations;
+     while (c)
+     {
+-        if (strcmp(c->name, m) == 0)
++        if ((c->name[0] == m[0] && strcmp(c->name, m) == 0))
+         {
+             zfree(m);
+             return; // Already instantiated, DO NOTHING.
+@@ -930,7 +930,7 @@ void instantiate_generic(ParserContext *ctx, const char *tpl, const char *arg,
+     GenericTemplate *t = ctx->templates;
+     while (t)
+     {
+-        if (strcmp(t->name, tpl) == 0)
++        if ((t->name[0] == tpl[0] && strcmp(t->name, tpl) == 0))
+         {
+             break;
+         }
+@@ -1060,7 +1060,7 @@ void instantiate_generic(ParserContext *ctx, const char *tpl, const char *arg,
+     GenericImplTemplate *it = ctx->impl_templates;
+     while (it)
+     {
+-        if (strcmp(it->struct_name, tpl) == 0)
++        if ((it->struct_name[0] == tpl[0] && strcmp(it->struct_name, tpl) == 0))
+         {
+             instantiate_methods(ctx, it, m, arg, unmangled_arg);
+         }
+@@ -1117,7 +1117,7 @@ void instantiate_generic_multi(ParserContext *ctx, const char *tpl, char **args,
+     Instantiation *c = ctx->instantiations;
+     while (c)
+     {
+-        if (strcmp(c->name, m) == 0)
++        if ((c->name[0] == m[0] && strcmp(c->name, m) == 0))
+         {
+             zfree(m);
+             return; // Already done
+@@ -1129,7 +1129,7 @@ void instantiate_generic_multi(ParserContext *ctx, const char *tpl, char **args,
+     GenericTemplate *t = ctx->templates;
+     while (t)
+     {
+-        if (strcmp(t->name, tpl) == 0)
++        if ((t->name[0] == tpl[0] && strcmp(t->name, tpl) == 0))
+         {
+             break;
+         }
+diff --git a/src/parser/utils/utils_template_replace.c b/src/parser/utils/utils_template_replace.c
+index 79dae8a..cabdf47 100644
+--- a/src/parser/utils/utils_template_replace.c
++++ b/src/parser/utils/utils_template_replace.c
+@@ -278,7 +278,7 @@ char *replace_type_str(const char *src, const char *param, const char *concrete,
+     }
+
+     // 1. Exact match (base case)
+-    if (strcmp(src, param) == 0)
++    if ((src[0] == param[0] && strcmp(src, param) == 0))
+     {
+         return xstrdup(concrete);
+     }
+@@ -596,7 +596,7 @@ Type *replace_type_formal(Type *t, const char *p, const char *c, const char *os,
+                 }
+             }
+         }
+-        else if (p && strcmp(t->name, p) == 0)
++        else if (p && (t->name[0] == p[0] && strcmp(t->name, p) == 0))
+         {
+             return type_from_string_helper(c);
+         }
+@@ -607,7 +607,7 @@ Type *replace_type_formal(Type *t, const char *p, const char *c, const char *os,
+
+     if (t->name)
+     {
+-        if (os && ns && strcmp(t->name, os) == 0)
++        if (os && ns && (t->name[0] == os[0] && strcmp(t->name, os) == 0))
+         {
+             n->name = xstrdup(ns);
+             n->kind = TYPE_STRUCT;
+diff --git a/src/parser/utils/utils_token.c b/src/parser/utils/utils_token.c
+index 06eadfa..2d9bf7b 100644
+--- a/src/parser/utils/utils_token.c
++++ b/src/parser/utils/utils_token.c
+@@ -324,7 +324,7 @@ int is_c_reserved_word(const char *name)
+ {
+     for (int i = 0; C_RESERVED_WORDS[i] != NULL; i++)
+     {
+-        if (strcmp(name, C_RESERVED_WORDS[i]) == 0)
++        if ((name[0] == C_RESERVED_WORDS[i][0] && strcmp(name, C_RESERVED_WORDS[i]) == 0))
+         {
+             return 1;
+         }
+diff --git a/src/parser/utils/utils_validation.c b/src/parser/utils/utils_validation.c
+index e0bf1fd..35c5aa9 100644
+--- a/src/parser/utils/utils_validation.c
++++ b/src/parser/utils/utils_validation.c
+@@ -46,7 +46,7 @@ int validate_types(ParserContext *ctx)
+                             char **ptr = ctx->config->c_type_whitelist;
+                             while (*ptr)
+                             {
+-                                if (strcmp(u->name, *ptr) == 0)
++                                if ((u->name[0] == *ptr[0] && strcmp(u->name, *ptr) == 0))
+                                 {
+                                     whitelisted = 1;
+                                     break;
+diff --git a/src/platform/misra.c b/src/platform/misra.c
+index ddf11b1..4f08071 100644
+--- a/src/platform/misra.c
++++ b/src/platform/misra.c
+@@ -657,7 +657,7 @@ void misra_check_param_modified(ASTNode *current_func, ASTNode *left, Token toke
+     const char *name = left->var_ref.name;
+     for (int i = 0; i < current_func->func.arg_count; i++)
+     {
+-        if (strcmp(current_func->func.param_names[i], name) == 0)
++        if ((current_func->func.param_names[i][0] == name[0] && strcmp(current_func->func.param_names[i], name) == 0))
+         {
+             zerror_at(token, "MISRA Rule 17.8");
+             return;
+@@ -1107,13 +1107,13 @@ void misra_audit_identifier_uniqueness(ParserContext *ctx)
+             if (linkage1 == 1 && linkage2 == 1)
+             {
+                 // Check exact name collision
+-                if (strcmp(s1->name, s2->name) == 0)
++                if ((s1->name[0] == s2->name[0] && strcmp(s1->name, s2->name) == 0))
+                 {
+                     zerror_at(s2->decl_token, "MISRA Rule 5.8");
+                 }
+                 // Check @link_name collision specifically
+                 else if (s1->link_name && s2->link_name &&
+-                         strcmp(s1->link_name, s2->link_name) == 0)
++                         (s1->link_name[0] == s2->link_name[0] && strcmp(s1->link_name, s2->link_name) == 0))
+                 {
+                     zerror_at(s2->decl_token, "MISRA Rule 5.8");
+                 }
+@@ -1121,7 +1121,7 @@ void misra_audit_identifier_uniqueness(ParserContext *ctx)
+             // Rule 5.9: Internal identifiers should be unique (Advisory)
+             else if (linkage1 == 2 && linkage2 == 2)
+             {
+-                if (strcmp(s1->name, s2->name) == 0)
++                if ((s1->name[0] == s2->name[0] && strcmp(s1->name, s2->name) == 0))
+                 {
+                     zerror_at(s2->decl_token, "MISRA Rule 5.9");
+                 }
+@@ -1219,7 +1219,7 @@ void misra_check_preprocessor_expression_parser(struct ParserContext *ctx, Token
+         // 1. Check CLI defines
+         for (size_t i = 0; i < ctx->config->cfg_defines.length; i++)
+         {
+-            if (strcmp(ctx->config->cfg_defines.data[i], name) == 0)
++            if ((ctx->config->cfg_defines.data[i][0] == name[0] && strcmp(ctx->config->cfg_defines.data[i], name) == 0))
+             {
+                 is_defined = 1;
+                 break;
+@@ -1448,7 +1448,7 @@ void misra_check_standard_macro_name(Token tok, const char *name)
+
+     for (int i = 0; STANDARD_MACRO_NAMES[i] != NULL; i++)
+     {
+-        if (strcmp(name, STANDARD_MACRO_NAMES[i]) == 0)
++        if ((name[0] == STANDARD_MACRO_NAMES[i][0] && strcmp(name, STANDARD_MACRO_NAMES[i]) == 0))
+         {
+             char msg[256];
+             snprintf(msg, sizeof(msg),
+@@ -1512,7 +1512,7 @@ void misra_check_banned_function(struct ParserContext *ctx, const char *name, To
+
+     for (int i = 0; banned_funcs[i].name != NULL; i++)
+     {
+-        if (strcmp(name, banned_funcs[i].name) == 0)
++        if ((name[0] == banned_funcs[i].name[0] && strcmp(name, banned_funcs[i].name) == 0))
+         {
+             char msg[128];
+             snprintf(msg, sizeof(msg), "MISRA %s: Use of banned standard library function '%s'",
+@@ -1599,12 +1599,12 @@ void misra_check_typographic_ambiguity(struct ParserContext *ctx, const char *ne
+         while (sym)
+         {
+             // Do not compare against itself (though initially it shouldn't be listed yet)
+-            if (sym->name && strcmp(sym->name, new_name) != 0)
++            if (sym->name && (sym->name[0] == new_name[0] && strcmp(sym->name, new_name) != 0))
+             {
+                 char exist_canon[256];
+                 canonicalize_ambiguous_chars(sym->name, exist_canon, sizeof(exist_canon));
+
+-                if (strcmp(new_canon, exist_canon) == 0)
++                if ((new_canon[0] == exist_canon[0] && strcmp(new_canon, exist_canon) == 0))
+                 {
+                     char msg[512];
+                     snprintf(
+@@ -1640,7 +1640,7 @@ void misra_check_tuple_size(struct ParserContext *ctx, struct Type *t, Token tok
+         char expected[1024];
+         snprintf(expected, sizeof(expected), "Tuple__%s", clean_sig);
+         zfree(clean_sig);
+-        if (strcmp(t->name, expected) == 0)
++        if ((t->name[0] == expected[0] && strcmp(t->name, expected) == 0))
+         {
+             if (tup->count >= 3)
+             {
+diff --git a/src/plugins/plugin_manager.c b/src/plugins/plugin_manager.c
+index 61723b7..35c0523 100644
+--- a/src/plugins/plugin_manager.c
++++ b/src/plugins/plugin_manager.c
+@@ -195,7 +195,7 @@ ZPlugin *zptr_find_plugin(const char *name)
+     PluginNode *curr = head;
+     while (curr)
+     {
+-        if (strcmp(curr->plugin->name, name) == 0)
++        if ((curr->plugin->name[0] == name[0] && strcmp(curr->plugin->name, name) == 0))
+         {
+             return curr->plugin;
+         }
+@@ -237,7 +237,7 @@ int zptr_unload_plugin(const char *name)
+
+     while (curr)
+     {
+-        if (strcmp(curr->plugin->name, name) == 0)
++        if ((curr->plugin->name[0] == name[0] && strcmp(curr->plugin->name, name) == 0))
+         {
+             if (prev)
+             {
+diff --git a/src/repl/repl_eval.c b/src/repl/repl_eval.c
+index ba33e49..e3bf817 100644
+--- a/src/repl/repl_eval.c
++++ b/src/repl/repl_eval.c
+@@ -273,7 +273,7 @@ const ReplDoc *repl_find_doc(ReplState *state, const char *name)
+     }
+     for (int i = 0; i < state->doc_count; i++)
+     {
+-        if (state->docs[i].name && strcmp(name, state->docs[i].name) == 0)
++        if (state->docs[i].name && (name[0] == state->docs[i].name[0] && strcmp(name, state->docs[i].name) == 0))
+         {
+             return &state->docs[i];
+         }
+@@ -289,7 +289,7 @@ static void repl_add_symbol(ReplState *state, const char *name)
+     }
+     for (int i = 0; i < state->symbol_count; i++)
+     {
+-        if (strcmp(state->symbols[i], name) == 0)
++        if ((state->symbols[i][0] == name[0] && strcmp(state->symbols[i], name) == 0))
+         {
+             return;
+         }
+diff --git a/src/repl/repl_highlight.c b/src/repl/repl_highlight.c
+index d2ef69a..a9c3a64 100644
+--- a/src/repl/repl_highlight.c
++++ b/src/repl/repl_highlight.c
+@@ -293,7 +293,7 @@ void repl_highlight(const char *buf, int cursor_pos)
+                 int is_keyword = 0;
+                 for (int i = 0; REPL_KEYWORDS[i]; i++)
+                 {
+-                    if (strcmp(word, REPL_KEYWORDS[i]) == 0)
++                    if ((word[0] == REPL_KEYWORDS[i][0] && strcmp(word, REPL_KEYWORDS[i]) == 0))
+                     {
+                         is_keyword = 1;
+                         break;
+@@ -305,7 +305,7 @@ void repl_highlight(const char *buf, int cursor_pos)
+                 {
+                     for (int i = 0; REPL_TYPES[i]; i++)
+                     {
+-                        if (strcmp(word, REPL_TYPES[i]) == 0)
++                        if ((word[0] == REPL_TYPES[i][0] && strcmp(word, REPL_TYPES[i]) == 0))
+                         {
+                             is_type = 1;
+                             break;

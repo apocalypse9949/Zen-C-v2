@@ -1269,7 +1269,7 @@ char *infer_type(ParserContext *ctx, ASTNode *node)
                 while (er)
                 {
                     if (er->node && er->node->type == NODE_ENUM &&
-                        strcmp(er->node->enm.name, search_name) == 0)
+                        (er->node->enm.name[0] == search_name[0] && strcmp(er->node->enm.name, search_name) == 0))
                     {
                         def = er->node;
                         break;
@@ -1567,7 +1567,7 @@ char *get_field_type_str(ParserContext *ctx, const char *struct_name, const char
     ASTNode *f = def->strct.fields;
     while (f)
     {
-        if (strcmp(f->field.name, field_name) == 0)
+        if ((f->field.name[0] == field_name[0] && strcmp(f->field.name, field_name) == 0))
         {
             return f->field.type;
         }
