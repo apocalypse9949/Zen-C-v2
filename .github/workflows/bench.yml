@@ -31,8 +31,6 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         # Try to fetch gh-pages; if it doesn't exist on remote, create it locally as an orphan
-        git fetch origin gh-pages || git checkout --orphan gh-pages
-        git checkout main
 
     - name: Store Benchmark Results
       uses: benchmark-action/github-action-benchmark@v1
@@ -43,6 +41,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         # Only push on main branch
         auto-push: ${{ github.ref == 'refs/heads/main' }}
+        skip-fetch-gh-pages: true
         # Show alert if performance regresses by 20%
         alert-threshold: '120%'
         comment-on-alert: true
