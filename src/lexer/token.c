@@ -14,7 +14,8 @@ void lexer_init(Lexer *l, const char *src, CompilerConfig *cfg, const char *file
 }
 
 static const unsigned char ident_map[256] = {
-    ['a' ... 'z'] = 1, ['A' ... 'Z'] = 1, ['0' ... '9'] = 2, ['_'] = 3};
+    ['a'...'z'] = 1, ['A'...'Z'] = 1, ['0'...'9'] = 2, ['_'] = 3
+};
 
 static __attribute__((unused)) inline int is_ident_start(char c)
 {
@@ -225,7 +226,7 @@ Token lexer_next(Lexer *l)
     if (is_ident_start(*s))
     {
         int len = 0;
-        while (is_ident_char(s[len]))
+        while (s[len] && is_ident_char(s[len]))
         {
             len++;
         }
@@ -233,114 +234,41 @@ Token lexer_next(Lexer *l)
         l->pos += len;
         l->col += len;
 
-        switch (len)
+                switch (len)
         {
         case 2:
-            if (s[0] == 'd' && s[1] == 'o')
-            {
-                return (Token){TOK_DO, s, 2, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'o' && s[1] == 'r')
-            {
-                return (Token){TOK_OR, s, 2, start_line, start_col, l->filename};
-            }
+            if (s[0] == 'd' && s[1] == 'o') return (Token){TOK_DO, s, 2, start_line, start_col, l->filename};
+            if (s[0] == 'o' && s[1] == 'r') return (Token){TOK_OR, s, 2, start_line, start_col, l->filename};
             break;
         case 3:
-            if (s[0] == 'a' && s[1] == 'n' && s[2] == 'd')
-            {
-                return (Token){TOK_AND, s, 3, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'a' && s[1] == 's' && s[2] == 'm')
-            {
-                return (Token){TOK_ASM, s, 3, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'd' && s[1] == 'e' && s[2] == 'f')
-            {
-                return (Token){TOK_DEF, s, 3, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'n' && s[1] == 'o' && s[2] == 't')
-            {
-                return (Token){TOK_NOT, s, 3, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'u' && s[1] == 's' && s[2] == 'e')
-            {
-                return (Token){TOK_USE, s, 3, start_line, start_col, l->filename};
-            }
+            if (s[0] == 'a' && s[1] == 'n' && s[2] == 'd') return (Token){TOK_AND, s, 3, start_line, start_col, l->filename};
+            if (s[0] == 'a' && s[1] == 's' && s[2] == 'm') return (Token){TOK_ASM, s, 3, start_line, start_col, l->filename};
+            if (s[0] == 'd' && s[1] == 'e' && s[2] == 'f') return (Token){TOK_DEF, s, 3, start_line, start_col, l->filename};
+            if (s[0] == 'n' && s[1] == 'o' && s[2] == 't') return (Token){TOK_NOT, s, 3, start_line, start_col, l->filename};
+            if (s[0] == 'u' && s[1] == 's' && s[2] == 'e') return (Token){TOK_USE, s, 3, start_line, start_col, l->filename};
             break;
         case 4:
-            if (s[0] == 'i' && s[1] == 'm' && s[2] == 'p' && s[3] == 'l')
-            {
-                return (Token){TOK_IMPL, s, 4, start_line, start_col, l->filename};
-            }
-            if (s[0] == 't' && s[1] == 'e' && s[2] == 's' && s[3] == 't')
-            {
-                return (Token){TOK_TEST, s, 4, start_line, start_col, l->filename};
-            }
+            if (s[0] == 'i' && s[1] == 'm' && s[2] == 'p' && s[3] == 'l') return (Token){TOK_IMPL, s, 4, start_line, start_col, l->filename};
+            if (s[0] == 't' && s[1] == 'e' && s[2] == 's' && s[3] == 't') return (Token){TOK_TEST, s, 4, start_line, start_col, l->filename};
             break;
         case 5:
-            if (s[0] == 'a' && s[1] == 'l' && s[2] == 'i' && s[3] == 'a' && s[4] == 's')
-            {
-                return (Token){TOK_ALIAS, s, 5, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'a' && s[1] == 's' && s[2] == 'y' && s[3] == 'n' && s[4] == 'c')
-            {
-                return (Token){TOK_ASYNC, s, 5, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'a' && s[1] == 'w' && s[2] == 'a' && s[3] == 'i' && s[4] == 't')
-            {
-                return (Token){TOK_AWAIT, s, 5, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'd' && s[1] == 'e' && s[2] == 'f' && s[3] == 'e' && s[4] == 'r')
-            {
-                return (Token){TOK_DEFER, s, 5, start_line, start_col, l->filename};
-            }
-            if (s[0] == 't' && s[1] == 'r' && s[2] == 'a' && s[3] == 'i' && s[4] == 't')
-            {
-                return (Token){TOK_TRAIT, s, 5, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'u' && s[1] == 'n' && s[2] == 'i' && s[3] == 'o' && s[4] == 'n')
-            {
-                return (Token){TOK_UNION, s, 5, start_line, start_col, l->filename};
-            }
+            if (s[0] == 'a' && s[1] == 'l' && s[2] == 'i' && s[3] == 'a' && s[4] == 's') return (Token){TOK_ALIAS, s, 5, start_line, start_col, l->filename};
+            if (s[0] == 'a' && s[1] == 's' && s[2] == 'y' && s[3] == 'n' && s[4] == 'c') return (Token){TOK_ASYNC, s, 5, start_line, start_col, l->filename};
+            if (s[0] == 'a' && s[1] == 'w' && s[2] == 'a' && s[3] == 'i' && s[4] == 't') return (Token){TOK_AWAIT, s, 5, start_line, start_col, l->filename};
+            if (s[0] == 'd' && s[1] == 'e' && s[2] == 'f' && s[3] == 'e' && s[4] == 'r') return (Token){TOK_DEFER, s, 5, start_line, start_col, l->filename};
+            if (s[0] == 't' && s[1] == 'r' && s[2] == 'a' && s[3] == 'i' && s[4] == 't') return (Token){TOK_TRAIT, s, 5, start_line, start_col, l->filename};
+            if (s[0] == 'u' && s[1] == 'n' && s[2] == 'i' && s[3] == 'o' && s[4] == 'n') return (Token){TOK_UNION, s, 5, start_line, start_col, l->filename};
             break;
         case 6:
-            if (s[0] == 'a' && s[1] == 's' && s[2] == 's' && s[3] == 'e' && s[4] == 'r' &&
-                s[5] == 't')
-            {
-                return (Token){TOK_ASSERT, s, 6, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'e' && s[1] == 'x' && s[2] == 'p' && s[3] == 'e' && s[4] == 'c' &&
-                s[5] == 't')
-            {
-                return (Token){TOK_EXPECT, s, 6, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'o' && s[1] == 'p' && s[2] == 'a' && s[3] == 'q' && s[4] == 'u' &&
-                s[5] == 'e')
-            {
-                return (Token){TOK_OPAQUE, s, 6, start_line, start_col, l->filename};
-            }
-            if (s[0] == 's' && s[1] == 'i' && s[2] == 'z' && s[3] == 'e' && s[4] == 'o' &&
-                s[5] == 'f')
-            {
-                return (Token){TOK_SIZEOF, s, 6, start_line, start_col, l->filename};
-            }
+            if (s[0] == 'a' && s[1] == 's' && s[2] == 's' && s[3] == 'e' && s[4] == 'r' && s[5] == 't') return (Token){TOK_ASSERT, s, 6, start_line, start_col, l->filename};
+            if (s[0] == 'e' && s[1] == 'x' && s[2] == 'p' && s[3] == 'e' && s[4] == 'c' && s[5] == 't') return (Token){TOK_EXPECT, s, 6, start_line, start_col, l->filename};
+            if (s[0] == 'o' && s[1] == 'p' && s[2] == 'a' && s[3] == 'q' && s[4] == 'u' && s[5] == 'e') return (Token){TOK_OPAQUE, s, 6, start_line, start_col, l->filename};
+            if (s[0] == 's' && s[1] == 'i' && s[2] == 'z' && s[3] == 'e' && s[4] == 'o' && s[5] == 'f') return (Token){TOK_SIZEOF, s, 6, start_line, start_col, l->filename};
             break;
         case 8:
-            if (s[0] == 'a' && s[1] == 'u' && s[2] == 't' && s[3] == 'o' && s[4] == 'f' &&
-                s[5] == 'r' && s[6] == 'e' && s[7] == 'e')
-            {
-                return (Token){TOK_AUTOFREE, s, 8, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'c' && s[1] == 'o' && s[2] == 'm' && s[3] == 'p' && s[4] == 't' &&
-                s[5] == 'i' && s[6] == 'm' && s[7] == 'e')
-            {
-                return (Token){TOK_COMPTIME, s, 8, start_line, start_col, l->filename};
-            }
-            if (s[0] == 'v' && s[1] == 'o' && s[2] == 'l' && s[3] == 'a' && s[4] == 't' &&
-                s[5] == 'i' && s[6] == 'l' && s[7] == 'e')
-            {
-                return (Token){TOK_VOLATILE, s, 8, start_line, start_col, l->filename};
-            }
+            if (s[0] == 'a' && s[1] == 'u' && s[2] == 't' && s[3] == 'o' && s[4] == 'f' && s[5] == 'r' && s[6] == 'e' && s[7] == 'e') return (Token){TOK_AUTOFREE, s, 8, start_line, start_col, l->filename};
+            if (s[0] == 'c' && s[1] == 'o' && s[2] == 'm' && s[3] == 'p' && s[4] == 't' && s[5] == 'i' && s[6] == 'm' && s[7] == 'e') return (Token){TOK_COMPTIME, s, 8, start_line, start_col, l->filename};
+            if (s[0] == 'v' && s[1] == 'o' && s[2] == 'l' && s[3] == 'a' && s[4] == 't' && s[5] == 'i' && s[6] == 'l' && s[7] == 'e') return (Token){TOK_VOLATILE, s, 8, start_line, start_col, l->filename};
             break;
         default:
             break;
@@ -465,7 +393,7 @@ Token lexer_next(Lexer *l)
             {
                 if (is_ident_start(s[len]))
                 {
-                    while (is_ident_char(s[len]))
+                    while (s[len] && is_ident_char(s[len]))
                     {
                         len++;
                     }
@@ -478,7 +406,7 @@ Token lexer_next(Lexer *l)
 
         if (is_ident_start(s[len]))
         {
-            while (is_ident_char(s[len]))
+            while (s[len] && is_ident_char(s[len]))
             {
                 len++;
             }
