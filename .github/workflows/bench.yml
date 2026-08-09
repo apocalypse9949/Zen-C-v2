@@ -41,3 +41,4 @@ jobs:
         comment-on-alert: true
         fail-on-alert: true
         skip-fetch-gh-pages: true
+        gh-pages-branch: gh-pages
