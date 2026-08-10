@@ -599,7 +599,6 @@ ASTNode *parse_import(ParserContext *ctx, Lexer *l, int is_re_export)
     if (zmap_get(&ctx->imports.currently_parsing, fn))
     {
         zpanic_at(t, "Circular import detected: '%s'", fn);
-        return NULL;
         for (size_t _c = 0; _c < symbols.length; _c++)
         {
             zfree(symbols.data[_c]);
