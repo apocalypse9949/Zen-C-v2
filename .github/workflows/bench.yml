@@ -25,6 +25,13 @@ jobs:
     - name: Run Benchmarks
       run: ./tests/scripts/run_benchmarks.sh
 
+    - name: Ensure benchmark branch exists
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git fetch origin gh-pages:gh-pages || git branch gh-pages || git checkout --orphan gh-pages || true
+        git checkout main
+
     - name: Store Benchmark Results
       uses: benchmark-action/github-action-benchmark@v1
       with:
