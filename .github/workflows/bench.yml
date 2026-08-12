@@ -29,7 +29,7 @@ jobs:
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git fetch origin gh-pages:gh-pages || (git checkout --orphan gh-pages && git commit --allow-empty -m "init" && git checkout -)
+        git fetch origin gh-pages:gh-pages || git branch gh-pages || true
 
     - name: Store Benchmark Results
       uses: benchmark-action/github-action-benchmark@v1
