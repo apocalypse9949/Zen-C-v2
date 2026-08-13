@@ -269,7 +269,7 @@ void register_slice(ParserContext *ctx, const char *type)
 
     char legacy_name[MAX_VAR_NAME_LEN];
     snprintf(legacy_name, sizeof(legacy_name), "Slice_%s", type);
-    if (slice_name[0] == legacy_name[0] && strcmp(slice_name, legacy_name) != 0)
+    if (slice_name[0] != legacy_name[0] || strcmp(slice_name, legacy_name) != 0)
     {
         register_type_alias(ctx, legacy_name, slice_name, NULL, 0, NULL, TOKEN_UNKNOWN, 0);
     }
