@@ -47,6 +47,8 @@ jobs:
         alert-threshold: '200%'
         comment-on-alert: false
         fail-on-alert: false
+        # Ignore failure if gh-pages branch doesn't exist
+        skip-fetch-gh-pages: true
 
     - name: Check Benchmark Regressions (magnitude-aware)
       run: python3 tests/scripts/check_benchmarks.py
