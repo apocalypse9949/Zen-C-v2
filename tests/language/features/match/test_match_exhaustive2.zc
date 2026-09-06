@@ -1,0 +1,15 @@
+// test: compile-pass
+
+enum Option {
+    Some(int),
+    None
+}
+
+pub fn main() {
+    let opt = Option::Some(42);
+
+    match opt {
+        Some(x) => {}
+        None => {}
+    }
+}

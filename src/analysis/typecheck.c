@@ -289,7 +289,75 @@ void check_node(TypeChecker *tc, ASTNode *node, int depth)
                     move_state_merge_into(&merged_state, match_initial_state);
                 }
 
-                if (!tc->pctx->config->misra_mode)
+                int is_exhaustive = 0;
+                int is_enum = 0;
+
+                if (node->match_stmt.expr && node->match_stmt.expr->type_info &&
+                    node->match_stmt.expr->type_info->name)
+                {
+                    ASTNode *def =
+                        find_struct_def(tc->pctx, node->match_stmt.expr->type_info->name);
+                    if (def && def->type == NODE_ENUM)
+                    {
+                        is_enum = 1;
+                        is_exhaustive = 1;
+                        char missing_vars[1024] = {0};
+                        int missing_count = 0;
+                        ASTNode *v = def->enm.variants;
+                        while (v)
+                        {
+                            int covered = 0;
+                            ASTNode *mc = node->match_stmt.cases;
+                            while (mc)
+                            {
+                                if (mc->type == NODE_MATCH_CASE && mc->match_case.pattern)
+                                {
+                                    if (mc->match_case.pattern[0] == v->variant.name[0] &&
+                                        strcmp(mc->match_case.pattern, v->variant.name) == 0)
+                                    {
+                                        covered = 1;
+                                        break;
+                                    }
+                                }
+                                mc = mc->next;
+                            }
+                            if (!covered)
+                            {
+                                is_exhaustive = 0;
+                                size_t current_len = strlen(missing_vars);
+                                size_t name_len = strlen(v->variant.name);
+                                size_t needed = name_len + (missing_count > 0 ? 2 : 0);
+                                if (current_len + needed < sizeof(missing_vars) - 1)
+                                {
+                                    if (missing_count > 0)
+                                    {
+                                        strcat(missing_vars, ", ");
+                                    }
+                                    strcat(missing_vars, v->variant.name);
+                                }
+                                else if (current_len + 4 < sizeof(missing_vars) - 1 &&
+                                         missing_vars[current_len - 1] != '.')
+                                {
+                                    strcat(missing_vars, "...");
+                                }
+                                missing_count++;
+                            }
+                            v = v->next;
+                        }
+
+                        if (!is_exhaustive)
+                        {
+                            char err_msg[1200];
+                            snprintf(err_msg, sizeof(err_msg),
+                                     "Match is not exhaustive. Missing cases: %s", missing_vars);
+                            const char *hints[] = {
+                                "Add cases for all enum variants or use a default '_' case", NULL};
+                            tc_error_with_hints(tc, node->token, err_msg, hints);
+                        }
+                    }
+                }
+
+                if (!is_enum && !tc->pctx->config->misra_mode)
                 {
                     const char *hints[] = {"Add a default '_' case to handle all possibilities",
                                            NULL};
